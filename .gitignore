@@ -1,0 +1,41 @@
+# ===== Python 缓存 =====
+__pycache__/
+*.py[cod]
+*.pyo
+.ipynb_checkpoints/
+
+# ===== 虚拟环境 =====
+venv/
+env/
+.venv/
+anaconda3/
+.env
+*.env
+
+# ===== 大型模型 / 数据文件（需自行下载，不入库）=====
+*.pth
+*.onnx
+*.bin
+*.h5
+*.zip
+*.rar
+*.7z
+checkpoints/
+AISD/
+datasets/
+
+# ===== IDE 配置 =====
+.idea/
+.vscode/
+*.iml
+*.iws
+
+# ===== 系统文件 =====
+Thumbs.db
+.DS_Store
+
+# ===== 日志 =====
+*.log
+
+# ===== 早期实验残留（非 SAM 源码，真正的 SAM 源码在 segment-anything-main/）=====
+segment-anything/

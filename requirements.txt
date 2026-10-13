@@ -1,0 +1,22 @@
+# ============================================================
+# 依赖清单（建议在独立 conda 环境中安装，不要污染系统 Python）
+# 本项目在 Windows + Python 3.13 + torch 2.11 (CUDA 12.8) 上验证
+# ============================================================
+
+# --- 1. 深度学习框架（务必按你的 CUDA 版本安装，不要直接 pip install torch）---
+# 例：pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+torch
+torchvision
+
+# --- 2. 数值 / 图像 / 可视化 ---
+numpy
+opencv-python
+matplotlib
+
+# --- 3. segment-anything（SAM 本体）---
+# 不在 PyPI，需从项目自带源码以 editable 方式安装：
+#   pip install -e ./segment-anything-main
+# 安装后即可 `import segment_anything`
+
+# --- 4. 文档 / PPT（可选，仅 make_ppt.py 需要）---
+python-pptx

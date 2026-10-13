@@ -1,0 +1,1 @@
+boxes_tta_inter (全量51张): 0.7150
