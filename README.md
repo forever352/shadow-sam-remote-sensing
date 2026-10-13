@@ -1,11 +1,11 @@
 # 基于方向提示与 SAM 的遥感影像阴影检测
 
-> **一句话**：把阴影的物理先验（又暗、又偏蓝、方向一致）与「分割一切」大模型 SAM 结合，实现**全自动、无需人工点选**的遥感影像阴影检测。
+> **一句话**：把阴影的物理先验（又暗、又偏蓝、方向一致）与「分割一切」大模型 SAM 结合，用 **LoRA 参数高效微调**实现**全自动、无需人工点选**的遥感影像阴影检测。
 
 - 团队：ShadowHunter
 - 负责人：潘俊豪 · 指导教师：祁昆仑（副教授）
-- 数据集：[AISD](https://github.com/xw-hu/UnShadowNet)（航空影像阴影检测公开数据集）
-- 核心成果：**参数高效微调 SAM**，仅训练 4.34% 参数，把阴影检测 IoU 从 0.234 提升到 **0.717**
+- 数据集：[AISD](https://github.com/xw-hu/UnShadowNet)（航空影像阴影检测公开数据集，多尺度约 256~1688 像素）
+- 核心成果：**LoRA 微调 SAM**，仅训练约 4.8% 参数，把阴影检测 IoU 从 0.234 提升到 **0.839**，超过全监督 U-Net（0.805）和 SegNet（0.780）
 
 ---
 
@@ -16,8 +16,8 @@
 本项目的思路是「**物理先验引导 + 基础模型适配**」：
 
 1. **物理粗提取**先回答「阴影大概在哪」——利用阴影「暗、偏蓝」的光谱特性做粗分割；
-2. **自动提示生成**把粗分割结果转成 SAM 能理解的点/框提示；
-3. **参数高效微调 SAM** 让它回答「切得多准」——冻结图像编码器，只训练少量参数，让通用大模型适配遥感阴影场景。
+2. **自动提示生成**把粗分割结果转成 SAM 能理解的框提示；
+3. **LoRA 参数高效微调 SAM** 让它回答「切得多准」——在图像编码器注意力层挂 LoRA，冻结原权重、只训练少量参数，让通用大模型适配遥感阴影场景。
 
 ---
 
@@ -30,36 +30,37 @@
 ① 增强物理粗提取：CLAHE 对比度增强 → Otsu 阈值 → 形态学去噪
    │  （得到高召回率的候选阴影区域）
    ▼
-② 自动提示生成：候选区域连通域质心/包围框 → 前景点 + 背景点
+② 自动提示生成：候选区域连通域包围框 → 框提示
    │
    ▼
-③ 参数高效微调 SAM：冻结图像编码器，仅训练掩膜解码器 + 提示编码器
-   │  （4.06M 参数，仅占 93.7M 的 4.34%）
+③ LoRA 参数高效微调 SAM：图像编码器注意力层挂 LoRA（低秩适配）
+   │  + 训练掩膜解码器 + 提示编码器（共 4.51M，约 4.8% 参数）
    ▼
 输出精细阴影掩膜
 ```
 
-其中「方向先验」是项目标题的核心，当前以**手写几何规则**（`methods.py` 的 `_direction_filter`，用连通域主轴方向做一致性过滤）近似实现，**学习式的自监督方向感知网络是后续计划**（详见「已知问题」）。
+其中「方向先验」是项目标题的核心，项目系统探索了三种注入方式（几何过滤、方向点提示、方向点训练），诚实结论是方向信息在框提示框架下收益有限，需学习式估计进一步探索（详见「已知问题」）。
 
 ---
 
 ## 三、实验结果（AISD Test51 全量 51 张平均）
 
-| 方法 | IoU ↑ | BER ↓ | F1 ↑ | Precision | Recall |
-|------|------:|------:|-----:|----------:|-------:|
-| Otsu（传统阈值） | 0.424 | 0.204 | 0.581 | 0.429 | 0.979 |
-| C3I（LAB 阴影指数） | 0.162 | 0.606 | 0.211 | 0.168 | 0.296 |
-| SAM-AMG（零样本 SAM） | 0.302 | 0.343 | 0.442 | 0.705 | 0.353 |
-| 零样本 SAM + 自动提示 | 0.234 | 0.430 | 0.370 | 0.273 | 0.628 |
-| 增强预处理（Otsu+CLAHE+形态学） | 0.512 | 0.149 | 0.662 | 0.533 | 0.940 |
-| 增强 + 方向过滤（手写规则） | 0.471 | 0.201 | 0.619 | 0.550 | 0.782 |
-| **微调 SAM + 框提示（本项目方法）** | **0.717** | **0.109** | **0.833** | **0.842** | 0.833 |
+| 方法 | IoU ↑ | BER ↓ | F1 ↑ | OA | Precision | Recall |
+|------|------:|------:|-----:|-----:|----------:|-------:|
+| Otsu（传统阈值） | 0.424 | 0.204 | 0.581 | 0.693 | 0.429 | 0.979 |
+| C3I（LAB 阴影指数） | 0.162 | 0.606 | 0.211 | 0.447 | 0.168 | 0.296 |
+| SAM-AMG（零样本 SAM） | 0.302 | 0.343 | 0.442 | 0.815 | 0.705 | 0.353 |
+| 增强预处理（Otsu+CLAHE+形态学） | 0.512 | 0.149 | 0.662 | 0.798 | 0.533 | 0.940 |
+| 冻结编码器微调 SAM | 0.717 | 0.109 | 0.833 | — | 0.842 | 0.833 |
+| 全监督 SegNet | 0.780 | 0.086 | 0.875 | 0.948 | 0.902 | 0.854 |
+| 全监督 U-Net | 0.805 | 0.066 | 0.891 | 0.953 | 0.891 | 0.898 |
+| **LoRA 微调 SAM（本项目方法）** | **0.839** | **0.050** | **0.912** | **0.961** | **0.895** | **0.932** |
 
 **核心结论**：
 
-1. **参数高效微调是最有效的成果**：在完全相同的自动提示下，微调后的 SAM 把 IoU 从零样本的 0.234 提升到 0.717（+0.483），BER 从 0.430 降到 0.109，四项指标全部最优。
-2. **增强物理预处理稳定有效**：CLAHE + 形态学让传统 Otsu 的 IoU 从 0.424 提升到 0.512。
-3. **手写方向过滤存在权衡**：提升 Precision 但损失 Recall，净 IoU 略降，说明方向应当用学习式方法估计（后续工作）。
+1. **LoRA 参数高效微调是最核心的成果**：零样本 SAM 只有 0.234 → 冻结编码器微调 0.717（+0.48）→ LoRA 微调 **0.839**（累计 +0.605），并**超过全监督 U-Net 和 SegNet**。BER 降至 0.050，几乎精确命中申报书"BER<5%"目标。
+2. **接近监督 SOTA**：当前监督 SOTA（SARU，2026 ISPRS）在 AISD 上 IoU 为 0.864，本项目 0.839 已接近，且本项目 BER（0.050）优于 SARU（其论文自认 AISD 上 BER 非最佳）。
+3. **方向先验的诚实结论**：方向提示优于无方向提示（+0.024），但不如框提示，说明方向需学习式估计（后续工作）。
 
 ---
 
@@ -98,38 +99,36 @@ pip install python-pptx
 
 ## 五、快速开始
 
-> 所有脚本都用 `Path(__file__).resolve().parent` 定位项目根目录，因此**从任意目录运行都不会找不到权重**（前提是脚本路径正确）。下面统一假设你在项目根目录（内层 `RemoteSensing-Shadow-SAM-main`）下。
+> 所有脚本都用 `Path(__file__).resolve().parent` 定位项目根目录，因此**从任意目录运行都不会找不到权重**。下面统一假设你在项目根目录（内层 `RemoteSensing-Shadow-SAM-main`）下。
 
-### 5.1 单张影像演示（微调模型）
+### 5.1 单张影像演示（LoRA 微调模型，默认）
 
 ```bash
-python demo.py                       # 检测默认测试图 austin13_sub2.tif
-python demo.py 你的图片路径          # 检测任意图片，输出 demo_result.png
+python demo.py                       # 检测默认测试图，输出 demo_result.png
+python demo.py --image 你的图片路径  # 检测任意图片
+python demo.py --checkpoint checkpoints/sam_vit_b_shadow_v2.pth   # 回退到冻结编码器版
 ```
 
 ### 5.2 微调模型全量评估（Test51）
 
 ```bash
-python evaluate_finetuned.py --checkpoint checkpoints/sam_vit_b_shadow_v2.pth   # 点提示
-python final_eval.py                                                            # 框提示（0.717 结果）
+python evaluate_lora.py              # LoRA 微调模型，完整六项指标（IoU 0.839 / BER 0.050）
+python final_eval.py                 # 冻结编码器版框提示（0.717）
 ```
 
 ### 5.3 传统 / 零样本方法批量对比
 
 ```bash
-python run_experiment.py             # 5 种方法全量对比，输出 results/summary.csv
+python run_experiment.py             # 多种方法全量对比，输出 results/summary.csv
 ```
 
-### 5.4 提示策略对比（点/框/TTA/迭代）
+### 5.4 重新训练
 
 ```bash
-python prompt_experiment.py          # 对比不同推理策略的 IoU
-```
-
-### 5.5 重新训练（微调 SAM）
-
-```bash
-python train_adapter_v2.py           # 150 epoch，RTX 4060 约 6 小时
+python train_adapter_v4.py           # LoRA 微调（核心方法，AMP + resume 续训）
+python train_adapter_v2.py           # 冻结编码器微调（对比基线）
+python train_unet.py                 # U-Net 基线
+python train_segnet.py               # SegNet 基线
 ```
 
 ---
@@ -140,40 +139,45 @@ python train_adapter_v2.py           # 150 epoch，RTX 4060 约 6 小时
 RemoteSensing-Shadow-SAM-main/
 ├── methods.py                 # 5 种阴影检测方法（Otsu/C3I/SAM-AMG/Enhanced/Ours）
 ├── eval_shadow.py             # 指标计算（IoU/BER/F1/OA/Precision/Recall）
-├── evaluate_finetuned.py      # 微调模型评估（点提示）
-├── final_eval.py              # 微调模型评估（框提示，最终结果）
+├── evaluate_lora.py           # LoRA 微调模型评估（最终结果 0.839）
+├── evaluate_finetuned.py      # 冻结编码器版评估（点提示）
+├── final_eval.py              # 冻结编码器版评估（框提示）
+├── direction_experiment.py    # 方向提示消融实验
 ├── prompt_experiment.py       # 提示策略对比实验
 ├── run_experiment.py          # 批量方法对比，输出 summary.csv
-├── train_adapter.py           # 微调脚本 v1（30 epoch）
-├── train_adapter_v2.py        # 微调脚本 v2（150 epoch，最终版）
-├── demo.py                    # 单图演示
+├── train_adapter_v4.py        # LoRA 微调（核心，AMP + resume）
+├── train_adapter_v2.py        # 冻结编码器微调（对比基线）
+├── train_unet.py              # U-Net 基线训练
+├── train_segnet.py            # SegNet 基线训练
+├── demo.py                    # 单图演示（支持 --checkpoint 切换权重）
 ├── visualize.py               # 生成对比可视化图
 ├── interactive_sam.py         # 交互式分割 Demo（鼠标点选）
-├── shadow_pipeline.py         # 早期单图流水线 Demo
-├── c3i_analyzer.py            # 早期 C3I 阴影指数实验
 ├── boxes_tta_full.py          # 框提示 + TTA 测试
 ├── metrics_chart.py           # 生成指标柱状图
 ├── make_ppt.py                # 生成结题答辩 PPT
 ├── env_setup.py               # Windows torch DLL 修复（勿删）
 ├── requirements.txt           # 依赖清单
+├── legacy/                    # 早期/弃用脚本（v1、方向训练失败版等）
 │
 ├── checkpoints/               # 模型权重
-│   ├── sam_vit_b_01ec64.pth           # 官方 SAM ViT-B 权重
-│   └── sam_vit_b_shadow_v2.pth        # 微调后权重（核心成果）
+│   ├── sam_vit_b_01ec64.pth               # 官方 SAM ViT-B 权重
+│   ├── sam_vit_b_shadow_v2.pth            # 冻结编码器微调权重（0.717）
+│   ├── sam_vit_b_shadow_v4_lora_last.pth  # LoRA 微调权重（0.839，核心成果）
+│   ├── unet_shadow.pth                    # U-Net 权重
+│   └── segnet_shadow.pth                  # SegNet 权重
 ├── AISD/                      # 数据集（Train412/Val51/Test51）
 ├── results/                   # 实验结果（summary.csv / per_image.csv / figures/）
-│
 └── segment-anything-main/     # SAM 官方源码（pip install -e 安装这个目录）
 ```
 
-> 注：内层还有一个 `segment-anything/` 目录，是早期实验残留（`GPU_text.py`、`test_sam.py` 等），**不是** SAM 源码，可忽略。
+> 注：内层还有一个 `segment-anything/` 目录，是早期实验残留，**不是** SAM 源码，可忽略（已被 git 忽略）。
 
 ---
 
 ## 七、已知问题与后续计划
 
-1. **自监督方向感知网络未实现**：申报书规划的学习式方向估计（ResNet-18 自监督）尚未完成，当前方向先验为手写几何规则，效果有限。
-2. **未与 SOTA 方法对比**：尚未对比 U-Net、ShadowFormer、Mask R-CNN 等。
-3. **学术论文 / 软件著作权未产出**。
+1. **自监督方向感知网络未实现**：申报书规划的学习式方向估计（自监督网络）尚未完成。当前对方向先验的研究以手写几何规则 + 提示工程为主，结论是方向信息在框提示框架下收益有限，需学习式估计进一步探索。
+2. **学术论文 / 软件著作权未产出**：软著说明书已成稿、申请推进中；论文撰写中。
+3. **方向 Adapter 未实现**：LoRA 微调已兑现"Adapter 微调"的主体，但"方向特征 Adapter"（方向向量注入解码器）尚未实现。
 
-后续计划：实现学习式方向估计、在编码器内嵌 Adapter（参考 RSPrompter）、补充 SOTA 对比、封装为工具包 / QGIS 插件。
+后续计划：实现自监督方向估计、方向特征 Adapter、更大规模数据集验证、封装为工具包 / QGIS 插件。
