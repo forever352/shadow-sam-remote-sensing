@@ -5,6 +5,7 @@
     python demo.py 图片路径            # 检测任意图片
 """
 import sys
+import argparse
 from pathlib import Path
 
 import env_setup  # 必须在 import torch 之前
@@ -19,15 +20,33 @@ from methods import mask_enhanced
 BASE = Path(__file__).resolve().parent
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 DEFAULT_IMG = BASE / "AISD" / "AISD" / "Test51" / "shadow" / "austin13_sub2.tif"
+DEFAULT_CKPT = str(BASE / "checkpoints" / "sam_vit_b_shadow_v4_lora.pth")
+OFFICIAL_CKPT = str(BASE / "checkpoints" / "sam_vit_b_01ec64.pth")
+
+
+def load_sam(ckpt_path):
+    """加载模型，自动判断是否为 LoRA 权重（文件名含 lora）。"""
+    sam = sam_model_registry["vit_b"](checkpoint=OFFICIAL_CKPT)
+    if "lora" in ckpt_path:
+        from train_adapter_v4 import apply_lora
+        apply_lora(sam)
+    sam.load_state_dict(torch.load(ckpt_path, map_location=DEVICE))
+    sam.to(DEVICE)
+    sam.eval()
+    return sam
 
 
 def main():
-    img_path = sys.argv[1] if len(sys.argv) > 1 else str(DEFAULT_IMG)
-    ckpt = str(BASE / "checkpoints" / "sam_vit_b_shadow_v2.pth")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--image", default=str(DEFAULT_IMG), help="图片路径")
+    parser.add_argument("--checkpoint", default=DEFAULT_CKPT, help="模型权重（默认 LoRA 0.8393）")
+    args = parser.parse_args()
 
-    print(f"加载微调模型 ({DEVICE})...")
-    sam = sam_model_registry["vit_b"](checkpoint=ckpt).to(DEVICE)
-    sam.eval()
+    img_path = args.image
+    ckpt = args.checkpoint
+
+    print(f"加载微调模型 ({DEVICE})... {ckpt}")
+    sam = load_sam(ckpt)
 
     img_bgr = cv2.imread(img_path)
     if img_bgr is None:
