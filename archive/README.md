@@ -20,6 +20,24 @@
 | `boxes_tta_full.py`、`interactive_sam.py`、`demo_result.png` | `README.md` 的目录结构说明 |
 | `test_image.jpg` | `demo.py` 的默认输入图 |
 
+## 2026-10-16 追加归档（会话收尾清理）
+
+| 子目录 | 文件 | 为什么归档 |
+|---|---|---|
+| `old_results/` | `cross_rsisd_test200_smoke*.csv` | G 阶段**冒烟**（10 张）产物；无结果引用 |
+| `old_results/` | `maskrcnn_leakfree_smoke_res800*.csv`（3 个） | Mask R-CNN@800 的**冒烟**产物；无引用 |
+| `old_results/` | `summary.csv`、`per_image.csv` | **2026-10-11 的旧 run**（`Ours=0.4708`），不含 LoRA。**留着危险**——文件名像结果，易被误引（记忆 `experiment-results` 早已标注其"陈旧、不能当证据"） |
+| `old_results/` | `metrics_bar.png` | **陈旧图**：用的还是旧数字（U-Net 0.741 等）。由 `metrics_chart.py` 可重新生成；**现图不能进材料** |
+| `f3_cut_20261016/` | F3（IoU+Boundary 损失）三个实现文件 + README | 方案过审（第十九轮，6 条必改）但**人类决定不做**。**含一个语法错误的脚本**（README 已注明不可运行、含重启须落实的 6 条） |
+| `reference_docs/` | `_application_form.txt` | **原始 XML 转储**（不可读）；同样的内容已有干净抽取版在外层 |
+
+## 2026-10-16 另外**删除**（不是归档）
+
+- `__pycache__/`（可再生）
+- `.idea/`（IDE 配置，零价值）
+- `backups/unet_shadow_leakfree_epoch50interrupted.pth`（**119 MB**）—— 中断的 50 轮 U-Net 权重，已被完整 60 轮版取代。**其数字仍完整保留**在同目录的两个 `*_epoch50interrupted.csv` 里（那是"旧 0.7414"说法的证据来源）。
+  ⚠️ **它正是"新均值配旧标准差"事故的来源**：报告用了它的 std(0.1069) 配新均值(0.7525)。
+
 ## 另删除
 
 - `__pycache__/`（Python 字节码缓存，可再生）
