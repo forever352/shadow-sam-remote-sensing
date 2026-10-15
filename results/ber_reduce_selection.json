@@ -1,0 +1,89 @@
+{
+  "configs": [
+    {
+      "code": "V0",
+      "min_area": 300,
+      "dilate": 0.0
+    },
+    {
+      "code": "D2",
+      "min_area": 300,
+      "dilate": 0.02
+    },
+    {
+      "code": "D5",
+      "min_area": 300,
+      "dilate": 0.05
+    },
+    {
+      "code": "D10",
+      "min_area": 300,
+      "dilate": 0.1
+    },
+    {
+      "code": "M100",
+      "min_area": 100,
+      "dilate": 0.0
+    }
+  ],
+  "rule": "val IoU>=V0-0.01 & min val BER & paired |t|>2.0",
+  "seed": 0,
+  "single_seed": true,
+  "ts": "20261016_015702",
+  "gate_repro_max_dev": 4.85621325721497e-07,
+  "val_baseline": {
+    "IoU": 0.812812,
+    "BER": 0.060884,
+    "F1": 0.895538,
+    "OA": 0.955222,
+    "Precision": 0.880868,
+    "Recall": 0.91377,
+    "FPR": 0.035539,
+    "FNR": 0.08623
+  },
+  "val_candidates": [
+    {
+      "config": "D10",
+      "val_BER": 0.06,
+      "val_IoU": 0.818315,
+      "paired_mean_ber_gain": 0.000884,
+      "paired_t": 1.272572,
+      "win": 28,
+      "lose": 30
+    },
+    {
+      "config": "D5",
+      "val_BER": 0.06029,
+      "val_IoU": 0.816635,
+      "paired_mean_ber_gain": 0.000595,
+      "paired_t": 1.302667,
+      "win": 27,
+      "lose": 31
+    },
+    {
+      "config": "D2",
+      "val_BER": 0.060587,
+      "val_IoU": 0.814686,
+      "paired_mean_ber_gain": 0.000298,
+      "paired_t": 1.514896,
+      "win": 28,
+      "lose": 30
+    }
+  ],
+  "chosen": null,
+  "verdict": "无候选稳健优于基线（如实报告）",
+  "test_summary": [
+    {
+      "config": "V0",
+      "IoU": 0.787821,
+      "BER": 0.064359,
+      "F1": 0.879607,
+      "OA": 0.951335,
+      "Precision": 0.85457,
+      "Recall": 0.911781,
+      "FPR": 0.0405,
+      "FNR": 0.088219
+    }
+  ],
+  "success_criterion_met": false
+}
