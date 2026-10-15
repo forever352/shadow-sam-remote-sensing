@@ -49,32 +49,32 @@ tasklist //FI "IMAGENAME eq python.exe" | grep -c python   # 应为 0（或只�
 tail -5 logs/queue_console.log      # 等到出现 "队列全部结束"
 ls checkpoints/direction_resnet18_flip_basis.pth    # 必须存在！
 ```
-**预期**：队列依次完成 `U-Net 官方 60轮 → SegNet 官方 60轮 → 方向网络 basis 重训`。
+**预期**：队列依次完成 `U-Net 自带 Test51 口径 60轮 → SegNet 自带 Test51 口径 60轮 → 方向网络 basis 重训`。
 
 **失败应对**：队列死了就重启（`nohup bash queue.sh > /dev/null 2>&1 &`），`_last.pth` 保证不丢进度。
 ⚠️ `direction_resnet18_flip_basis.pth` 若不存在，**B 阶段全部阻塞**——`train_direction_regress.py` 会**静默回退 ImageNet**，方向变成随机输出而日志看不出来。
 
 ### A1.5 ⚠️ 补跑缺失的最终评估（**已确认会发生**）
 
-**问题**：队列的完成判据只看 `_last.pth` 的 epoch，**不检查结果 CSV**。实测 U-Net 官方跑满 60 轮后，
+**问题**：队列的完成判据只看 `_last.pth` 的 epoch，**不检查结果 CSV**。实测自带划分的 U-Net 跑满 60 轮后，
 进程在**最终评估那一步**被 Modern Standby 静默杀掉（日志无 traceback），于是 **`results/unet_official_test.csv` 没生成**，
-而队列以为"完成了"就往下走了。**SegNet 官方大概率会重犯。**
+而队列以为"完成了"就往下走了。**自带划分的 SegNet 大概率会重犯。**
 
 **修复**（权重都在，只需重跑评估，各约 1~2 分钟）：
 ```bash
 ls results/unet_official_test.csv   || python train_cnn_leakfree.py --arch unet  --split official --evaluate
 ls results/segnet_official_test.csv || python train_cnn_leakfree.py --arch segnet --split official --evaluate
 ```
-**核对**：生成的 CSV 里 `n_images` 应为 51（官方 Test51）。
+**核对**：生成的 CSV 里 `n_images` 应为 51（AISD 自带 Test51）。
 
 **彻底修复（队列已停后可改）**：`queue.sh` 的 `done_epochs` 判据增加"结果 CSV 存在"这一条，
 否则"训练完成但评估未跑"会被误判为完成。
 
-### A2 收官方 U-Net/SegNet 新数字
+### A2 收自带划分的 U-Net/SegNet 新数字
 ```bash
 cat results/unet_official_test.csv results/segnet_official_test.csv
 ```
-**注意**：官方划分含 42/43 同源泄漏 → 只更新**附表**，标 `‡`，**禁与主表横比**。
+**注意**：AISD 自带划分含 42/43 同源泄漏 → 只更新**附表**，标 `‡`，**禁与主表横比**。
 
 ### A3 【需审查】把新数字落进对外材料
 - `结题报告.md` / `README.md` / `答辩稿.md` / `make_ppt.py` / `metrics_chart.py` / 软著说明书

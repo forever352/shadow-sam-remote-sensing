@@ -5,7 +5,7 @@
 - 数据：AISD（Train412/Val51/Test51，514 张子图，来自 105 张原始大图，多尺度 256~1688）
   + **RSISD**（跨数据集，`datasets/RSISD/`，train1000/val86/test200，二值 mask）
 - **主口径划分**：按【原始大图基名】整组重划 **68/16/21 原图 = 262/58/92 张**，三集基名交集必须为 0
-  （AISD 官方划分存在同源泄漏：Test51 与 Train412 共享 **42/43** 基名，**禁用其作干净泛化结论**）
+  （AISD AISD 自带划分存在同源泄漏：Test51 与 Train412 共享 **42/43** 基名，**禁用其作干净泛化结论**）
 - 参考论文：祁昆仑等，2025，遥感学报《基于阴影方向先验的高分辨率遥感影像地物阴影检测》
   （PDF 已存 `references/`；其 DTICT 是本项目方向1 的关键对照）
 - 核心方法：竖直翻转自监督 → DTICT（简化重构）→ 方向回归头 → 方向引导提示 → 方向特征 Adapter；下游 LoRA 微调 SAM
@@ -57,7 +57,7 @@ preflight 自检 → supervisor 审方案 → 执行 → supervisor 审结果 �
 | 3 | **零梯度死锁** | `gate=0` + 末层零初始化并存 → adapter 全部梯度恒 0 → 永不更新；"指标没变"被误读为"方向无效" | `direction_adapter.py --self-test` 的梯度自检；`train_direction_adapter.py` 首步再自检 |
 | 4 | **静默失效（规则过狠）** | 自造的 `not-dark` 光度判据杀掉 74~97% 的候选点 → 方法"看起来实现了"实则近乎失效 | 小样本冒烟必看**中间统计量**（点数、剔除数），不能只看"跑通了" |
 | 5 | **梯度排名错位** | 在全候选取 top-k，选中全是边界外点（边界梯度最高）→ 随后被 in-mask 判据全丢 | 同上：冒烟必看漏斗数字 |
-| 6 | **口径混淆** | oracle（GT 方向）混入主表；官方泄漏数当干净泛化 | oracle 方法名强制带 `(oracle-dir)`，仅"诊断/上界"节；主表一律 `(regress-dir)` |
+| 6 | **口径混淆** | oracle（GT 方向）混入主表；自带划分的泄漏数当干净泛化 | oracle 方法名强制带 `(oracle-dir)`，仅"诊断/上界"节；主表一律 `(regress-dir)` |
 | 7 | **指标口径** | 我们逐图平均(macro)，文献用全数据集汇总(micro) → 数字不可比 | 本轮**不改主口径**，只补落盘 TP/FP/FN/TN 作敏感性附录 |
 | 8 | **"完成"误判** | 队列只看 `_last.pth` 的 epoch，**不查结果文件** → 训练完成但评估被杀，误判为完成（已实测发生） | 完成判据必须含"结果 CSV 存在"；补跑 `--evaluate` |
 | 9 | **单 seed 当提升** | 两次 from-scratch 同 seed 不逐位复现（loss 从第1轮就不同）→ +0.011 落在 run 间噪声内 | **禁止**写"提升/改进"；只写"数值上高于"+ 统计限定 |
@@ -69,11 +69,18 @@ preflight 自检 → supervisor 审方案 → 执行 → supervisor 审结果 �
 
 ## 对外口径纪律（违反即审计不通过）
 
-1. 主结果 = **无泄漏划分**；官方划分数字只作"含同源泄漏"的历史对齐，**禁横比、禁作干净泛化/SOTA**
+1. 主结果 = **无泄漏划分**；AISD 自带划分数字只作"含同源泄漏"的历史对齐，**禁横比、禁作干净泛化/SOTA**
 2. 只说"**数值上高于**"；**禁止**"显著超越 / 超越全监督 / SOTA"
    须附限定：**单 seed、未做显著性检验、测试集 21 个独立场景、差值 < 逐图 std**
 3. oracle 结果**禁入主表/PPT/SOTA**
 4. **找不到证据 = 未完成**：任何数字必须有落盘日志/CSV/检查点支撑
+5. **用语纪律：禁用"官方"代指 AISD 自带的划分**（2026-10-15 起）。
+   - 该划分是**数据集随附**的，没有任何权威性，反而**天然带 42/43 同源泄漏**；
+     称它"官方"会**给它不该有的正当性**，让人误以为那是"正确/标准"口径。
+   - **正确叫法**：含泄漏的那套叫「**AISD 自带划分**（Train412/Val51/Test51）」或「**自带 Test51**」；
+     无泄漏的那套叫「**重划 68/16/21**」。首次出现时把"含同源泄漏"写在名字旁边。
+   - **例外**：指 Meta 正式发布的 SAM 权重/源码时，"官方"名副其实，可用（如"官方 SAM ViT-B 权重"）。
+   - **`review_log.md` 不改**——那是历史审计记录，回改等于篡改留痕。
 
 ---
 
@@ -101,7 +108,7 @@ preflight 自检 → supervisor 审方案 → 执行 → supervisor 审结果 �
 | 结果落盘规范 | `results/{method}_test.csv`（含 `_std` 行）+ `_test_per_image.csv` |
 | 主结果（无泄漏） | `results/lora_leakfree_test.csv` = IoU 0.787821 / BER 0.064359 |
 | CNN 无泄漏基线 | `results/{unet,segnet}_leakfree_test.csv` |
-| 官方口径（含泄漏，存档） | `results/lora_test51.csv` |
+| 自带 Test51 口径（含泄漏，存档） | `results/lora_test51.csv` |
 | 方向模块代码 | `direction_utils.py` / `direction_adapter.py` / `direction_prompt.py` / `train_direction_dtict.py` |
 | 跨数据集 | `eval_cross_dataset.py`、`datasets/RSISD/` |
 | SAM 补丁 | `segment-anything-main/.../prompt_encoder.py`（diff 存 `backups/patches/`） |

@@ -45,7 +45,7 @@
 
 ## 三、实验结果
 
-> **⚠️ 口径声明（重要）**：AISD **官方 Test51 与训练集存在同源泄漏**（Test51 的 43 个原图基名中 42 个也在 Train412），指标系统性偏高。本项目已重建评估基座：**按原始大图基名整组重划为 68/16/21 原图（262/58/92 张），三集互不重叠**，主结果以该无泄漏划分报告。
+> **⚠️ 口径声明（重要）**：AISD **AISD 自带 Test51 与训练集存在同源泄漏**（Test51 的 43 个原图基名中 42 个也在 Train412），指标系统性偏高。本项目已重建评估基座：**按原始大图基名整组重划为 68/16/21 原图（262/58/92 张），三集互不重叠**，主结果以该无泄漏划分报告。
 
 ### 3.1 主表 —— 无泄漏划分（92 张 / 21 个独立场景，best-val 口径）
 
@@ -75,7 +75,7 @@
 
 **核心结论**：修复基线脚本的增强 bug 并去除同源泄漏后，LoRA 微调 SAM 在**统一口径**下数值上仍高于全监督 CNN 基线 → "优于全监督"不是泄漏造成的假象。
 
-### 3.2 附表 —— 官方划分（含同源泄漏，仅作历史对齐，禁横比）
+### 3.2 附表 —— AISD 自带划分（含同源泄漏，仅作历史对齐，禁横比）
 
 | 方法 | IoU ↑ | BER ↓ | F1 ↑ | 标注 |
 |------|------:|------:|-----:|------|
@@ -89,9 +89,9 @@
 | C3I（LAB 阴影指数） | 0.162 | 0.606 | 0.211 | 旧 run |
 
 > ‡ 早期 U-Net/SegNet 脚本存在**图像与掩膜增强错位 bug**（各自独立抽签），系统性压低 CNN 基线；该 bug 已在无泄漏版脚本中修复。
-> ⚠️ **口径混排警示（2026-10-15 起）**：本表 Otsu / C3I / 增强 / SAM-AMG 四行是**早期在官方泄漏测试集上的跑数**；这些方法**已在无泄漏 92 张上重评**，新数字见 3.1 主表 (b)。**两套口径不可混引**——引用主方法对比一律用主表 (b)，本表仅作历史对齐。
+> ⚠️ **口径混排警示（2026-10-15 起）**：本表 Otsu / C3I / 增强 / SAM-AMG 四行是**早期在自带划分的泄漏测试集上的跑数**；这些方法**已在无泄漏 92 张上重评**，新数字见 3.1 主表 (b)。**两套口径不可混引**——引用主方法对比一律用主表 (b)，本表仅作历史对齐。
 
-**补充结论**：同一 LoRA 方法，官方（泄漏）划分 0.8393 vs 无泄漏划分 0.7878，**相差 0.052** —— 实证了泄漏使指标偏高约 5 个 IoU 点。
+**补充结论**：同一 LoRA 方法，AISD 自带划分（含泄漏）划分 0.8393 vs 无泄漏划分 0.7878，**相差 0.052** —— 实证了泄漏使指标偏高约 5 个 IoU 点。
 **方向先验的探索结论（已更新为首轮审查后的口径）**：模块②「方向引导提示」的**全对照差异 ≤ 0.0007，落在噪声内**（`results/dirprompt_*_oracle_test.csv`）；方向提示**不如框提示**。**「方向未取得可测增益」不适用于"方向先验无效"这类表述**——未试过的路径（方向 Adapter 注入解码器、射线投射采样）至今悬空（详见 3.x / `进度接力.md` §四 禁用词清单）。
 
 ---
@@ -144,7 +144,7 @@ python demo.py --checkpoint checkpoints/sam_vit_b_shadow_v2.pth   # 回退到冻
 ### 5.2 微调模型全量评估（Test51）
 
 ```bash
-python evaluate_lora.py              # LoRA 官方口径评估（含泄漏，IoU 0.839）
+python evaluate_lora.py              # LoRA 自带 Test51 口径评估（含泄漏，IoU 0.839）
 python train_lora_leakfree.py        # LoRA 无泄漏重训（主结果口径）
 python train_cnn_leakfree.py --arch unet    # U-Net 无泄漏基线
 python train_cnn_leakfree.py --arch segnet  # SegNet 无泄漏基线
@@ -174,7 +174,7 @@ python train_segnet.py               # SegNet 基线
 RemoteSensing-Shadow-SAM-main/
 ├── methods.py                 # 5 种阴影检测方法（Otsu/C3I/SAM-AMG/Enhanced/Ours）
 ├── eval_shadow.py             # 指标计算（IoU/BER/F1/OA/Precision/Recall）
-├── evaluate_lora.py           # LoRA 评估（官方泄漏口径 0.839）
+├── evaluate_lora.py           # LoRA 评估（自带划分的泄漏口径 0.839）
 ├── train_lora_leakfree.py     # LoRA 无泄漏重训（主结果口径 0.788）
 ├── evaluate_finetuned.py      # 冻结编码器版评估（点提示）
 ├── final_eval.py              # 冻结编码器版评估（框提示）
@@ -199,7 +199,7 @@ RemoteSensing-Shadow-SAM-main/
 │   ├── sam_vit_b_01ec64.pth               # 官方 SAM ViT-B 权重
 │   ├── sam_vit_b_shadow_v2.pth                  # 冻结编码器微调权重（0.717）
 │   ├── sam_vit_b_shadow_v4_lora_leakfree.pth    # LoRA 无泄漏权重（0.788，主结果）
-│   ├── sam_vit_b_shadow_v4_lora_last.pth        # LoRA 官方泄漏口径权重（0.839）
+│   ├── sam_vit_b_shadow_v4_lora_last.pth        # LoRA 自带划分的泄漏口径权重（0.839）
 │   ├── unet_shadow.pth                    # U-Net 权重
 │   └── segnet_shadow.pth                  # SegNet 权重
 ├── AISD/                      # 数据集（Train412/Val51/Test51）
