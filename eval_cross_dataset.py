@@ -59,7 +59,8 @@ def main():
     ap.add_argument("--tag", type=str, default=None, help="结果文件名标签（默认用 split）")
     args = ap.parse_args()
 
-    tag = args.tag or args.split
+    # [M1 修正] 冒烟（--limit）必须与全量**不同 tag**：否则冒烟文件会冒充完整结果
+    tag = (args.tag or args.split) + ("_smoke" if args.limit else "")
     RES_DIR.mkdir(exist_ok=True); LOG_DIR.mkdir(exist_ok=True)
     ts = time.strftime("%Y%m%d_%H%M%S")
     log_path = LOG_DIR / f"cross_{tag}_{ts}.log"
@@ -93,6 +94,7 @@ def main():
 
     rows, allm = [], []
     n_empty = 0
+    n_gt_checked = 0   # [M3] GT 二值核验计数（必须落盘）
     with torch.no_grad():
         for ip in imgs:
             name = Path(ip).name
@@ -101,6 +103,11 @@ def main():
             if img_bgr is None or gt is None:
                 log(f"  {name:26s} 读取失败，跳过")
                 continue
+            # [M3 修正] GT 二值核验必须**由脚本自身落盘**（审查要求："已核验"要有证据）
+            _u = np.unique(gt)
+            if not np.all(np.isin(_u, [0, 255])):
+                raise RuntimeError(f"GT {name} 非二值！unique={_u[:10]} -> 中止（口径不符）")
+            n_gt_checked += 1
             img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
             h, w = img_rgb.shape[:2]
             img1024 = transform.apply_image(img_rgb)
@@ -127,6 +134,17 @@ def main():
 
     if not allm:
         log("！无有效样本"); logf.close(); return
+
+    # [M2 修正] 硬断言样本数：防止"跑到一半被杀"留下**名为全量、实为半截**的汇总 CSV（AGENTS #8）
+    EXPECT_N = {"test200": 200, "val86": 86, "train1000": 1000}
+    if not args.limit:
+        exp = EXPECT_N[args.split]
+        if len(allm) != exp:
+            log(f"！样本数 {len(allm)} != 期望 {exp} -> **拒绝写汇总 CSV**（防止半截结果冒充完整）")
+            logf.close()
+            raise SystemExit(3)
+    log(f"# [M3] GT 二值核验：{n_gt_checked}/{len(allm)} 张通过（unique ⊆ {{0,255}}）")
+    log(f"# [M2] 样本数校验：{'冒烟模式（跳过）' if args.limit else f'{len(allm)} == {EXPECT_N[args.split]} 通过'}")
 
     avg = {k: float(np.mean([m[k] for m in allm])) for k in METRIC_KEYS}
     std = {k: float(np.std([m[k] for m in allm])) for k in METRIC_KEYS}
