@@ -1,0 +1,4 @@
+class,contribution_to_macro_FPR,share_of_macro_FPR,pooled_FP_pixel_share,background_share,lift_vs_background,TP_pixel_share
+hsv_waterlike,0.003374,0.083309,0.072193,0.080665,0.8950,0.022050
+hsv_veglike,0.005029,0.124172,0.148823,0.103023,1.4446,0.047257
+other_hsv,0.032097,0.792519,0.778983,0.816312,0.9543,0.930694

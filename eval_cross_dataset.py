@@ -143,7 +143,7 @@ def main():
             log(f"！样本数 {len(allm)} != 期望 {exp} -> **拒绝写汇总 CSV**（防止半截结果冒充完整）")
             logf.close()
             raise SystemExit(3)
-    log(f"# [M3] GT 二值核验：{n_gt_checked}/{len(allm)} 张通过（unique ⊆ {{0,255}}）")
+    log(f"# [M3] GT 二值核验：{n_gt_checked}/{len(allm)} 张通过（unique 全部落在 0/255）")
     log(f"# [M2] 样本数校验：{'冒烟模式（跳过）' if args.limit else f'{len(allm)} == {EXPECT_N[args.split]} 通过'}")
 
     avg = {k: float(np.mean([m[k] for m in allm])) for k in METRIC_KEYS}
