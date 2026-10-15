@@ -30,6 +30,7 @@
 | `old_results/` | `metrics_bar.png` | **陈旧图**：用的还是旧数字（U-Net 0.741 等）。由 `metrics_chart.py` 可重新生成；**现图不能进材料** |
 | `f3_cut_20261016/` | F3（IoU+Boundary 损失）三个实现文件 + README | 方案过审（第十九轮，6 条必改）但**人类决定不做**。**含一个语法错误的脚本**（README 已注明不可运行、含重启须落实的 6 条） |
 | `reference_docs/` | `_application_form.txt` | **原始 XML 转储**（不可读）；同样的内容已有干净抽取版在外层 |
+| `reference_docs/` | `_shenbaoshu.txt`、`_yanxue_form.txt` | **与保留版为同一文档** —— 归一化（去 XML 标签 / 反转义 HTML 实体 / 去空白）后**内容一字不差**，差异仅是 `"` vs `&quot;` 与超链接残留 `\t"_blank"`。<br>⚠️ **`_yanxue_form.txt` 文件名误导**：它内容与大创申报书**完全相同**，**并非**另一份产学研表 —— 我们手上**只有一份申报书**。<br>保留：外层 `_shenbaoshu_attached_20261014.txt`（提取最干净）。
 
 ## 2026-10-16 另外**删除**（不是归档）
 
