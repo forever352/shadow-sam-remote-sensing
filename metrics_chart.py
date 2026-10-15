@@ -3,7 +3,7 @@
 
 ⚠️ 口径纪律（重要）：
     左panel = 无泄漏划分（本项目主结果，92 张 / 21 独立场景，best-val）
-    右panel = 官方划分（含同源泄漏，仅作历史存档）
+    右panel = AISD 自带划分（含同源泄漏，仅作历史存档）
 两个 panel **不可横向比较**，故分panel呈现，并在图注中标注。
 """
 import numpy as np
@@ -20,7 +20,7 @@ main = [
     ("U-Net\n(全监督)†", 0.741, 0.846),
     ("LoRA微调\nSAM(本项目)", 0.788, 0.880),
 ]
-# ── 右：官方划分（含同源泄漏，旧 run，仅存档）──
+# ── 右：AISD 自带划分（含同源泄漏，旧 run，仅存档）──
 legacy = [
     ("Otsu", 0.424, 0.581),
     ("SAM-AMG\n(零样本)", 0.302, 0.442),
@@ -63,7 +63,7 @@ def draw(ax, data, title, highlight_last=True):
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14.0, 5.2))
 draw(ax1, main, "无泄漏划分（主结果）\n92 张 / 21 独立场景，best-val", highlight_last=True)
-draw(ax2, legacy, "官方划分（含同源泄漏，仅存档）\n! 禁止与左图横比", highlight_last=True)
+draw(ax2, legacy, "AISD 自带划分（含同源泄漏，仅存档）\n! 禁止与左图横比", highlight_last=True)
 
 fig.text(0.5, 0.005,
          "† U-Net 为训练 58/60 中断后第 50 轮 best-val；‡ 旧 run（泄漏 + 增强 bug）"

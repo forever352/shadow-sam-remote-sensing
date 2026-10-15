@@ -100,14 +100,18 @@ preflight 自检 → supervisor 审方案 → 执行 → supervisor 审结果 �
 - 必须维护下方"证据索引"
 - **禁止虚报、漏报、美化**
 
-## 证据索引（2026-10-14 更新）
+## 证据索引（2026-10-15 更新）
 | 内容 | 位置 |
 |---|---|
 | 划分函数 | `train_direction_net.py::split_by_base()` |
 | **前置自检器** | `preflight_check.py`（>1h 任务前必跑） |
 | 结果落盘规范 | `results/{method}_test.csv`（含 `_std` 行）+ `_test_per_image.csv` |
-| 主结果（无泄漏） | `results/lora_leakfree_test.csv` = IoU 0.787821 / BER 0.064359 |
+| 主结果（无泄漏） | `results/lora_leakfree_test.csv` = IoU 0.787821 / BER 0.064359（seed=0） |
+| 多 seed | `results/lora_leakfree_s1_test.csv`（seed-1，**epoch 11 中断后 resume**）；seed-2 跑中 |
 | CNN 无泄漏基线 | `results/{unet,segnet}_leakfree_test.csv` |
+| **Mask R-CNN 基线** | 主行 `results/maskrcnn_leakfree_res800_test.csv`（0.7382）；子行 `..._leakfree_test.csv`（0.7330） |
+| **传统/零样本基线（无泄漏）** | `results/{otsu,c3i,enhanced,sam_amg}_leakfree_test.csv` |
+| 压 BER 实验 | `ber_reduce_eval.py` → `results/ber_reduce_{val_grid,test,selection.json}` |
 | 自带 Test51 口径（含泄漏，存档） | `results/lora_test51.csv` |
 | 方向模块代码 | `direction_utils.py` / `direction_adapter.py` / `direction_prompt.py` / `train_direction_dtict.py` |
 | 跨数据集 | `eval_cross_dataset.py`、`datasets/RSISD/` |
