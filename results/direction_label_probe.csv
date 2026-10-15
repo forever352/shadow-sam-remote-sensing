@@ -1,0 +1,5 @@
+estimator,n_angles,R_img_median,R_img_mean,R_base_median,R_base_mean,R_matched_random_baseline,R_excess_over_baseline
+rect_axis,9073,0.3334,0.3548,0.2558,0.2935,0.2117,0.1431
+pca_axis,9073,0.3443,0.3654,0.2862,0.3124,0.2122,0.1532
+to_bright,9073,0.2051,0.2269,0.1206,0.1385,0.2123,0.0146
+edge_grad,9073,0.3041,0.3373,0.2295,0.2435,0.2131,0.1242

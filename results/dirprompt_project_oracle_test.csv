@@ -1,0 +1,3 @@
+method,n_images,IoU,BER,F1,OA,Precision,Recall
+DirPrompt(oracle-dir)_leakfree,92,0.803656,0.066577,0.889790,0.957379,0.887783,0.895455
+DirPrompt(oracle-dir)_leakfree_std,92,0.061589,0.024314,0.039621,0.017587,0.055089,0.051775

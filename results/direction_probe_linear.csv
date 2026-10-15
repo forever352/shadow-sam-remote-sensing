@@ -1,0 +1,4 @@
+feature_source,lambda,train_deg,val_deg,test_deg
+flip,1.0,11.93,26.94,32.75
+imagenet,1000.0,24.96,32.09,29.35
+flip->随机目标(阴性对照),1.0,-,-,47.74

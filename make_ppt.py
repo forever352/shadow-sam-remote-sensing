@@ -89,8 +89,8 @@ content_slide("研究背景与问题", [
 # 3. 技术路线
 content_slide("技术路线", [
     "① 增强物理粗提取：CLAHE 增强 + Otsu 阈值 + 形态学去噪 → 候选阴影区域",
-    "② 自动提示生成：候选区域质心作前景点 + 区域外背景点",
-    "③ 参数高效微调 SAM：冻结编码器、仅训练 4.34% 参数，适配遥感阴影",
+    "② 自动提示生成：候选区域包围框作框提示（不读 GT）",
+    "③ 参数高效微调 SAM：冻结编码器、仅训练约 4.8% 参数，适配遥感阴影",
     "整体：物理先验回答“在哪”，微调后的 SAM 回答“切多准”",
 ])
 
@@ -107,7 +107,7 @@ content_slide("方法 ②：LoRA 参数高效微调 SAM（核心）", [
     "在 SAM 图像编码器注意力层挂 LoRA（低秩适配，rank=8）",
     "冻结原权重，只训练 LoRA（0.44M）+ 解码器 + 提示编码器，共 4.51M（约 4.8%）",
     "Focal Loss + Dice 损失，点/框双提示，水平翻转增强，混合精度加速",
-    "结果：零样本 SAM 的 IoU 从 0.234 提升到 0.839，超过全监督 U-Net（0.805）",
+    "结果：无泄漏划分上 IoU 0.788 / BER 0.064，数值上高于全监督 U-Net(0.741)/SegNet(0.740)",
 ])
 
 # 6. 方法三
@@ -119,28 +119,24 @@ content_slide("方法 ③：自动提示生成", [
 
 # 7. 实验设置
 content_slide("实验设置", [
-    "数据集：AISD（训练 412 张 / 验证 51 张 / 测试 51 张，512×512）",
+    "数据集：AISD；⚠️ 官方 Test51 与训练集同源泄漏（43 基名中 42 个重叠）",
+    "主口径：按原始大图重划 68/16/21 原图（262/58/92 张），三集互不重叠（无泄漏）",
     "模型：SAM ViT-B（358MB），NVIDIA RTX 4060（8GB）",
-    "微调：冻结编码器，训练 4.34% 参数，150 epoch，约 6 小时",
-    "测试方式：全自动（增强 Otsu 自动点提示）",
-    "指标：IoU / BER / F1 / OA / Precision / Recall",
+    "选模型：仅在验证集按 IoU 选 best-val，测试集只用于最终报告",
+    "指标：IoU / BER / F1 / OA / Precision / Recall（逐图计算再平均）",
 ])
 
 # 8. 结果表
 s = prs.slides.add_slide(BLANK)
-title_bar(s, "定量对比结果（AISD Test51 平均）")
+title_bar(s, "定量对比结果（无泄漏划分，92 张 / 21 独立场景，best-val）",
+          "所有方法同一划分重训；单 seed、未做显著性检验")
 rows = [
     ["方法", "IoU", "BER", "F1"],
-    ["Otsu（传统阈值）", "0.424", "0.204", "0.581"],
-    ["C3I（阴影指数）", "0.162", "0.606", "0.211"],
-    ["SAM-AMG（零样本）", "0.302", "0.343", "0.442"],
-    ["增强预处理", "0.512", "0.149", "0.662"],
-    ["冻结编码器微调 SAM", "0.717", "0.109", "0.833"],
-    ["全监督 SegNet", "0.780", "0.086", "0.875"],
-    ["全监督 U-Net", "0.805", "0.066", "0.891"],
-    ["LoRA 微调 SAM（本项目）", "0.839", "0.050", "0.912"],
+    ["LoRA 微调 SAM（本项目）", "0.788", "0.064", "0.880"],
+    ["全监督 U-Net †", "0.741", "0.087", "0.846"],
+    ["全监督 SegNet", "0.740", "0.102", "0.847"],
 ]
-tbl_shape = s.shapes.add_table(len(rows), 4, Inches(1.2), Inches(1.7), Inches(10.9), Inches(4.2))
+tbl_shape = s.shapes.add_table(len(rows), 4, Inches(1.6), Inches(1.9), Inches(10.1), Inches(2.0))
 tbl = tbl_shape.table
 for i, row in enumerate(rows):
     for j, val in enumerate(row):
@@ -148,14 +144,22 @@ for i, row in enumerate(rows):
         cell.text = val
         pr = cell.text_frame.paragraphs[0]
         pr.alignment = PP_ALIGN.CENTER
-        is_best = (i == len(rows) - 1)
-        set_font(pr.runs[0], size=15, bold=(i == 0 or is_best), color=ACCENT if is_best else DARK)
+        is_best = (i == 1)
+        set_font(pr.runs[0], size=16, bold=(i == 0 or is_best), color=ACCENT if is_best else DARK)
         if is_best:
             cell.fill.solid(); cell.fill.fore_color.rgb = RGBColor(0xDE, 0xEA, 0xF6)
+tb = s.shapes.add_textbox(Inches(1.0), Inches(4.4), Inches(11.3), Inches(2.4))
+tf = tb.text_frame; tf.word_wrap = True
+add_bullets(tf, [
+    "† U-Net 为训练 58/60 轮中断后、第 50 轮 best-val 检查点（val IoU 0.7831）",
+    "统计限定：单 seed、未做显著性检验，测试集仅 21 个独立场景，领先幅度小于逐图标准差",
+    "→ 仅表述为“数值上高于”全监督基线，不宣称“显著超越”",
+    "官方（含泄漏）口径：LoRA 0.839 / U-Net 0.805‡ / SegNet 0.780‡（‡ 旧 run：泄漏+增强 bug），因系统性偏高，不作为干净泛化结论",
+], size=13)
 
 # 9. 指标柱状图
 s = prs.slides.add_slide(BLANK)
-title_bar(s, "指标对比柱状图")
+title_bar(s, "指标对比柱状图（无泄漏划分）")
 s.shapes.add_picture("results/metrics_bar.png", Inches(1.5), Inches(1.4), width=Inches(10.3))
 
 # 10. 可视化对比
@@ -165,10 +169,10 @@ s.shapes.add_picture("results/figures/austin13_sub2.png", Inches(0.5), Inches(1.
 
 # 11. 创新点
 content_slide("主要创新点", [
-    "LoRA 参数高效微调：只训 4.8% 参数，零样本 IoU 提升 0.605，超过全监督 U-Net",
+    "LoRA 参数高效微调：只训 4.8% 参数，无泄漏划分上数值上高于全监督 U-Net/SegNet",
     "物理先验 + 基础模型融合，实现全自动阴影检测（无需人工点选）",
     "「零样本 → 冻结微调 → LoRA 微调」的完整技术演进路径",
-    "标准数据集 + 六项指标 + 消融 + 零样本/冻结/LoRA/U-Net 对比的完整可复现评估体系",
+    "主动排查并修复官方划分同源泄漏 + 基线增强 bug，重建诚实评估基座",
 ])
 
 # 12. 不足与后续

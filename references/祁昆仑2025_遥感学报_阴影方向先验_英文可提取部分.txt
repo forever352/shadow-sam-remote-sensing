@@ -1,0 +1,727 @@
+1007-4619202503-0776-16      National Remote Sensing Bulletin 
+
+
+                 
+
+ 1 2 1 3 4 4 3
+
+                                    1. () ,  430074;
+                                             2. (),  311100;
+
+                                        3. ,  430074;
+                                   4.  ,  430079
+
+ 
+
+
+
+
+
+
+
+
+
+ AISD 
+
+
+
+TP75/P2
+ .2025.  . 
+
+               293776-791
+               Qi K LMa X YJin ZQing Y XLi Z QYang C and Wu H Y. 2025. Shadow detection method for high-resolution
+               remote sensing images on the basis of shadow direction prior. National Remote Sensing Bulletin293776-791
+              DOI10.11834/jrs.20243314
+
+1                            
+                             
+                             
+                             
+ 
+  2016                             
+                             
+                              2005  DSM 
+                             
+Shahtahmassebi 2013Shi 2023  Makarau  2011 
+ 2023                        
+                              2014 
+   2012                      
+                             Li  2016 
+                             
+
+2023072420240115
+
+2201000342020AAA004
+
+E-mailqikunlun@cug.edu.cn
+E-maillizhenqiang@cug.edu.cn
+                                       777
+
+ Wang                                         
+2017                                    
+                                        
+                                          2021
+                                        
+                                        
+                                            Jung   2022 Stojnic  Risojevic
+                                        2021Tao 2022
+                                        
+                                        
+  2008                                  
+                                        
+                                        
+                                        
+  2012                                  
+                                        
+ Su  2016                               
+ 
+                                              
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+ 
+  Hou 2021Khan 2014Shen                       
+ 2015Luo  2020                          
+               AISD Aerial              
+ Imagery dataset for Shadow Detection   
+                                        
+ 
+  Luo 2021                                    
+ AISD                                   
+  AISD                                  
+            Liu   2021a Xie             
+ 2022Yang 2021Zhu 2022                  
+                                         [ 0°180° ] [ 180°360° ] 1 a
+  Belkin 2019                            [ 0°180° ]
+ 2021                                   
+                                         [ 180°360° ] 1 b 
+                                       c 
+                                        
+778                    National Remote Sensing Bulletin  2025, 293
+
+         a                               b                         c 
+     a Schematic diagram of shadow       b The figure shadow is    c The figure shadow is
+
+     direction distribution              located in direction one  located in direction two
+
+                                        1
+                       Fig.1Example of directional division of ground object shadows
+
+                                                              
+                                                              
+
+ 2                                                           2 
+
+                                                              2.1
+
+                                                                    
+                                                              
+                                                              
+                                                               
+       a                 b                                    
+     a Original image  bFlip vertically                        ResNet-18 He 2016 
+                                                              
+                 2                                           Lin 2020 16 
+Fig. 2Example of vertical flipping of remote sensing images    3 
+                                                              1 
+                                                               32 
+                  AISD                                         16 2 
+                                                               Class 1 
+                                                               Class 2  ResNet-18 
+                                                              3 
+                                                              
+            DTICT Direction
+Transformation Independent Co-Teaching                        2.2
+
+                                                                    
+                                                              
+                                                              
+                                                              
+                                                               4
+                                                              
+                                                              
+
+                                                                   1 
+                                                              
+                                                               
+                                                                                          779
+
+                       3
+Fig.3Shadow direction discrimination model of remote sensing image figures
+
+                          4
+Fig.4Self-supervised auxiliary task model for shadow detection in remote sensing imagery
+
+     2                                      
+            DTICT Direction                 
+Transformation Independent Co-Teaching      
+                                            
+
+                                                  
+                                            
+     3                                        5
+                                            
+                                            
+                                             
+                                            
+                                            
+                                            
+2.2.1                                       
+                                            
+      
+780  National Remote Sensing Bulletin  2025, 293
+
+        a                                  b
+     aNo feature shadow area      bShaded areas of specially oriented figures
+
+                                   5
+     Fig.5Examples of remote sensing image samples without shadows and with shadows in a special orientation
+
+       Co-teaching                      DTICT 
+ Han 2018                         
+ DTICT                             6  Co-teaching
+                                   DTICT DTICT 
+                                  
+                                  
+                                  
+                                  
+                                  
+
+                6Co-teaching  DTICT 
+     Fig.6Schematic diagram of Co-teaching and DTICT data streams
+
+                                  R (e)  e 
+
+ DTICT f                          
+                                  r  (01 ] 
+Dwf g-Dwg                         ek  k 
+                                  L ( fD') 
+
+vo  vt  vo'  vt'                        DTICT 
+                                  1 wf  wg  r
+
+
+ot  o't' 
+                                                                                                 781
+
+ E  T                                                                       RandomCrop 
+                                                                             
+ e = 12...E                                                                  
+                                                                             
+2 D                                                                          
+                                                                             
+           t = 12...T 
+3 D  -D                                                                            
+                                                                                  Peng   2022ContrastiveCrop
+4 ot = cos (v0vt )                                                           
+                                                                             
+5  -Dof't'==acrgoms (inv  0'v     t'  )           |    ot  L  (  fD')        
+6                                                                            
+   -D                     D'|D'|      R ( e)|-D                                          Center-suppressed
+   wf                                                                        Sampling 
+7      g = argminD'|D'|               -DR ( e )|   -D | o't'  L  (  gD')     
+8      = wf - L ( f                        g      )                          
+9 wg = wg - L ( f -D f )                                                      7 
+                                                                             
+                                                                             
+{ } 10 R (e) = 1 - min                                                       
+                                      e   rr                                 
+                                      ek
+
+
+
+11 wf  wg
+
+2.2.2
+
+      
+
+
+
+
+                                            7
+                          Fig.7Example of how random clipping versus contrast cropping compares
+
+                                                                            
+  2021                                                                      
+ Color Jitter                                                               
+                                                                            
+
+                                                                                  
+782  National Remote Sensing Bulletin  2025, 293
+
+                                         2.3
+
+                                               
+                                         
+                                         
+                                         
+                                          8 
+
+                                              1 
+                                         
+1 G s r                                   W1
+ Tcj                                      E 
+2Gcj = Tcj (G )
+3F = Forword (Gcj )                           2  E 
+4M = Normalize(F )                        W1 
+                                          E  D 
+5h = s  rw = s r                         
+6B = S (P [ M >  ])                      W2
+7x = Bx0 + (Bx1 - Bx0 )     ( )          E  D 
+8y = By0 + (By1 - By0 )     ( )
+9 Corp G = ( xyhw)                            3 
+                                          W2
+                                         
+
+                       8
+     Fig.8Shadow detection of remote sensing images based on self-supervised pre-training
+
+3                                        FN FP 
+
+3.1                                      TN 
+
+                  OA Overall             OA  =  TP  +  TP  +  TN  +  TN                    ×  100%  (1)
+Accuracy    IoU Intersection over Union                FP  +  FN
+ F1  F1 F1-score 
+ 1 -- 5 TP                                   Precious  =     TP      ×                     100%     (2)
+                                                          TP + FP
+
+                                             Recall    =     TP      ×                     100%     (3)
+                                                          TP + FN
+                                                                                 783
+
+F1  =  2  ×  Precision  ×  Recall  ×  100%  (4)   256×256 
+             Precision  +  Recall                
+
+    IoU   =  TP  +  TP  +  FN  ×  100%      (5)        
+                    FP                                        Jing  Tian
+                                                 2021Liu 2021b
+     Windows10       Intel                       
+                                                 
+R Xeon R W-2133 64 G                              AISD  WHU 
+                                                  Ji 2019
+NVIDIA GeForce RTX 2080 Ti  Pytorch              
+                                                  18.7 
+                                                  8188  512×512 
+                                                      256×256     32752    
+ Adam learning rate                              WHU  AISD 
+                                                 WHU 
+1E-4 weight decay  1E-5                          
+                                                 
+ batch size  16                                   WHU 
+                                                  AISD 
+3.2                                               9 
+
+          AISD        Luo  
+2020  5 
+
+ 514 
+ 0.3 m  80%
+ 10%
+ 412  51 
+ 256×256  64 
+ 11836 
+
+                                     9AISD  WHU 
+                               Fig.9Examples of images in AISD and WHU datasets
+
+                                                  3.3
+         WHU     AISD  
+                                                         AISD 
+                                                  ResNet-18 
+ AISD                                             1 
+                                                   50%
+                                                  
+                                                   90% 
+784       National Remote Sensing Bulletin  2025, 293
+
+                                                              
+                                                              
+99.31%                                                         Jet --
+ 6.2%                                                         
+                                                               10 --
+                                                              
+                                                              
+           1                                                  
+     Table 1The accuracy of the model to identify the         
+horizontal and vertical flipping of the remote sensing image  
+                                                              
+             OA/%                                             
+          93.11±0.46                                          
+          99.31±0.43                                          
+                                                              
+      -- Selvaraju 2017
+--
+
+                         10--
+     Fig.10Gradient-class activation maps of shadow images for self-supervised feature learning model
+
+              AISD                                            
+                                                               11 
+                                                              
+                                                               11 
+                                                                                                 785
+
+                          
+                          
+                          
+                          
+ AISD                     
+                          
+                          
+
+                         11
+Fig.11The comparison of horizontal and vertical flipped for the shadow in remote sensing images
+
+                          
+                          
+                          
+
+                                 2AISD N10%
+                          Table 2Ablation experiments of different modules on the
+3.4
+                                                    AISD datasetN10%
+      
+                                                               ResNet18                          VGG16
+ ResNet18  VGG16
+ Unet  DTICT              DTICT Contrastive-Crop Color Jitter
+ 3 
+                                                               IoU/% F1/% IoU/% F1/%
+
+ 0.6--1.8 0.6--1.8        ×  ×  ×                              77.42 88.63 79.96 89.59
+ 0.4--1.2 Unet 
+ 10%  AISD   N10%  1183      ×  ×                              79.05 89.44 81.01 90.15
+ IoU  F1
+                                ×                              80.37 89.81 81.23 90.78
+      3  AISD 
+ 2 DTICT                                                       80.42 89.93 81.41 90.96
+
+                          
+
+                                 DTICT 
+                           ResNet18 
+                          IoU  F1  1.63%  0.81%
+                          VGG16 IoU  F1
+                          1.05%  0.56%
+                          
+786  National Remote Sensing Bulletin  2025, 293
+
+                                 32752 
+                                
+""                               11.3%
+                                DTICT  13.6% 
+                                 DTICT 
+                                 12  Co-
+                                teaching 
+                                
+
+                                                 3 F1
+ ResNet18                       Table 3F1-scores for different shadow detection methods
+     IoU  F1      3.00%  1.30%
+ VGG16  IoU  F1                                                              F1/%
+ 1.45%  1.37%                   CADNet2021                                   91.21
+
+                                DSSDNet2020       100%                       91.79
+                                ESPFNet2021                                  92.04
+
+                                CDANet2022                                   92.99 ± 0.17
+
+                                ResNet18                                     89.93
+                                                                        10%  90.96
+
+                                 VGG16
+3.5
+                                                  12DTICT 
+       AISD                        Fig.12Example of removing noise samples using DTICT
+
+ 3                               3.6.2
+ F1F1
+                                                ResNet18  VGG16 
+                                 Unet  AISD  1%
+ 10%                             N1%=118  2%  N2%=236  5% 
+ 90%                             N5%=591   10%  N10%=1183  
+   100%           0.25%--         IoU  F1 4 
+3.12%                            
+
+                                        3 
+                                 MoCo He2020 
+                                  2020 
+3.6                              
+
+3.6.1
+
+       DTICT  Co-teaching
+
+ 3.2  WHU 
+                                                                                                         787
+
+                                   4 IoU  F1
+          Table 4IoU and F1-scores of various methods under different proportions of training data
+
+                                                                                      
+
+                           1%                2%                5%                                   10%
+
+          Random    IoU/%      F1/%   IoU/%      F1/%   IoU/%      F1/%   IoU/%                          F1/%
+                    72.56      85.70  75.32      87.36  76.92      88.25  77.40                          88.51
+
+ResNet18  ImageNet  73.26      86.04  77.33      88.35  79.34      89.39  80.36                          89.72
+            MoCo    72.58      85.61  76.18      87.44  75.98      88.05  79.20                          88.93
+                    73.88      86.58  78.31      88.58  79.38      89.43  80.42                          89.93
+          
+
+          Random    71.72      85.11  75.42      87.11  78.89      88.84  80.06                          89.77
+
+VGG16     ImageNet  77.98      88.39  79.40      89.16  80.19      90.09  80.91                          90.63
+            MoCo    73.09      86.42  76.51      88.57  79.70      89.33  79.97                          89.24
+                    79.53      89.26  79.86      89.49  80.34      90.21  81.41                          90.96
+          
+
+
+
+       1%  IoU                               
+F1  ResNet18                                 
+           1.32%  0.88%                      
+ImageNet  0.62%  0.54%                       
+ VGG16                                       
+ 7.81%  4.15%                                
+ ImageNet  1.55%  0.87%
+ 2%--10%                                        13 IoU 
+ ResNet18  IoU  F1                            Fig.13IoU of various methods under different proportions of
+  2.46%--3.02%  1.18%--1.42%  VGG16
+ 1.44%--4.44%  1.19%--2.38%                                                 training data
+
+                                                   
+ImageNet  MoCo  IoU                          
+F1                                            AISD 
+                                             
+                                             
+                                             
+       4  MoCo                               
+                                             
+MoCo 
+
+ MoCo
+
+
+
+
+       13  14 
+ IoU  F1
+
+
+788  National Remote Sensing Bulletin  2025, 293
+
+                                                          3.6.3
+
+    14 F1                                                       
+       Fig.14F1-score of various methods under different   ResNet18 
+                      proportions of training data         10%  AISD
+                                                           4 
+                                                          
+                                                          
+                                                           15 
+                                                          
+                                                           1 
+                                                           2  3 
+                                                           5  6 
+                                                          
+                                                          
+
+          15N10%
+     Fig.15Shadow detection results for different methodsN10%
+
+       15                                                 
+                                                          
+MoCo  ImageNet                                            
+                                                          
+                                                          
+                                                          
+15                                                        
+ 4 
+                                                                 15  3  4 
+                                                          
+                                                          
+                                                          
+                                                          
+                                                                         789
+
+                                                                               for high-resolution images. Journal of Remote Sensing (in Chi-
+                                                                               nese), 18(4): 760-770 (, , ,  . 2014.
+                                                                               
+                                                                                . , 18(4): 760-770) [DOI: 10.11834/jrs.20143243]
+                                                                         Han B, Yao Q M, Yu X R, Niu G, Xu M, Hu W H, Tsang I W and Sugi-
+                                                                               yama M. 2018. Co-teaching: robust training of deep neural net-
+                                                                               works with extremely noisy labels//Proceedings of the 32nd Inter-
+                                                                               national Conference on Neural Information Processing Systems.
+                                                                               Montréal: Curran Associates Inc.: 8536-8546
+                                                                         He K M, Fan H Q, Wu Y X, Xie S N and Girshick R. 2020. Momen-
+                                                                               tum contrast for unsupervised visual representation learning//Pro-
+4                                                                              ceedings of 2020 IEEE/CVF Conference on Computer Vision and
+                                                                               Pattern Recognition. Seattle: IEEE: 9726-9735 [DOI: 10.1109/
+                                                                               CVPR42600.2020.00975]
+                                                                         He K M, Zhang X Y, Ren S Q and Sun J. 2016. Deep residual learning
+                                                                               for image recognition//Proceedings of 2016 IEEE Conference on
+                                                                               Computer Vision and Pattern Recognition. Las Vegas: IEEE: 770-
+                                                                               778 [DOI: 10.1109/CVPR.2016.90]
+ DTICT                                                                   Hou L, Vicente T F Y, Hoai M and Samaras D. 2021. Large scale shad-
+                                                                               ow annotation and detection using lazy annotation and stacked
+                                                                               CNNs. IEEE Transactions on Pattern Analysis and Machine Intel-
+                                                                               ligence, 43(4): 1337-1351 [DOI: 10.1109/TPAMI.2019.2948011]
+                                                                         Ji S P, Wei S Q and Lu M. 2019. Fully convolutional networks for mul-
+ AISD                                                                          tisource building extraction from an open aerial and satellite imag-
+                                                                               ery data set. IEEE Transactions on Geoscience and Remote Sens-
+                                                                               ing, 57(1): 574-586 [DOI: 10.1109/TGRS.2018.2858817]
+                                                                         Jing L L and Tian Y L. 2021. Self-supervised visual feature learning
+                                                                               with deep neural networks: a survey. IEEE Transactions on Pat-
+                                                                               tern Analysis and Machine Intelligence, 43(11): 4037-4058 [DOI:
+                                                                               10.1109/TPAMI.2020.2992393]
+                                                                         Jung H, Oh Y, Jeong S, Lee C and Jeon T. 2022. Contrastive self-super-
+                                                                               vised learning with smoothed representation for remote sensing.
+                                                                               IEEE Geoscience and Remote Sensing Letters, 19: 8010105
+                                                                               [DOI: 10.1109/LGRS.2021.3069799]
+                                                                         Khan S H, Bennamoun M, Sohel F and Togneri R. 2014. Automatic
+                                                                               feature learning for robust shadow detection//Proceedings of 2014
+                                                                               IEEE Conference on Computer Vision and Pattern Recognition.
+                                                                               Columbus: IEEE: 1939-1946 [DOI: 10.1109/CVPR.2014.249]
+References                                                               Li D R, Tong Q X, Li R X, Gong J Y and Zhang L P. 2012. Current is-
+                                                                               sues in high-resolution Earth observation technology. Science Chi-
+Belkin M, Hsu D, Ma S Y and Mandal S. 2019. Reconciling modern                 na Earth Science, 55(7): 1043-1051 (, , , 
+      machine-learning practice and the classical bias-variance trade-         ,  . 2012.  .
+      off. Proceedings of the National Academy of Sciences of the Unit-            :     , 42(6): 805-813) [DOI: 10.1007/s11430-
+      ed States of America, 116(32): 15849-15854 [DOI: 10.1073/pnas.           012-4445-9]
+      1903070116]                                                        Li J Y, Hu Q W and Ai M Y. 2016. Joint model and observation cues
+                                                                               for single-image shadow detection. Remote Sensing, 8(6): 484
+Duan G Y, Gong H L, Li X J and Chen B B. 2014. Shadow extraction               [DOI: 10.3390/rs8060484]
+      based on characteristic components and object-oriented method      Li Y, Gong P. 2005. Integrating photogrammetry and image analysis
+                                                                               for shadow detection. Journal of Remote Sensing (in Chinese), 9
+                                                                               (4): 357-362 (,  . 2005.  DSM 
+                                                                                         .     , 9(4): 357-362) [DOI: 10.
+                                                                               11834/jrs.20050452]
+790  National Remote Sensing Bulletin  2025, 293
+
+Liao C J, Zhao J, Xing J, Wen J G and Liu Q H. 2023. Research on                [DOI: 10.1109/ICCV.2017.74]
+      classification of GF satellite data application products and con-   Shahtahmassebi A, Yang N, Wang K, Moore N and Shen Z Q. 2013.
+      struction of common product system. National Remote Sensing
+      Bulletin, 27(3): 563-572 (, , , ,  .                                      Review of shadow detection and de-shadowing methods in re-
+      2023.  .                                                                  mote sensing. Chinese Geographical Science, 23(4): 403-420
+      , 27(3): 563-572) [DOI: 10.11834/jrs.20232593]                            [DOI: 10.1007/s11769-013-0613-x]
+                                                                          Shen L, Wee Chua T and Leman K. 2015. Shadow optimization from
+Lin Z Q, Sun J, Davis A and Snavely N. 2020. Visual chirality//Pro-             structured deep edge detection//Proceedings of 2015 IEEE Confer-
+      ceedings of 2020 IEEE/CVF Conference on Computer Vision and               ence on Computer Vision and Pattern Recognition. Boston: IEEE:
+      Pattern Recognition. Seattle: IEEE: 12292-12300 [DOI: 10.1109/            2067-2074 [DOI: 10.1109/CVPR.2015.7298818]
+      CVPR42600.2020.01231]                                               Shi L, Fang J and Zhao Y F. 2023. Automatic shadow detection in
+                                                                                high-resolution multispectral remote sensing images. Computers
+Liu D Y, Zhang J P, Wu Y H and Zhang Y. 2021a. A shadow detection               and Electrical Engineering, 105: 108557 [DOI: 10.1016/j.compel-
+      algorithm based on multiscale spatial attention mechanism for aer-        eceng.2022.108557]
+      ial remote sensing images. IEEE Geoscience and Remote Sensing       Stojnic V and Risojevic V. 2021. Self-supervised learning of remote
+      Letters, 19: 6003905 [DOI: 10.1109/LGRS.2021.3100294]                     sensing scene representations using contrastive multiview coding//
+                                                                                Proceedings of 2021 IEEE/CVF Conference on Computer Vision
+Liu X, Zhang F J, Hou Z Y, Mian L, Wang Z Y, Zhang J and Tang J.                and Pattern Recognition Workshops. Nashville: IEEE: 1182-1191
+      2021b. Self-supervised learning: generative or contrastive. IEEE          [DOI: 10.1109/CVPRW53098.2021.00129]
+      Transactions on Knowledge and Data Engineering, 35(1): 857-         Su N, Zhang Y, Tian S, Yan Y M and Miao X Y. 2016. Shadow detec-
+      876 [DOI: 10.1109/TKDE.2021.3090866]                                      tion and removal for occluded object information recovery in ur-
+                                                                                ban high-resolution panchromatic satellite images. IEEE Journal
+Luo S, Li H F and Shen H F. 2020. Deeply supervised convolutional               of Selected Topics in Applied Earth Observations and Remote
+      neural network for shadow detection based on a novel aerial shad-         Sensing, 9(6): 2568-2582 [DOI: 10.1109/JSTARS.2016.2570234]
+      ow imagery dataset. ISPRS Journal of Photogrammetry and Re-         Tao C, Qi J, Lu W P, Wang H and Li H F. 2022. Remote sensing image
+      mote Sensing, 167: 443-457 [DOI: 10.1016/j.isprsjprs.2020.07.016]         scene classification with self-supervised paradigm under limited
+                                                                                labeled samples. IEEE Geoscience and Remote Sensing Letters,
+Luo S, Li H F, Zhu R Z, Gong Y T and Shen H F. 2021. ESPFNet: an                19: 8004005 [DOI: 10.1109/LGRS.2020.3038420]
+      edge-aware spatial pyramid fusion network for salient shadow de-    Tao C, Yin Z W, Zhu Q and Li H F. 2021. Remote sensing image intel-
+      tection in aerial remote sensing images. IEEE Journal of Selected         ligent interpretation: from supervised learning to self-supervised
+      Topics in Applied Earth Observations and Remote Sensing, 14:              learning. Acta Geodaetica et Cartographica Sinica, 50(8): 1122-
+      4633-4646 [DOI: 10.1109/JSTARS.2021.3066791]                              1134 (, , ,  . 2021. :
+                                                                                 . , 50(8): 1122-1134) [DOI: 10.
+Ma C, Feng D J and Zhang L. 2012. Detecting the building shadow                 11947/j.AGCS.2021.20210089]
+      with the two algorithms of threshold segmentation and mathemati-    Tong X D. 2016. Development of China high-resolution earth observa-
+      cal morphology. Surveying and Mapping, 35(4): 151-154 (   ,               tion system. Journal of Remote Sensing (in Chinese), 20(5): 775-
+      ,  . 2012.                                                                780 ( . 2016. 
+        .   , 35(4): 151-154) [DOI: 10.3969/j. issn. 1674-5019.                  . , 20(5): 775-780) [DOI: 10.11834/jrs.20166302]
+      2012.04.004]                                                        Wang Q J, Yan L, Yuan Q Q and Ma Z L. 2017. An automatic shadow
+                                                                                detection method for VHR remote sensing orthoimagery. Remote
+Makarau A, Richter R, Muller R and Reinartz P. 2011. Adaptive shad-             Sensing, 9(5): 469 [DOI: 10.3390/rs9050469]
+      ow detection using a blackbody radiator model. IEEE Transac-        Xie Y K, Feng D J, Chen H Y, Liao Z Y, Zhu J, Li C N and Baik S W.
+      tions on Geoscience and Remote Sensing, 49(6): 2049-2059                  2022. An omni-scale global-local aware network for shadow ex-
+      [DOI: 10.1109/TGRS.2010.2096515]                                          traction in remote sensing imagery. ISPRS Journal of Photogram-
+                                                                                metry and Remote Sensing, 193: 29-44 [DOI: 10.1016/j.isprsjprs.
+Mu X D, Bai K, You X, Zhu Y Q and Chen X B. 2021. Remote sens-                  2022.09.004]
+      ing image feature extraction and classification based on contras-   Yang Y, Guo M Q and Zhu Q Q. 2021. CADNet: top-down contextual
+      tive learning method. Optics and Precision Engineering, 29(9):            saliency detection network for high spatial resolution remote sens-
+      2222-2234 (, , , ,  . 2021.                                               ing image shadow detection//Proceedings of 2021 IEEE Interna-
+       .  , 29                                                                  tional Geoscience and Remote Sensing Symposium IGARSS.
+      (9): 2222-2234) [DOI: 10.37188/OPE.20212909.2222]                         Brussels: IEEE: 4075-4078 [DOI: 10.1109/IGARSS47720.2021.
+                                                                                9553138]
+Peng X Y, Wang K, Zhu Z, Wang M and You Y. 2022. Crafting better          Yu D F, Yin J P and Zhang G M. 2008. An automatic shadow detection
+      contrastive views for Siamese representation learning//Proceed-
+      ings of 2020 IEEE/CVF Conference on Computer Vision and Pat-
+      tern Recognition. New Orleans: IEEE: 16010-16019 [DOI: 10.
+      1109/CVPR52688.2022.01556]
+
+Selvaraju R R, Cogswell M, Das A, Vedantam R, Parikh D and Batra
+      D. 2017. Grad-CAM: visual explanations from deep networks via
+      gradient-based localization//Proceedings of 2017 IEEE Interna-
+      tional Conference on Computer Vision. Venice: IEEE: 618-626
+                                                                         791
+
+      method for remote sensing images based on gray histogram. Com-           National Remote Sensing Bulletin, 25(1): 182-197 (    , 
+      puter Engineering and Science, 30(12): 43-44, 93 (,                      , ,  . 2021. 
+      ,  . 2008.                                                                . , 25(1): 182-197) [DOI: 10.11834/jrs.20210164]
+       . , 30(12): 43-44, 93) [DOI: 10.3969/j.                           Zhu Q Q, Yang Y, Sun X L and Guo M Q. 2022. CDANet: contextual
+      issn.1007-130X.2008.12.011]                                              detail-aware network for high-spatial-resolution remote-sensing
+Zhou P C, Cheng G, Yao X W and Han J W. 2021. Machine learning                 imagery shadow detection. IEEE Transactions on Geoscience and
+      paradigms in high-resolution remote sensing image interpretation.        Remote Sensing, 60: 5617415 [DOI: 10.1109/TGRS.2022.3143886]
+
+ Shadow detection method for high-resolution remote sensing images on
+                          the basis of shadow direction prior
+
+     QIKunlun1MAXinyue2JINZhun1QINGYaxian3LIZhenqiang4YANGChao4WUHuayi3
+
+             1.School of Geography and Information Engineering, China University of Geosciences, Wuhan 430074, China;
+                           2.China Mobile (Hangzhou) Information Technology Co., Ltd., Hangzhou 311100, China;
+
+                    3.National Engineering Research Center of Geographic Information System, Wuhan 430074, China;
+          4.State Key Laboratory of Information Engineering in Surveying, Mapping and Remote Sensing, Wuhan University,
+
+                                                                    Wuhan 430079, China
+
+AbstractGiven the high cost and difficulty of shadow annotation, the shadow detection performance of supervised learning models in
+high-resolution remote sensing images is severely limited mainly because of the lack of training samples. To solve this problem, this study
+proposes a shadow detection method that is based on shadow direction prior, which has unique advantages in learning the inherent shadow
+information contained in unlabeled high-resolution remote sensing images. Through self-supervised learning methods, the advanced
+semantic information of ground object shadows contained in remote sensing images can be deeply explored, thereby improving the
+applicability and accuracy of the model. This innovative approach provides a new way to overcome the data limitation problem in shadow
+detection and offers new possibilities for improving the model's ability to understand complex high-resolution images.
+
+      This study proposes an innovative shadow detection method for high-resolution remote sensing images that is based on prior
+knowledge of the shadow direction and explores the effectiveness of shadow direction prior in representing high-level semantic features of
+object shadows in remote sensing images. The key task in this method is to construct an auxiliary task through shadow direction prior so that
+the deep neural network can effectively understand the shadow of objects in remote sensing images. Moreover, to further enhance the deep
+neural network's ability to learn the key features of object shadows, this study designs a direction transformation-independent noise
+processing mechanism and data enhancement strategy for self-supervised shadow detection, both of which improve the generalization ability
+of the model.
+
+      The effectiveness of the proposed method is proven through verification on the Aerial Imagery Dataset for Shadow Detection (AISD).
+Experimental results show that compared with the traditional Unet benchmark model, the proposed method can successfully learn prior
+knowledge in unlabeled high-resolution remote sensing images. By leveraging this prior knowledge, the developed method improves the
+accuracy of the Unet model and demonstrates competitive efficiency and performance in small sample cases. The results of this study
+highlight the superiority of the proposed method in addressing the challenge of shadow identification in high-resolution remote sensing
+images, especially in the absence of labeled samples. By fully utilizing prior knowledge, the method successfully extends the performance of
+the Unet model and provides a promising solution for processing unlabeled high-resolution remote sensing images in practical applications.
+
+      The qualitative and quantitative results consistently show that using a shadow direction prior method can considerably improve the
+accuracy of shadow detection. The use of the DTICT strategy helps alleviate the interference caused by shadow-free samples and samples
+containing shadows in special directions during network training. The data enhancement strategy combined with contrast cropping and color
+transformation provides the network with diverse training samples, thereby enhancing the pre-trained model's ability to extract object
+shadow features. The proposed method achieves competitive object shadow detection accuracy by using a small number of labeled samples.
+Key wordsshadow detection, self-supervised learning, data augmentation, shadow direction prior, high-resolution remote sensing imagery
+Supported by Special Fund of Hubei Luojia Laboratory (No.220100034)Hubei Key Research and Development Program in China (No.
+2020AAA004)
+

@@ -1,0 +1,37 @@
+diff --git a/segment-anything-main/segment_anything/modeling/prompt_encoder.py b/segment-anything-main/segment_anything/modeling/prompt_encoder.py
+index c3143f4..c0a0173 100644
+--- a/segment-anything-main/segment_anything/modeling/prompt_encoder.py
++++ b/segment-anything-main/segment_anything/modeling/prompt_encoder.py
+@@ -130,6 +130,7 @@ class PromptEncoder(nn.Module):
+         points: Optional[Tuple[torch.Tensor, torch.Tensor]],
+         boxes: Optional[torch.Tensor],
+         masks: Optional[torch.Tensor],
++        direction: Optional[torch.Tensor] = None,
+     ) -> Tuple[torch.Tensor, torch.Tensor]:
+         """
+         Embeds different types of prompts, returning both sparse and dense
+@@ -140,6 +141,10 @@ class PromptEncoder(nn.Module):
+             and labels to embed.
+           boxes (torch.Tensor or none): boxes to embed
+           masks (torch.Tensor or none): masks to embed
++          direction (torch.Tensor or none): [B, 2] 单位向量 (cos2θ, sin2θ)。
++            【本项目增量】仅当 `self.direction_adapter` 已安装时才生效；默认 None
++            使本函数对既有全部调用点**逐比特无影响**。注入位置在 PromptEncoder 输出端，
++            等价于在 Mask Decoder 入口注入（其输出即解码器输入）。
+ 
+         Returns:
+           torch.Tensor: sparse embeddings for the points and boxes, with shape
+@@ -165,6 +170,13 @@ class PromptEncoder(nn.Module):
+                 bs, -1, self.image_embedding_size[0], self.image_embedding_size[1]
+             )
+ 
++        # 【本项目增量 · 方向特征 Adapter】默认 direction=None → 整段跳过，
++        # 既有调用点（sam.py / predictor.py / 项目 4 处）行为逐比特不变。
++        if direction is not None and getattr(self, "direction_adapter", None) is not None:
++            sparse_embeddings, dense_embeddings = self.direction_adapter(
++                sparse_embeddings, dense_embeddings, direction
++            )
++
+         return sparse_embeddings, dense_embeddings
+ 
+ 

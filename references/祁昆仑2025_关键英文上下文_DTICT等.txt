@@ -1,0 +1,73 @@
+a b | a Original image bFlip vertically ResNet-18 He 2016 | 2 Lin 2020 16
+
+2 Lin 2020 16 | Fig. 2Example of vertical flipping of remote sensing images 3 | 1 | 32
+
+AISD 16 2 | Class 1 | Class 2 ResNet-18 | 3
+
+3 | DTICT Direction | Transformation Independent Co-Teaching 2.2
+
+2 | DTICT Direction | Transformation Independent Co-Teaching
+
+Fig.5Examples of remote sensing image samples without shadows and with shadows in a special orientation | Co-teaching DTICT | Han 2018 | DTICT 6 Co-teaching
+
+Co-teaching DTICT | Han 2018 | DTICT 6 Co-teaching | DTICT DTICT
+
+Han 2018 | DTICT 6 Co-teaching | DTICT DTICT
+
+6Co-teaching DTICT | Fig.6Schematic diagram of Co-teaching and DTICT data streams
+
+6Co-teaching DTICT | Fig.6Schematic diagram of Co-teaching and DTICT data streams | R (e) e
+
+R (e) e | DTICT f | r (01 ] | Dwf g-Dwg ek k
+
+L ( fD') | vo vt vo' vt' DTICT | 1 wf wg r
+
+t = 12...T | 3 D -D | Peng 2022ContrastiveCrop | 4 ot = cos (v0vt )
+
+WHU AISD | AISD | ResNet-18 | AISD 1 | 50%
+
+1 | Table 1The accuracy of the model to identify the | horizontal and vertical flipping of the remote sensing image | OA/%
+
+11 | Fig.11The comparison of horizontal and vertical flipped for the shadow in remote sensing images
+
+AISD datasetN10% | ResNet18 VGG16 | ResNet18 VGG16 | Unet DTICT DTICT Contrastive-Crop Color Jitter
+
+ResNet18 VGG16 | ResNet18 VGG16 | Unet DTICT DTICT Contrastive-Crop Color Jitter | 3
+
+ResNet18 VGG16 | ResNet18 VGG16 | Unet DTICT DTICT Contrastive-Crop Color Jitter | 3 | IoU/% F1/% IoU/% F1/%
+
+80.37 89.81 81.23 90.78 | 3 AISD | 2 DTICT 80.42 89.93 81.41 90.96
+
+DTICT | ResNet18 | IoU F1 1.63% 0.81%
+
+DTICT | ResNet18 | IoU F1 1.63% 0.81% | VGG16 IoU F1
+
+"" 11.3% | DTICT 13.6% | DTICT | 12 Co-
+
+"" 11.3% | DTICT 13.6% | DTICT | 12 Co- | teaching
+
+3 F1 | ResNet18 Table 3F1-scores for different shadow detection methods | IoU F1 3.00% 1.30% | VGG16 IoU F1 F1/%
+
+CDANet2022 92.99 0.17 | ResNet18 89.93 | 10% 90.96
+
+VGG16 | 3.5 | 12DTICT | AISD Fig.12Example of removing noise samples using DTICT
+
+3.5 | 12DTICT | AISD Fig.12Example of removing noise samples using DTICT | 3 3.6.2
+
+3 3.6.2 | F1F1 | ResNet18 VGG16 | Unet AISD 1% | 10% N1%=118 2% N2%=236 5%
+
+3.6.1 | DTICT Co-teaching | 3.2 WHU
+
+72.56 85.70 75.32 87.36 76.92 88.25 77.40 88.51 | ResNet18 ImageNet 73.26 86.04 77.33 88.35 79.34 89.39 80.36 89.72 | MoCo 72.58 85.61 76.18 87.44 75.98 88.05 79.20 88.93 | 73.88 86.58 78.31 88.58 79.38 89.43 80.42 89.93
+
+1% IoU | F1 ResNet18 | 1.32% 0.88% | ImageNet 0.62% 0.54%
+
+ImageNet 1.55% 0.87% | 2%--10% 13 IoU | ResNet18 IoU F1 Fig.13IoU of various methods under different proportions of | 2.46%--3.02% 1.18%--1.42% VGG16 | 1.44%--4.44% 1.19%--2.38% training data
+
+14 F1 | Fig.14F1-score of various methods under different ResNet18 | proportions of training data 10% AISD | 4
+
+. , 18(4): 760-770) [DOI: 10.11834/jrs.20143243] | Han B, Yao Q M, Yu X R, Niu G, Xu M, Hu W H, Tsang I W and Sugi- | yama M. 2018. Co-teaching: robust training of deep neural net- | works with extremely noisy labels//Proceedings of the 32nd Inter- | national Conference on Neural Information Processing Systems.
+
+Computer Vision and Pattern Recognition. Las Vegas: IEEE: 770- | 778 [DOI: 10.1109/CVPR.2016.90] | DTICT Hou L, Vicente T F Y, Hoai M and Samaras D. 2021. Large scale shad- | ow annotation and detection using lazy annotation and stacked | CNNs. IEEE Transactions on Pattern Analysis and Machine Intel-
+
+The qualitative and quantitative results consistently show that using a shadow direction prior method can considerably improve the | accuracy of shadow detection. The use of the DTICT strategy helps alleviate the interference caused by shadow-free samples and samples | containing shadows in special directions during network training. The data enhancement strategy combined with contrast cropping an

@@ -30,15 +30,24 @@ def mask_otsu(img_bgr):
     return _rm_small(mask, 150)
 
 
-def mask_c3i(img_bgr):
-    """方法2：LAB 阴影指数 SI = (255-L) + (255-B)，编码"阴影又暗又偏蓝"。"""
+def mask_c3i(img_bgr, invert_if_mostly_white=True):
+    """方法2：LAB 阴影指数 SI = (255-L) + (255-B)，编码"阴影又暗又偏蓝"。
+
+    [!] `invert_if_mostly_white`（默认 True）是**本项目自加的启发式**，**不是 C3I 原方法的一部分**：
+        当 Otsu 结果前景占比 >40% 时整体取反（假定"阴影不该过半"）。
+        第十三轮审查实测（无泄漏测试集 92 张）：该启发式触发 **61 张**，
+        去掉后 **61/61 全部变好、0 张变差** —— 在当前数据上 **100% 有害**。
+        故它**不得**被当作 C3I 方法本身的表现；基线评估应传 `False`。
+        默认仍保持 `True`，是为了让既有调用方（`run_experiment.py` 等）及其历史产物
+        **逐位可复现** —— 不得为了让基线数字好看而静默改默认值。
+    """
     lab = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2LAB).astype(np.float32)
     l, _, b = cv2.split(lab)
     si = (255.0 - l) + (255.0 - b)
     si_norm = cv2.normalize(si, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
     si_f = cv2.medianBlur(si_norm, 5)
     _, mask = cv2.threshold(si_f, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    if np.sum(mask == 255) > mask.size * 0.4:
+    if invert_if_mostly_white and np.sum(mask == 255) > mask.size * 0.4:
         mask = cv2.bitwise_not(mask)
     return _rm_small(mask, 150)
 

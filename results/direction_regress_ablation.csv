@@ -1,0 +1,3 @@
+condition,train_angle_err_deg,val_angle_err_deg,test_angle_err_deg,constant_baseline_deg,random_baseline_deg,ckpt,log
+with-aug,23.82,28.37,28.56,29.83,45.0,direction_resnet18_regress_withaug.pth,logs/direction_regress_20261014_212458.log
+no-aug,10.42,28.29,29.34,29.83,45.0,direction_resnet18_regress_noaug.pth,logs/direction_regress_20261014_212233.log

@@ -1,0 +1,3 @@
+mode,epochs,keep_frac,noise_q,n_train_img,n_noise_removed,best_val_flip_acc,best_epoch
+no-dtict,30,0.7,0.1,262,0,1.0000,15
+dtict,30,0.7,0.1,208,54,1.0000,30
