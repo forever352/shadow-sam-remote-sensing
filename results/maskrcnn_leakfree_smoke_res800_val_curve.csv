@@ -1,0 +1,2 @@
+epoch,tau,val_IoU,val_BER
+1,0.05,0.266564,0.40015
