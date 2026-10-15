@@ -1,0 +1,50 @@
+diff --git a/train_maskrcnn_leakfree.py b/train_maskrcnn_leakfree.py
+index a5d1ebe..517bf3b 100644
+--- a/train_maskrcnn_leakfree.py
++++ b/train_maskrcnn_leakfree.py
+@@ -191,11 +191,13 @@ def select_tau(acc):
+ # ────────────────────────── 结果落盘 ──────────────────────────
+ 
+ def write_results(rows, tau, log, tag=""):
+-    """tag！= "" 时（冒烟模式）文件名加后缀，**绝不覆盖生产产物**。"""
++    """tag != "" 时文件名加后缀，**绝不覆盖其它设置的产物**。
++    注意 `tag` 有两种来源：冒烟（`_smoke`，由 --limit-train/--limit-val 触发）
++    与自定义（`--tag`，如 `_res800`，属**正式跑**）。二者措辞不同，不得混用。"""
+     avg = avg_of(rows)
+     std = {k: float(np.std([r[k] for r in rows])) for k in METRIC_KEYS}
+     log("")
+-    log(f"=== 测试集（{len(rows)} 张，tau={tau}）" + ("  [冒烟模式]" if tag else "") + " ===")
++    log(f"=== 测试集（{len(rows)} 张，tau={tau}）" + ("  [冒烟模式]" if "_smoke" in tag else "") + " ===")
+     for k in METRIC_KEYS:
+         log(f"{k:10s} {avg[k]:.4f} +/- {std[k]:.4f}")
+     per_img = RES_DIR / f"maskrcnn_leakfree{tag}_test_per_image.csv"
+@@ -211,8 +213,12 @@ def write_results(rows, tau, log, tag=""):
+         w.writerow([f"MaskRCNN(leakfree){tag}", len(rows), tau] + [f"{avg[k]:.6f}" for k in METRIC_KEYS])
+         w.writerow([f"MaskRCNN(leakfree){tag}_std", len(rows), tau] + [f"{std[k]:.6f}" for k in METRIC_KEYS])
+     log(f"汇总 -> {summ}")
+-    if tag:
++    # [!] 只对**冒烟**产物打警告。自定义 --tag（如 _res800）是正式跑，不得误标为冒烟
++    #     （2026-10-15 修：此前 tag 非空即打印"冒烟产物"，把 _res800 也误标了）
++    if "_smoke" in tag:
+         log(f"[!] 冒烟产物（{tag}），**不得作为结果引用**")
++    elif tag:
++        log(f"[注] 已加 tag '{tag}'（正式跑；与其它设置的产物互不覆盖）")
+     return avg, std
+ 
+ 
+@@ -313,10 +319,13 @@ def main():
+     model = build_model(args.min_size, args.max_size).to(device)
+     log(f"参数量 {sum(p.numel() for p in model.parameters())/1e6:.1f}M")
+ 
+-    # 冒烟模式（--limit-train/--limit-val）绝不污染生产权重与结果
++    # 冒烟模式（--limit-train/--limit-val）绝不污染生产权重与结果；
++    # 自定义 --tag（如 _res800）用于同一脚本跑不同设置时**互不覆盖**，属**正式跑**。
+     tag = ("_smoke" if (args.limit_train or args.limit_val) else "") + args.tag
+-    if tag:
++    if "_smoke" in tag:
+         log(f"[!] 冒烟模式：权重与结果均写入 *{tag} 后缀文件，不覆盖生产产物")
++    elif tag:
++        log(f"[注] 自定义 tag '{tag}'（正式跑；与其它设置的产物互不覆盖）")
+     ckpt = CKPT_DIR / f"maskrcnn_shadow_leakfree{tag}.pth"
+     last_ckpt = CKPT_DIR / f"maskrcnn_shadow_leakfree{tag}_last.pth"
+     curve_path = RES_DIR / f"maskrcnn_leakfree{tag}_val_curve.csv"
