@@ -72,7 +72,7 @@ set_font(r, size=34, bold=True, color=DARK)
 tb2 = s.shapes.add_textbox(Inches(1.0), Inches(4.0), Inches(11.3), Inches(1.6))
 tf2 = tb2.text_frame
 for i, t in enumerate(["大学生创新创业训练计划项目 · 结题答辩",
-                       "团队：ShadowHunter    负责人：潘俊豪    指导教师：祁昆仑"]):
+                       "团队：ShadowHunter"]):
     p = tf2.paragraphs[0] if i == 0 else tf2.add_paragraph()
     rr = p.add_run(); rr.text = t
     set_font(rr, size=18 if i == 0 else 16, color=GRAY)

@@ -9,7 +9,7 @@
 |---|---|---|
 | `old_logs/` | `train_log.txt`、`train_v2_log.txt`、`train_v3_quick.log`、`boxes_tta_result.txt` | 2026-10-12 的早期临时输出；已在 `logs/` 下有正式日志；**全库 grep 确认无任何文档引用** |
 | `old_figs/` | `c3i_result.png` | 早期 C3I 演示图，已被 `results/figures/` 取代；无引用 |
-| `old_ppt/` | `结题答辩PPT.pptx` | 最旧版本（10-11）；当前版本为根目录的 `结题答辩PPT_最终版.pptx`，旧泄漏口径版另有备份 |
+| `old_ppt/` | `结题答辩PPT.pptx` | 最旧版本（10-11）。更新版本在 `archive/deliverable_drafts/`（**该目录已于 2026-10-16 停止 git 跟踪、仅留本地**） |
 | `old_sam_dir/` | `segment-anything/`（整个目录，5 个文件） | **不是 SAM 包**，只是早期实验残留（`GPU_text.py`/`test_sam.py`/一张图）；真正的 SAM 源码在 `segment-anything-main/`（editable 安装）。原 `.gitignore` 已把 `segment-anything/` 标为"早期实验残留" |
 
 ## ⚠️ 特意**没有**归档的文件（因为被引用）
