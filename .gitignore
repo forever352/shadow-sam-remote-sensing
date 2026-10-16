@@ -53,3 +53,8 @@ archive/deliverable_drafts/
 # ===== 陈旧归档交付物 / 旧图（与 deliverable_drafts 同性质）=====
 archive/old_ppt/
 archive/old_figs/
+
+# ===== 由脚本生成的交付物（不入库；用 make_ppt.py 重新生成）=====
+# 注意：图表 results/metrics_bar.png **要入库**（make_ppt.py 直接引它，且被报告引用），
+#       故此处只排除 PPT 本身，不排除 results/ 下的图。
+结题答辩PPT_最终版.pptx

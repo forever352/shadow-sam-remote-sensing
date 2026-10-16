@@ -14,21 +14,26 @@ import matplotlib.pyplot as plt
 plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei", "SimSun"]
 plt.rcParams["axes.unicode_minus"] = False
 
-# ── 左：无泄漏划分主结果（三方法同一划分重训、best-val 口径）──
+# ── 左：无泄漏划分主结果（同一划分重训、best-val 口径）──
+# 数据源：results/{segnet,unet,maskrcnn_leakfree_res800,lora_leakfree*}_test.csv
+# LoRA 为 3 个随机种子的均值（0.7878 / 0.8075 / 0.8016），其余三基线均为单 seed=0
 main = [
-    ("SegNet\n(全监督)", 0.740, 0.847),
-    ("U-Net\n(全监督)†", 0.741, 0.846),
-    ("LoRA微调\nSAM(本项目)", 0.788, 0.880),
+    ("Mask R-CNN\n(全监督)†", 0.7382, 0.8481),
+    ("SegNet\n(全监督)", 0.7403, 0.8466),
+    ("U-Net\n(全监督)", 0.7525, 0.8552),
+    ("LoRA微调\nSAM(本项目)", 0.7990, 0.8869),
 ]
-# ── 右：AISD 自带划分（含同源泄漏，旧 run，仅存档）──
+# ── 右：AISD 自带划分（含同源泄漏，禁与左图横比）──
+# 前 4 项为**旧 run**（原聚合 CSV 已不在库，数字仅存于 README §3.2 / 结题报告 §3.2 表注）；后 3 项为该划分下的完整重跑
+# 注意：此处**不用 ‡ 记号** —— README 里 ‡ 指的是"CNN 增强 bug"，与"旧 run"不是同一组，避免同符号两义
 legacy = [
-    ("Otsu", 0.424, 0.581),
-    ("SAM-AMG\n(零样本)", 0.302, 0.442),
-    ("增强\n预处理", 0.512, 0.662),
-    ("冻结微调\nSAM", 0.717, 0.833),
-    ("SegNet\n(全监督)‡", 0.780, 0.875),
-    ("U-Net\n(全监督)‡", 0.805, 0.891),
-    ("LoRA微调\nSAM(本项目)", 0.839, 0.912),
+    ("Otsu\n(旧run)", 0.424, 0.581),
+    ("SAM-AMG\n(零样本,旧run)", 0.302, 0.442),
+    ("增强\n预处理(旧run)", 0.512, 0.662),
+    ("冻结微调\nSAM(旧run)", 0.717, 0.833),
+    ("SegNet\n(全监督)", 0.8089, 0.8939),
+    ("U-Net\n(全监督)", 0.8153, 0.8971),
+    ("LoRA微调\nSAM(本项目)", 0.8393, 0.9122),
 ]
 
 BLUE, ORANGE = "#2E74B5", "#DD7B3B"
@@ -63,11 +68,13 @@ def draw(ax, data, title, highlight_last=True):
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14.0, 5.2))
 draw(ax1, main, "无泄漏划分（主结果）\n92 张 / 21 独立场景，best-val", highlight_last=True)
-draw(ax2, legacy, "AISD 自带划分（含同源泄漏，仅存档）\n! 禁止与左图横比", highlight_last=True)
+draw(ax2, legacy, "AISD 自带划分（含同源泄漏，禁横比）\n51 张，仅作历史对齐", highlight_last=True)
 
 fig.text(0.5, 0.005,
-         "† U-Net 为训练 58/60 中断后第 50 轮 best-val；‡ 旧 run（泄漏 + 增强 bug）"
-         "　|　单 seed、未做显著性检验，领先幅度小于逐图标准差，仅表述为“数值上高于”",
+         "† Mask R-CNN 分辨率不对称仅“部分缓解”（输入仍固定 512）；"
+         "右图标注“(旧run)”的四项为早期跑数，原聚合 CSV 已不在库，仅作历史对齐"
+         "　|　本项目 LoRA 为 3 seed 均值（0.7878/0.8075/0.8016），三基线为单 seed；"
+         "未做显著性检验，仅表述为“数值上高于”",
          ha="center", fontsize=9, color="#555555")
 
 plt.tight_layout(rect=(0, 0.045, 1, 1))
