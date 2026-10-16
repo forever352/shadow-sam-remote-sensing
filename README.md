@@ -207,6 +207,10 @@ pip install python-pptx
 
 ## 五、快速开始
 
+> ⚠️ **clone 之后请先读 `资产获取说明.md`**：模型权重（`checkpoints/`）与数据集（`AISD/`）**不在本仓库里**
+> （体积超 GitHub 单文件上限，被 `.gitignore` 排除）——不备齐的话，下面任何命令都会报"找不到文件"。
+> 该文档给了**每个文件从哪拿、放到哪、以及怎么验证装对了**。
+
 > 所有脚本都用 `Path(__file__).resolve().parent` 定位项目根目录，因此**从任意目录运行都不会找不到权重**。下面统一假设你在项目根目录（内层 `RemoteSensing-Shadow-SAM-main`）下。
 
 ### 5.1 单张影像：演示 vs 矢量输出
@@ -287,7 +291,7 @@ RemoteSensing-Shadow-SAM-main/
 ├── requirements.txt           # 依赖清单
 ├── legacy/                    # 早期/弃用脚本（v1、方向训练失败版等）
 │
-├── checkpoints/               # 模型权重（**已 .gitignore，不入库**，需另行获取）
+├── checkpoints/               # 模型权重（**已 .gitignore，不入库**；获取方式见 `资产获取说明.md`）
 │   ├── sam_vit_b_01ec64.pth               # SAM 官方 ViT-B 权重（Meta 发布）
 │   ├── sam_vit_b_shadow_v4_lora_leakfree.pth    # **LoRA 无泄漏权重（主结果；3 seed 均值 0.7990，单 seed-0 = 0.7878）**
 │   ├── sam_vit_b_shadow_frozen_leakfree.pth     # 冻结编码器无泄漏权重（对照，0.5621）
@@ -297,7 +301,7 @@ RemoteSensing-Shadow-SAM-main/
 │   ├── direction_resnet18_flip_basis.pth        # 方向翻转自监督骨干（无泄漏划分）
 │   ├── unet_shadow.pth                    # U-Net 权重
 │   └── segnet_shadow.pth                  # SegNet 权重
-├── AISD/                      # 数据集（Train412/Val51/Test51；**已 .gitignore，不入库**）
+├── AISD/                      # 数据集（Train412/Val51/Test51；**已 .gitignore，不入库**；获取见 `资产获取说明.md`）
 ├── results/                   # 实验结果（*.csv 逐图/汇总；figures/ 与 metrics_bar.png 为图）
 └── segment-anything-main/     # SAM 官方源码（pip install -e 安装这个目录）
 ```
