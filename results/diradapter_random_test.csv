@@ -1,0 +1,3 @@
+method,n_images,IoU,BER,F1,OA,Precision,Recall
+LoRA+DirAdapter(random-dir)_random_leakfree,92,0.779478,0.061378,0.874077,0.947963,0.833603,0.925350
+LoRA+DirAdapter(random-dir)_random_leakfree_std,92,0.073483,0.020274,0.048450,0.024768,0.080745,0.040207

@@ -41,6 +41,12 @@ def main():
     ap.add_argument("--regress-ckpt", type=str, default=None)
     ap.add_argument("--tag", type=str, default="main",
                     help="输出标签，避免不同运行互相覆盖（须与被评估 ckpt 的 tag 一致）")
+    ap.add_argument("--with-random", action="store_true",
+                    help="额外加一行「随机方向」对照：**同一权重、只把方向输入换成随机**。"
+                         "随机方向用 directions_for 的逐图确定性种子（hash(文件名)），"
+                         "与训练侧同一公式 -> 训练/评估同源。"
+                         "用途：判断效应是否来自方向**信息内容**（若 random ≈ regress，"
+                         "则方向内容无关，效应来自「加了可训调制」本身）。")
     args = ap.parse_args()
 
     RES_DIR.mkdir(exist_ok=True); LOG_DIR.mkdir(exist_ok=True)
@@ -80,6 +86,9 @@ def main():
         ("LoRA+DirAdapter(oracle-dir)", "oracle", None),
         ("LoRA+DirAdapter(regress-dir)", "regress", dmodel),
     ]
+    if args.with_random:
+        # 同权重、只换方向输入 -> 隔离"方向信息内容"的作用
+        runs.append(("LoRA+DirAdapter(random-dir)", "random", None))
 
     rows_all, summary = [], []
     for name, src, dm in runs:

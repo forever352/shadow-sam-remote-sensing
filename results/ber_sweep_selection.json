@@ -1,0 +1,374 @@
+{
+  "configs": [
+    {
+      "code": "A60",
+      "family": "A",
+      "threshold": 0.6
+    },
+    {
+      "code": "A50",
+      "family": "A",
+      "threshold": 0.5
+    },
+    {
+      "code": "A45",
+      "family": "A",
+      "threshold": 0.45
+    },
+    {
+      "code": "A40",
+      "family": "A",
+      "threshold": 0.4
+    },
+    {
+      "code": "A35",
+      "family": "A",
+      "threshold": 0.35
+    },
+    {
+      "code": "A30",
+      "family": "A",
+      "threshold": 0.3
+    },
+    {
+      "code": "B50",
+      "family": "B",
+      "threshold": 0.5
+    },
+    {
+      "code": "B45",
+      "family": "B",
+      "threshold": 0.45
+    },
+    {
+      "code": "B40",
+      "family": "B",
+      "threshold": 0.4
+    },
+    {
+      "code": "B35",
+      "family": "B",
+      "threshold": 0.35
+    },
+    {
+      "code": "B30",
+      "family": "B",
+      "threshold": 0.3
+    }
+  ],
+  "rule": "val IoU>=V0-0.01 & min val BER & paired |t|>2.0 & mean_gain>0",
+  "baseline_code": "A50",
+  "family_b_baseline": "B50",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "notes": "族A=单seed-0概率阈值扫描；族B=3seed集成后阈值扫描；集成改变方法本身，须单列；配对一律基线在前",
+  "ts": "20261016_035937",
+  "gate_repro_max_dev": 4.85621325721497e-07,
+  "val_baseline": {
+    "IoU": 0.812812,
+    "BER": 0.060884,
+    "F1": 0.895538,
+    "OA": 0.955222,
+    "Precision": 0.880868,
+    "Recall": 0.91377,
+    "FPR": 0.035539,
+    "FNR": 0.08623
+  },
+  "val_candidates": [
+    {
+      "config": "B30",
+      "val_BER": 0.051175,
+      "val_IoU": 0.814307,
+      "paired_mean_ber_gain": 0.00971,
+      "paired_t": 8.281899,
+      "win": 57,
+      "lose": 1,
+      "base_paired_mean_gain": 0.010365,
+      "base_paired_t": 6.909692,
+      "base_win": 16,
+      "base_lose": 0,
+      "base_n": 16,
+      "vs_B50_mean_gain": 0.005213,
+      "vs_B50_t": 6.249346,
+      "vs_B50_win": 51,
+      "vs_B50_lose": 7
+    },
+    {
+      "config": "B35",
+      "val_BER": 0.051818,
+      "val_IoU": 0.820806,
+      "paired_mean_ber_gain": 0.009066,
+      "paired_t": 7.456402,
+      "win": 56,
+      "lose": 2,
+      "base_paired_mean_gain": 0.009353,
+      "base_paired_t": 6.870429,
+      "base_win": 16,
+      "base_lose": 0,
+      "base_n": 16,
+      "vs_B50_mean_gain": 0.004569,
+      "vs_B50_t": 7.711451,
+      "vs_B50_win": 52,
+      "vs_B50_lose": 6
+    },
+    {
+      "config": "B40",
+      "val_BER": 0.053231,
+      "val_IoU": 0.824089,
+      "paired_mean_ber_gain": 0.007653,
+      "paired_t": 6.641962,
+      "win": 56,
+      "lose": 2,
+      "base_paired_mean_gain": 0.007795,
+      "base_paired_t": 6.529638,
+      "base_win": 16,
+      "base_lose": 0,
+      "base_n": 16,
+      "vs_B50_mean_gain": 0.003156,
+      "vs_B50_t": 8.348527,
+      "vs_B50_win": 52,
+      "vs_B50_lose": 6
+    },
+    {
+      "config": "B45",
+      "val_BER": 0.054754,
+      "val_IoU": 0.82638,
+      "paired_mean_ber_gain": 0.00613,
+      "paired_t": 5.559088,
+      "win": 52,
+      "lose": 6,
+      "base_paired_mean_gain": 0.006152,
+      "base_paired_t": 5.973177,
+      "base_win": 16,
+      "base_lose": 0,
+      "base_n": 16,
+      "vs_B50_mean_gain": 0.001634,
+      "vs_B50_t": 9.327727,
+      "vs_B50_win": 53,
+      "vs_B50_lose": 5
+    },
+    {
+      "config": "B50",
+      "val_BER": 0.056388,
+      "val_IoU": 0.827919,
+      "paired_mean_ber_gain": 0.004497,
+      "paired_t": 4.174213,
+      "win": 47,
+      "lose": 11,
+      "base_paired_mean_gain": 0.0044,
+      "base_paired_t": 4.93649,
+      "base_win": 15,
+      "base_lose": 1,
+      "base_n": 16
+    },
+    {
+      "config": "A35",
+      "val_BER": 0.058068,
+      "val_IoU": 0.804489,
+      "paired_mean_ber_gain": 0.002816,
+      "paired_t": 5.140452,
+      "win": 50,
+      "lose": 8,
+      "base_paired_mean_gain": 0.003704,
+      "base_paired_t": 5.713393,
+      "base_win": 15,
+      "base_lose": 1,
+      "base_n": 16
+    },
+    {
+      "config": "A40",
+      "val_BER": 0.058894,
+      "val_IoU": 0.807874,
+      "paired_mean_ber_gain": 0.001991,
+      "paired_t": 5.709064,
+      "win": 51,
+      "lose": 7,
+      "base_paired_mean_gain": 0.002546,
+      "base_paired_t": 5.890761,
+      "base_win": 15,
+      "base_lose": 1,
+      "base_n": 16
+    },
+    {
+      "config": "A45",
+      "val_BER": 0.059834,
+      "val_IoU": 0.810608,
+      "paired_mean_ber_gain": 0.00105,
+      "paired_t": 6.198193,
+      "win": 51,
+      "lose": 7,
+      "base_paired_mean_gain": 0.00132,
+      "base_paired_t": 6.26153,
+      "base_win": 16,
+      "base_lose": 0,
+      "base_n": 16
+    },
+    {
+      "config": "A60",
+      "val_BER": 0.063462,
+      "val_IoU": 0.815746,
+      "paired_mean_ber_gain": -0.002577,
+      "paired_t": -8.142423,
+      "win": 6,
+      "lose": 52,
+      "base_paired_mean_gain": -0.003048,
+      "base_paired_t": -6.892878,
+      "base_win": 0,
+      "base_lose": 16,
+      "base_n": 16
+    }
+  ],
+  "chosen": "B30",
+  "verdict": "选中 B30",
+  "test_all_configs": [
+    {
+      "config": "A60",
+      "IoU": 0.791363,
+      "BER": 0.066887,
+      "F1": 0.881947,
+      "OA": 0.953107,
+      "Precision": 0.867565,
+      "Recall": 0.901924,
+      "FPR": 0.035697,
+      "FNR": 0.098076
+    },
+    {
+      "config": "A50",
+      "IoU": 0.787821,
+      "BER": 0.064359,
+      "F1": 0.879607,
+      "OA": 0.951335,
+      "Precision": 0.85457,
+      "Recall": 0.911781,
+      "FPR": 0.0405,
+      "FNR": 0.088219
+    },
+    {
+      "config": "A45",
+      "IoU": 0.785451,
+      "BER": 0.063299,
+      "F1": 0.878039,
+      "OA": 0.950247,
+      "Precision": 0.847744,
+      "Recall": 0.916512,
+      "FPR": 0.043111,
+      "FNR": 0.083488
+    },
+    {
+      "config": "A40",
+      "IoU": 0.782613,
+      "BER": 0.062377,
+      "F1": 0.87616,
+      "OA": 0.948977,
+      "Precision": 0.840563,
+      "Recall": 0.921189,
+      "FPR": 0.045943,
+      "FNR": 0.078811
+    },
+    {
+      "config": "A35",
+      "IoU": 0.7792,
+      "BER": 0.061567,
+      "F1": 0.873891,
+      "OA": 0.947479,
+      "Precision": 0.832766,
+      "Recall": 0.925967,
+      "FPR": 0.0491,
+      "FNR": 0.074033
+    },
+    {
+      "config": "A30",
+      "IoU": 0.775055,
+      "BER": 0.060858,
+      "F1": 0.871126,
+      "OA": 0.945683,
+      "Precision": 0.824099,
+      "Recall": 0.930997,
+      "FPR": 0.052713,
+      "FNR": 0.069003
+    },
+    {
+      "config": "B50",
+      "IoU": 0.808812,
+      "BER": 0.058092,
+      "F1": 0.893252,
+      "OA": 0.958056,
+      "Precision": 0.872632,
+      "Recall": 0.917491,
+      "FPR": 0.033675,
+      "FNR": 0.082509
+    },
+    {
+      "config": "B45",
+      "IoU": 0.806512,
+      "BER": 0.056503,
+      "F1": 0.891795,
+      "OA": 0.957094,
+      "Precision": 0.86472,
+      "Recall": 0.923407,
+      "FPR": 0.036413,
+      "FNR": 0.076593
+    },
+    {
+      "config": "B40",
+      "IoU": 0.803454,
+      "BER": 0.055075,
+      "F1": 0.889857,
+      "OA": 0.955895,
+      "Precision": 0.856188,
+      "Recall": 0.929292,
+      "FPR": 0.039443,
+      "FNR": 0.070708
+    },
+    {
+      "config": "B35",
+      "IoU": 0.799124,
+      "BER": 0.053896,
+      "F1": 0.887105,
+      "OA": 0.954282,
+      "Precision": 0.846436,
+      "Recall": 0.935213,
+      "FPR": 0.043005,
+      "FNR": 0.064787
+    },
+    {
+      "config": "B30",
+      "IoU": 0.790188,
+      "BER": 0.053664,
+      "F1": 0.881361,
+      "OA": 0.951108,
+      "Precision": 0.831823,
+      "Recall": 0.941246,
+      "FPR": 0.048574,
+      "FNR": 0.058754
+    }
+  ],
+  "test_summary": [
+    {
+      "config": "A50",
+      "IoU": 0.787821,
+      "BER": 0.064359,
+      "F1": 0.879607,
+      "OA": 0.951335,
+      "Precision": 0.85457,
+      "Recall": 0.911781,
+      "FPR": 0.0405,
+      "FNR": 0.088219
+    },
+    {
+      "config": "B30",
+      "IoU": 0.790188,
+      "BER": 0.053664,
+      "F1": 0.881361,
+      "OA": 0.951108,
+      "Precision": 0.831823,
+      "Recall": 0.941246,
+      "FPR": 0.048574,
+      "FNR": 0.058754
+    }
+  ],
+  "success_criterion_met": false
+}

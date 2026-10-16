@@ -1,8 +1,12 @@
 """
 单张影像阴影检测演示：加载微调后的 SAM，全自动检测阴影并保存结果图。
+
+默认使用**无泄漏划分**训练的 LoRA 权重（主结果口径）。
+需要"输入影像 -> 输出阴影矢量"时请用 `shadow_extract.py`。
+
 用法:
-    python demo.py                     # 检测一张 AISD 标准测试图（默认 austin13_sub2.tif）
-    python demo.py 图片路径            # 检测任意图片
+    python demo.py                     # 检测一张无泄漏测试集影像（默认 chicago30_sub1.tif）
+    python demo.py --image 图片路径    # 检测任意图片
 """
 import sys
 import argparse
@@ -19,8 +23,8 @@ from methods import mask_enhanced
 
 BASE = Path(__file__).resolve().parent
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-DEFAULT_IMG = BASE / "AISD" / "AISD" / "Test51" / "shadow" / "austin13_sub2.tif"
-DEFAULT_CKPT = str(BASE / "checkpoints" / "sam_vit_b_shadow_v4_lora.pth")
+DEFAULT_IMG = BASE / "AISD" / "AISD" / "Train412" / "shadow" / "chicago30_sub1.tif"
+DEFAULT_CKPT = str(BASE / "checkpoints" / "sam_vit_b_shadow_v4_lora_leakfree.pth")
 OFFICIAL_CKPT = str(BASE / "checkpoints" / "sam_vit_b_01ec64.pth")
 
 
@@ -39,7 +43,9 @@ def load_sam(ckpt_path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--image", default=str(DEFAULT_IMG), help="图片路径")
-    parser.add_argument("--checkpoint", default=DEFAULT_CKPT, help="模型权重（默认 LoRA 0.8393）")
+    parser.add_argument("--checkpoint", default=DEFAULT_CKPT,
+                        help="模型权重（默认=无泄漏主结果口径；"
+                             "若用 sam_vit_b_shadow_v4_lora_last.pth 则为含泄漏的旧口径）")
     args = parser.parse_args()
 
     img_path = args.image

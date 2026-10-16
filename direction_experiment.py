@@ -38,7 +38,6 @@ AISD = BASE / "AISD" / "AISD"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 transform = ResizeLongestSide(1024)
 
-
 # ---- 复用图像编码：图像只进一次编码器，多个提示共用同一个 embedding ----
 @torch.no_grad()
 def encode_image(sam, img_rgb):

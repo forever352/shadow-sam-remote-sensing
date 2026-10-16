@@ -85,10 +85,14 @@ def main():
             d = RSISD / sp / "shadow"
             if d.exists():
                 check(f"  RSISD/{sp}", True, f"{len(list(d.glob('*.png')))} 张")
-    for f in ["sam_vit_b_01ec64.pth", "sam_vit_b_shadow_v4_lora_leakfree.pth"]:
+    for f in ["sam_vit_b_01ec64.pth", "sam_vit_b_shadow_v4_lora_leakfree.pth",
+              "sam_vit_b_shadow_v4_lora_leakfree_s1.pth",
+              "sam_vit_b_shadow_v4_lora_leakfree_s2.pth"]:
         check(f"权重 {f}", (CK / f).exists())
     check("权重 direction_resnet18_flip_basis.pth", (CK / "direction_resnet18_flip_basis.pth").exists(),
           "[!] 缺失会阻塞 T1.1 及以后全部工作")
+    check("权重 direction_resnet18_regress.pth", (CK / "direction_resnet18_regress.pth").exists(),
+          "[!] 缺失会阻塞 train_direction_adapter.py 的 regress 模式（主方法口径）")
     check("SARU 权重 best_AISD_ckp.pth", (CK / "saru" / "best_AISD_ckp.pth").exists())
 
     # ── 2. 划分一致性（基底是否统一）──
@@ -193,7 +197,8 @@ def main():
     for f in ["direction_utils.py", "direction_adapter.py", "direction_prompt.py",
               "direction_prompt_eval.py", "train_direction_adapter.py",
               "evaluate_direction_adapter.py", "train_direction_dtict.py",
-              "eval_cross_dataset.py"]:
+              "eval_cross_dataset.py", "ber_sweep_eval.py",
+              "train_frozen_leakfree.py", "shadow_extract.py"]:
         fp = BASE / f
         if not fp.exists():
             check(f"{f} 存在", False)
