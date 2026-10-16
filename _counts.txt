@@ -1,9 +1,0 @@
-AST 口径（含函数内缩进 import、去自引用）：
-  env_setup              45
-  eval_shadow            26
-  methods                21
-  train_direction_net    19
-  train_adapter_v4       14
-  direction_experiment   11
-  prompt_experiment      7
-  evaluate_finetuned     6

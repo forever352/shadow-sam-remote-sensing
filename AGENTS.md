@@ -117,5 +117,5 @@ preflight 自检 → supervisor 审方案 → 执行 → supervisor 审结果 �
 | 跨数据集 | `eval_cross_dataset.py`、`datasets/RSISD/` |
 | SAM 补丁 | `segment-anything-main/.../prompt_encoder.py`（diff 存 `backups/patches/`） |
 | 审查日志 | `review_log.md`（4 轮） |
-| 运行手册 | `GPU执行清单_队列跑完后.md` |
+| 运行手册（**已过期，2026-10-16 归档**） | `archive/GPU执行清单_队列跑完后.md` |
 | 应急预案 | `执行顺序与应急预案.md` |

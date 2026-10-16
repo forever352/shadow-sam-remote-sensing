@@ -49,3 +49,7 @@ archive/reference_docs/
 # ===== 第三方论文全文（版权）/ 陈旧交付物（不入库，见 代码与文件索引.md）=====
 references/
 archive/deliverable_drafts/
+
+# ===== 陈旧归档交付物 / 旧图（与 deliverable_drafts 同性质）=====
+archive/old_ppt/
+archive/old_figs/
