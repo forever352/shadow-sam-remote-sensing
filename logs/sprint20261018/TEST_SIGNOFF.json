@@ -1,0 +1,15 @@
+{
+  "approved": true,
+  "approved_by": "supervisor",
+  "selection_sha256": "d349f344394974c977c0896d1523d22e3872fdcf7baddf1fd475049e20d47611",
+  "command": "ber_tta_eval.py --stage test",
+  "checkpoints": {
+    "0": "D:\\RemoteSensing-Shadow-SAM-main\\RemoteSensing-Shadow-SAM-main\\checkpoints\\sam_vit_b_shadow_v4_lora_leakfree.pth",
+    "1": "D:\\RemoteSensing-Shadow-SAM-main\\RemoteSensing-Shadow-SAM-main\\checkpoints\\sam_vit_b_shadow_v4_lora_leakfree_s1.pth",
+    "2": "D:\\RemoteSensing-Shadow-SAM-main\\RemoteSensing-Shadow-SAM-main\\checkpoints\\sam_vit_b_shadow_v4_lora_leakfree_s2.pth"
+  },
+  "script_sha256": {
+    "ber_tta_eval.py": "68c27c818522fe771c7dc151f8a2f4d1632308e9a722efe226ad1190319c49f4",
+    "ber_sweep_eval.py": "cfd0be6993186ecc57a899271ddc4a2acf2b4fc34ef5524e0a7299acd193ca8f"
+  }
+}

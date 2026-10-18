@@ -1,0 +1,23 @@
+# rotation-prediction self-supervised pretraining (4-way)
+# time=2026-10-18 17:34:38 device=cuda
+# split: train=262 (68 bases) val=58 (16 bases) test=92 (21 bases, NOT touched)
+# epochs=15 batch=32 lr=0.001 seed=2
+# steps/epoch=32 (flip: 16; matched by 15 vs 30 epochs)
+Epoch   1/15 loss=1.6656 val_acc=0.3276 (10s)
+Epoch   2/15 loss=1.1763 val_acc=0.5690 (10s)
+Epoch   3/15 loss=0.8557 val_acc=0.7543 (10s)
+Epoch   4/15 loss=0.6205 val_acc=0.8879 (10s)
+Epoch   5/15 loss=0.4812 val_acc=0.8879 (10s)
+Epoch   6/15 loss=0.4615 val_acc=0.5690 (10s)
+Epoch   7/15 loss=0.4122 val_acc=0.8621 (11s)
+Epoch   8/15 loss=0.3620 val_acc=0.8448 (13s)
+Epoch   9/15 loss=0.3554 val_acc=0.5733 (13s)
+Epoch  10/15 loss=0.3681 val_acc=0.9138 (13s)
+Epoch  11/15 loss=0.3247 val_acc=0.8017 (13s)
+Epoch  12/15 loss=0.2871 val_acc=0.9224 (13s)
+Epoch  13/15 loss=0.2904 val_acc=0.8362 (13s)
+Epoch  14/15 loss=0.2708 val_acc=0.8233 (13s)
+Epoch  15/15 loss=0.2257 val_acc=0.9009 (12s)
+# best val_acc=0.9224
+# checkpoint -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\checkpoints\direction_resnet18_rot_basis_s2.pth
+# log -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\logs\sprint20261018\direction_rotation_20261018_173438.log

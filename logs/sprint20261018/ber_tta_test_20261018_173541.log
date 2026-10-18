@@ -1,0 +1,18 @@
+# BER TTA sprint (pre-registered v2)
+# time=2026-10-18 17:35:42 device=cuda
+# split: train=68 val=16 test=21 base images
+# val criterion: BER < 0.047; test criterion: BER < 0.05 + paired gain>0
+# thresholds=[0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6]
+# posts=['none', 'close3', 'close5', 'fill', 'close3_fill']
+# loading 3 seed checkpoints
+# allocated=1132.5 MB
+# command=ber_tta_eval.py --stage test
+# checkpoints={'0': 'D:\\RemoteSensing-Shadow-SAM-main\\RemoteSensing-Shadow-SAM-main\\checkpoints\\sam_vit_b_shadow_v4_lora_leakfree.pth', '1': 'D:\\RemoteSensing-Shadow-SAM-main\\RemoteSensing-Shadow-SAM-main\\checkpoints\\sam_vit_b_shadow_v4_lora_leakfree_s1.pth', '2': 'D:\\RemoteSensing-Shadow-SAM-main\\RemoteSensing-Shadow-SAM-main\\checkpoints\\sam_vit_b_shadow_v4_lora_leakfree_s2.pth'}
+# script_sha256={'ber_tta_eval.py': '68c27c818522fe771c7dc151f8a2f4d1632308e9a722efe226ad1190319c49f4', 'ber_sweep_eval.py': 'cfd0be6993186ecc57a899271ddc4a2acf2b4fc34ef5524e0a7299acd193ca8f'}
+# chosen=T25_none_tta threshold=0.25 tta=True post=none
+# selection_sha256=d349f344394974c977c0896d1523d22e3872fdcf7baddf1fd475049e20d47611 signoff_by=supervisor
+# test T25_none_tta: BER=0.048175 IoU=0.788718
+# vs B30: mean_BER_gain=0.005490 t=9.391 win=83 lose=9
+# scene-level: gain=0.005753 t=9.690 win=20 lose=1 n=21
+# test criterion met=True
+# log -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\logs\sprint20261018\ber_tta_test_20261018_173541.log

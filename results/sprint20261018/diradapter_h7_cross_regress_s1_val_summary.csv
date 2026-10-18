@@ -1,0 +1,2 @@
+tag,adapter_mode,direction_source,epochs,seed,best_epoch,best_val_IoU,best_val_BER,ckpt,log
+h7_cross_regress_s1,cross_attn,regress,20,1,1,0.813567,0.056948,D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\checkpoints\sam_vit_b_shadow_v4_dir_adapter_h7_cross_regress_s1_leakfree.pth,diradapter_20261018_185801.log

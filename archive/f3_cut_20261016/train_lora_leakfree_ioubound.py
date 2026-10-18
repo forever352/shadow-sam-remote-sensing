@@ -11,9 +11,9 @@
 
 用法：
     python train_lora_leakfree_ioubound.py --epochs 40
-"""
 
 【F3：本文件是 train_lora_leakfree.py 的**副本**，用于落实申报书点名的损失函数】—— 原件一字未动。
+
 
 差异（**唯一实质改动 = 损失组合**）：
     原: focal_loss + dice_loss
@@ -37,6 +37,7 @@
     lambda = 1.0 固定 | 保留 Focal | 距离图**有符号** | 严格 **40 轮**（与主结果同轮数才可横比）
     拆分声明：本次是**复合替换**（区域项 Dice→IoU 近乎等价改写 + **新增 Boundary**），
     报告**不得**把结果归因到 IoU 或 Boundary 任一子项。
+"""
 
 import argparse
 import csv

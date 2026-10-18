@@ -1,0 +1,18 @@
+# 方向回归头（从预训练骨干微调出阴影方向向量 cos2theta/sin2theta）
+# 时间: 2026-10-18 17:20:24  epochs=1 seed=0
+# backbone: checkpoints/direction_resnet18_rot_basis_smoke.pth
+# 划分=basis（与方法同基座）：训练 262 / 验证 58 / 测试 92
+# 有效样本（能算出方向）：训练 262 / 验证 58
+Epoch   1/1  loss=0.8385  (3s)  | 验证角度误差=45.90° (n=58)  -> 保存最佳
+
+=== 方向回归结果 ===
+训练集角度误差: 39.79° (n=262)   ← 直接测量
+验证集角度误差: 45.90° (n=58)
+测试集角度误差: [SKIP] --val-only（预注册：仅对 val 最优骨干评一次 test）
+最佳验证误差: 45.90°，模型 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\checkpoints\direction_resnet18_regress_rot_smoke.pth
+
+--- 基线对照 ---
+常数预测器（恒预测训练集圆形均值方向 θ=-12.2°）: 32.41°
+随机水平（180° 周期均匀分布的期望绝对角误差）        : 45.00°
+
+日志 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\logs\direction_regress_20261018_172024.log

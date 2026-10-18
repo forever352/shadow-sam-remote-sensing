@@ -1,0 +1,2 @@
+tag,backbone,init,seed,train_deg,val_deg,test_deg,constant_deg,random_deg,ckpt,log
+rot_s1,checkpoints/direction_resnet18_rot_basis_s1.pth,backbone,0,12.7168,22.2068,,32.4080,45.0000,D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\checkpoints\direction_resnet18_regress_rot_s1.pth,direction_regress_20261018_174706.log

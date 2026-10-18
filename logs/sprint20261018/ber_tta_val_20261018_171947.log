@@ -1,0 +1,13 @@
+# BER TTA sprint (pre-registered)
+# time=2026-10-18 17:19:47 device=cuda
+# split: train=68 val=16 test=21 base images
+# val criterion: BER < 0.047; test criterion: BER < 0.05
+# thresholds=[0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6]
+# posts=['none', 'close3', 'close5', 'fill', 'close3_fill']
+# loading 3 seed checkpoints
+# allocated=1132.5 MB
+# smoke rows per config: 2
+T30_none_no: {'IoU': 0.8411897878986636, 'BER': 0.057156299985076015, 'F1': 0.9136719433230567, 'OA': 0.9527690972215488, 'Precision': 0.9064975929859143, 'Recall': 0.9210379428054569, 'FPR': 0.035350542775608944, 'FNR': 0.07896205719454308}
+T30_none_tta: {'IoU': 0.8471209740997703, 'BER': 0.051683352310412184, 'F1': 0.9171916772375628, 'OA': 0.9541883680548815, 'Precision': 0.899875464412595, 'Recall': 0.9353471142439658, 'FPR': 0.0387138188647902, 'FNR': 0.06465288575603417}
+T20_close3_fill_tta: {'IoU': 0.8321446203671197, 'BER': 0.05119147076057658, 'F1': 0.9083401703363417, 'OA': 0.9479774305548858, 'Precision': 0.8699551590434994, 'Recall': 0.9504702169529253, 'FPR': 0.052853158474078475, 'FNR': 0.04952978304707467}
+# log -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\logs\sprint20261018\ber_tta_val_20261018_171947.log

@@ -1,0 +1,107 @@
+{
+  "ts": "20261018_172807",
+  "version": 2,
+  "baseline": "T30_none_no",
+  "baseline_val": {
+    "IoU": 0.8143068968841347,
+    "BER": 0.05117473726720167,
+    "F1": 0.8968834520333699,
+    "OA": 0.9549009232042251,
+    "Precision": 0.8584263185389048,
+    "Recall": 0.9413190887918138,
+    "FPR": 0.0436685633262173,
+    "FNR": 0.05868091120818607
+  },
+  "known_b30_val": {
+    "BER": 0.051175,
+    "IoU": 0.814307
+  },
+  "gate_deviation": 2.6273279832983443e-07,
+  "thresholds": [
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6
+  ],
+  "posts": [
+    "none",
+    "close3",
+    "close5",
+    "fill",
+    "close3_fill"
+  ],
+  "n_candidates": 110,
+  "selection_rule": "val IoU >= baseline-0.01; paired |t|>2; base-name paired t>2; then min val BER; tie-break higher IoU",
+  "multiple_comparison": "110 candidates, no correction; exploratory selection",
+  "chosen": "T25_none_tta",
+  "chosen_val": {
+    "IoU": 0.8129140829310975,
+    "BER": 0.04589605912599973,
+    "F1": 0.8960990864925785,
+    "OA": 0.9538233849518041,
+    "Precision": 0.8437985891652527,
+    "Recall": 0.9576281838892149,
+    "FPR": 0.04942030214121428,
+    "FNR": 0.042371816110785165
+  },
+  "chosen_stats": {
+    "paired_mean_gain": 0.0052786781412019574,
+    "paired_t": 9.180227511365691,
+    "win": 54,
+    "lose": 4,
+    "base_paired_mean_gain": 0.0061924048618184156,
+    "base_paired_t": 8.476564595443051,
+    "base_win": 16,
+    "base_lose": 0,
+    "base_n": 16
+  },
+  "threshold_at_grid_boundary": false,
+  "success_criterion_met": true,
+  "val_criterion": 0.047,
+  "test_criterion": 0.05,
+  "test_evaluated": true,
+  "selection_sha256": "db82937bf1562537ae6bd8f0612bf01215aa5a4ab66d7104e84c4f0426ced1e3",
+  "pretest_selection_sha256": "d349f344394974c977c0896d1523d22e3872fdcf7baddf1fd475049e20d47611",
+  "test_result": {
+    "IoU": 0.7887181345559098,
+    "BER": 0.048174630513471005,
+    "F1": 0.8803885222511102,
+    "OA": 0.9498175988362436,
+    "Precision": 0.8170598576753012,
+    "Recall": 0.9582187121269321,
+    "FPR": 0.054567973153874225,
+    "FNR": 0.04178128787306779
+  },
+  "test_vs_b30": {
+    "mean_gain": 0.005489639061829323,
+    "t": 9.39089715064159,
+    "win": 83,
+    "lose": 9,
+    "base_paired_mean_gain": 0.005752934926471128,
+    "base_paired_t": 9.689614347977853,
+    "base_win": 20,
+    "base_lose": 1,
+    "base_n": 21,
+    "criterion_met": true
+  },
+  "test_log": "D:\\RemoteSensing-Shadow-SAM-main\\RemoteSensing-Shadow-SAM-main\\logs\\sprint20261018\\ber_tta_test_20261018_173541.log",
+  "test_command": "ber_tta_eval.py --stage test",
+  "test_checkpoints": {
+    "0": "D:\\RemoteSensing-Shadow-SAM-main\\RemoteSensing-Shadow-SAM-main\\checkpoints\\sam_vit_b_shadow_v4_lora_leakfree.pth",
+    "1": "D:\\RemoteSensing-Shadow-SAM-main\\RemoteSensing-Shadow-SAM-main\\checkpoints\\sam_vit_b_shadow_v4_lora_leakfree_s1.pth",
+    "2": "D:\\RemoteSensing-Shadow-SAM-main\\RemoteSensing-Shadow-SAM-main\\checkpoints\\sam_vit_b_shadow_v4_lora_leakfree_s2.pth"
+  },
+  "test_script_sha256": {
+    "ber_tta_eval.py": "68c27c818522fe771c7dc151f8a2f4d1632308e9a722efe226ad1190319c49f4",
+    "ber_sweep_eval.py": "cfd0be6993186ecc57a899271ddc4a2acf2b4fc34ef5524e0a7299acd193ca8f"
+  },
+  "test_per_image_sha256": "5e86648a5f43f3568f81e1fa66556c2f827d1d1cf431ce9ada74ea6ad62b248d",
+  "test_sha256": "3ce6c5414fa859c2dd9d4a3e534b9f2bd7931d7b44b39c002ed2ec740d127623"
+}

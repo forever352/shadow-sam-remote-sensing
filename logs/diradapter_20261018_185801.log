@@ -1,0 +1,55 @@
+# 模块③ 方向特征 Adapter 训练（方向来源=regress，只训 adapter）
+# 时间: 2026-10-18 18:58:01  设备: cuda
+# 基线权重（只读）: D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\checkpoints\sam_vit_b_shadow_v4_lora_leakfree.pth
+# adapter_mode=cross_attn  seed=1
+# 增量加载：missing=9 keys, unexpected=0 keys
+#  missing 仅含 adapter 新增键（9 个），符合预期
+# 恒等性检查：max|Δ| = 0.000e+00（要求 < 1e-5）
+# --freeze-base：只训练 adapter（280001 个参数）
+# 梯度自检：adapter 每个参数都曾拿到非零梯度（无死锁）
+Epoch   1/20  loss=0.0944  lr=9.94e-05  (58s)
+    -> 验证 IoU=0.8136  BER=0.0569
+    -> 保存最佳 (val IoU 0.8136)
+Epoch   2/20  loss=0.0943  lr=9.78e-05  (54s)
+    -> 验证 IoU=0.8079  BER=0.0567
+Epoch   3/20  loss=0.0940  lr=9.51e-05  (54s)
+    -> 验证 IoU=0.8090  BER=0.0558
+Epoch   4/20  loss=0.0943  lr=9.14e-05  (53s)
+    -> 验证 IoU=0.8074  BER=0.0581
+Epoch   5/20  loss=0.0941  lr=8.68e-05  (54s)
+    -> 验证 IoU=0.8118  BER=0.0578
+Epoch   6/20  loss=0.0940  lr=8.15e-05  (53s)
+    -> 验证 IoU=0.8132  BER=0.0575
+Epoch   7/20  loss=0.0943  lr=7.54e-05  (53s)
+    -> 验证 IoU=0.8104  BER=0.0577
+Epoch   8/20  loss=0.0934  lr=6.89e-05  (54s)
+    -> 验证 IoU=0.8089  BER=0.0583
+Epoch   9/20  loss=0.0936  lr=6.20e-05  (54s)
+    -> 验证 IoU=0.8094  BER=0.0571
+Epoch  10/20  loss=0.0942  lr=5.50e-05  (54s)
+    -> 验证 IoU=0.8093  BER=0.0583
+Epoch  11/20  loss=0.0938  lr=4.80e-05  (54s)
+    -> 验证 IoU=0.8106  BER=0.0574
+Epoch  12/20  loss=0.0940  lr=4.11e-05  (53s)
+    -> 验证 IoU=0.8095  BER=0.0571
+Epoch  13/20  loss=0.0936  lr=3.46e-05  (53s)
+    -> 验证 IoU=0.8084  BER=0.0572
+Epoch  14/20  loss=0.0941  lr=2.85e-05  (53s)
+    -> 验证 IoU=0.8082  BER=0.0573
+Epoch  15/20  loss=0.0934  lr=2.32e-05  (53s)
+    -> 验证 IoU=0.8070  BER=0.0571
+Epoch  16/20  loss=0.0933  lr=1.86e-05  (53s)
+    -> 验证 IoU=0.8069  BER=0.0574
+Epoch  17/20  loss=0.0937  lr=1.49e-05  (53s)
+    -> 验证 IoU=0.8082  BER=0.0577
+Epoch  18/20  loss=0.0939  lr=1.22e-05  (54s)
+    -> 验证 IoU=0.8070  BER=0.0574
+Epoch  19/20  loss=0.0942  lr=1.06e-05  (54s)
+    -> 验证 IoU=0.8072  BER=0.0575
+Epoch  20/20  loss=0.0939  lr=1.00e-05  (53s)
+    -> 验证 IoU=0.8070  BER=0.0575
+
+[SKIP] --val-only: test not evaluated
+val summary -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\sprint20261018\diradapter_h7_cross_regress_s1_val_summary.csv
+权重 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\checkpoints\sam_vit_b_shadow_v4_dir_adapter_h7_cross_regress_s1_leakfree.pth
+运行日志 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\logs\diradapter_20261018_185801.log

@@ -1,10 +1,12 @@
-# 基于方向提示与 SAM 的遥感影像阴影检测
+# 基于物理先验提示与 LoRA 微调 SAM 的遥感影像阴影检测
 
-> **一句话**：把阴影的物理先验（又暗、又偏蓝、方向一致）与「分割一切」大模型 SAM 结合，用 **LoRA 参数高效微调**实现**全自动、无需人工点选**的遥感影像阴影检测。
+> **一句话**：把阴影的物理先验（暗、低反射率）与「分割一切」大模型 SAM 结合，用 **LoRA 参数高效微调**实现**全自动、无需人工点选**的遥感影像阴影检测与矢量输出。
+>
+> **最终交付**：结题报告 `结题报告.md`；答辩 PPT `结题答辩PPT_最终版.pptx`（由 `make_ppt.py` 生成）；软件原型 `shadow_extract.py`。
 
 - 团队：ShadowHunter（本仓库不列出真实姓名；署名信息见随项目提交的正式结题材料）
 - 数据集：[AISD](https://github.com/xw-hu/UnShadowNet)（航空影像阴影检测公开数据集，多尺度约 256~1688 像素）
-- 核心成果：**LoRA 微调 SAM**，仅训练约 4.8% 参数，在**按原始大图重划的无泄漏划分**上 **IoU 0.7990 ± 0.0101（3 seed 均值）/ BER 0.0612 ± 0.0027**（单值 0.7878/0.8075/0.8016），**数值上高于**同划分下的全监督 U-Net（0.752）/ SegNet（0.740）
+- 核心成果：**LoRA 微调 SAM**，仅训练约 4.8% 参数，在**按原始大图重划的无泄漏划分**上 **IoU 0.7990 ± 0.0101（3 seed 均值）/ BER 0.0612 ± 0.0027**（单值 0.7878/0.8075/0.8016），**数值上高于**同划分下的全监督 U-Net（0.7547 ± 0.0028）/ SegNet（0.7382 ± 0.0044）（均为 3 seed 均值）
 
 ---
 
@@ -38,7 +40,7 @@
 输出精细阴影掩膜
 ```
 
-其中「方向先验」是项目标题的核心，项目系统探索了**四种注入方式**（几何过滤、方向点提示、方向点训练、**方向 Adapter 条件注入**），诚实结论是方向信息在框提示框架下收益有限（详见「已知问题」与 `结题报告.md` §五）。
+其中「方向先验」是申报阶段的核心计划；项目系统探索了**四种注入方式**（几何过滤、方向点提示、方向点训练、**方向 Adapter 条件注入**），诚实结论是方向信息在框提示框架下收益有限（详见「已知问题」与 `结题报告.md` §6.3 / §6.4）。
 
 ---
 
@@ -53,9 +55,9 @@
 | 方法 | IoU ↑ | BER ↓ | F1 ↑ | OA | Precision | Recall |
 |------|------:|------:|-----:|-----:|----------:|-------:|
 | **LoRA 微调 SAM（本项目方法，3 seed 均值）** | **0.7990** ±0.0101 | **0.0612** ±0.0027 | **0.8869** ±0.0065 | **0.9551** ±0.0034 | 0.8648 | 0.9139 |
-| 全监督 U-Net | 0.7525 | 0.0771 | 0.8552 | 0.9426 | 0.8345 | 0.8909 |
-| 全监督 SegNet | 0.7403 | 0.1021 | 0.8466 | 0.9439 | 0.8855 | 0.8222 |
-| 全监督 Mask R-CNN †（主行：min800/max1333） | **0.7382** | **0.0968** | 0.8481 | 0.9411 | 0.8571 | 0.8424 |
+| 全监督 U-Net（3 seed 均值） | 0.7547 ±0.0028 | 0.0860 ±0.0091 | 0.8567 | 0.9453 | 0.8639 | 0.8629 |
+| 全监督 SegNet（3 seed 均值） | 0.7382 ±0.0044 | 0.1003 ±0.0020 | 0.8448 | 0.9434 | 0.8736 | 0.8284 |
+| 全监督 Mask R-CNN †（主行：min800/max1333，3 seed 均值） | **0.7392** ±0.0039 | **0.0955** ±0.0042 | 0.8486 | 0.9412 | 0.8556 | 0.8452 |
 | 　└ 同模型 · 敏感性（min512/max800） | 0.7330 | 0.0965 | 0.8443 | 0.9392 | 0.8459 | 0.8460 |
 
 **(b) 传统阈值 / 粗提取方法（无训练，同 92 张测试集）**
@@ -68,11 +70,11 @@
 | C3I（含本项目反转启发式） | 0.1765 | 0.5712 | **仅供对照**，非 C3I 固有性能 |
 | 零样本 SAM（AMG 自动掩膜 + 本项目暗度筛选） | 0.2663 | 0.3599 | **非裸「原始 SAM」**；超参为固定默认、未调；与主方法对比同时改变提示方式与是否微调 |
 
-> U-Net 为**完整 60 轮** from-scratch 训练，best-val = Epoch 30（val IoU 0.7840）。
-> **本项目方法报 3 个随机种子的均值 ± 样本 sd**（IoU 0.7990 ± 0.0101；seed-0 0.7878 / seed-1 0.8075 / seed-2 0.8016；**seed-1 曾在 epoch 11 中断后 `--resume` 续训**）；**三个基线均为单 seed=0** → 横比时**两侧种子处理不对称**，须点明。
-> **未做显著性检验**，测试集仅 **21 个独立场景**；差值（U-Net +0.0465 / SegNet +0.0586 / Mask R-CNN +0.0608）。**旧论证"差值 < 逐图 std"对 Mask R-CNN 已失效**（0.0608 > 其逐图 std 0.0568）→ 改用配对检验（Mask R-CNN：t≈1.70 未达显著、46 胜 46 负）。
+> U-Net/SegNet 均为**完整 60 轮 from-scratch**；主表为 **3 seed 均值 ± 样本 sd（seed 间）**，单值见 `results/cnn_multiseed_summary.csv`。
+> **LoRA / U-Net / SegNet / Mask R-CNN 均为 3 seed 均值**（IoU 0.7990 ± 0.0101 / 0.7547 ± 0.0028 / 0.7382 ± 0.0044 / 0.7392 ± 0.0039）；**种子数量不对称已消除**。clean-run 证据强度不同：Mask R-CNN seed-0 无 meta（日志 60/60、无 resume，clean_run 未验证），seed-1/2 干净；LoRA seed-1 为 resumed。
+> **未做场景级/多重比较校正的正式显著性结论**；测试集仅 **21 个独立场景**。差值（3-seed 均值）：U-Net **+0.0443** / SegNet **+0.0608** / Mask R-CNN **+0.0598**（场景 +0.0602）。3-seed 配对：U-Net IoU 图级 t=-5.39 / 场景 t=-4.89；SegNet 图级 t=-6.71 / 场景 t=-4.84；Mask R-CNN 图级 t=-13.34 / 场景 t=-14.42；BER 方向一致（`results/cnn_multiseed_paired.csv`）。**旧论证"差值 < 逐图 std"对 Mask R-CNN 已失效**（0.0598 > 其逐图 std 0.0568）→ 改用逐图配对检验（seed-0 敏感性：+0.0496、t≈8.44、80 胜 12 负；`t≈1.70 / 46 胜 46 负` 属 **res800 vs 512**，勿混用）。
 > **⚠️ 透明披露**：新 headline 0.7990 高于旧 headline 0.7878，因 **seed-0 恰为三者最低**；该切换**系协议预注册**（seed-2 出数前定死）且**报全部三值**，非选择性报告。
-> 仅表述为"**数值上高于**"，不宣称显著。
+> 仅表述为"**数值上高于，且 3-seed 配对检验支持该数值优势**"，不宣称"显著超越/SOTA"。
 > **† 分辨率不对称（必须一并声明）**：主行已改用 **`min800/max1333`**（torchvision 默认）的复跑结果。但**复跑只缓解了一半**——本次仅把**模型内部** min/max 提到默认，**输入仍固定 `cv2.resize(..., (512,512))`**（把已降采样的 512 图**再上采样**到 800，**不恢复原始细节**），未跑完整默认 pipeline；主方法走 SAM 的 `ResizeLongestSide(1024)`（作用于**原图**）。**相对主方法的 1024 不对称仍在**，属**部分缓解**，**不得写成"偏置已消除/对比已公平"**。差值由 0.0548 收到 **0.0496**，只解释约 9%。且该 +0.0052 **落在逐图噪声内**（t≈1.70、**46 胜 46 负**）→ 只能写"数值上略高"。
 > **C3I 两行必须同列**：`methods.py` 内置一段**本项目自加**的">40% 则反转"启发式（非 C3I 原方法），实测在 92 张上触发 61 张且**去掉后 61/61 全部变好** → 主行用去除启发式的 0.4564，末行 0.1765 仅供对照。
 > 本表用自建划分，**不能与文献 AISD 报数直接横比**。证据：`results/maskrcnn_leakfree_test.csv`、`results/{otsu,c3i,enhanced}_leakfree_test.csv`；审查见 `review_log.md` 第十三、十四轮。
@@ -94,10 +96,10 @@
 
 > ‡ 早期 U-Net/SegNet 脚本存在**图像与掩膜增强错位 bug**（各自独立抽签），系统性压低 CNN 基线；该 bug 已在无泄漏版脚本中修复。
 > ⚠️ **口径混排警示（2026-10-15 起）**：本表 Otsu / C3I / 增强 / SAM-AMG 四行是**早期在 AISD 自带划分的泄漏测试集上的跑数**；这些方法**已在无泄漏 92 张上重评**，新数字见 3.1 主表 (b)（增强 0.4837 / C3I 0.4564 / Otsu 0.4051 / **零样本 SAM 0.2663**）。**两套口径不可混引**——引用主方法对比一律用主表 (b)，本表仅作历史对齐。
-> 📌 表中标"旧 run"的四行（冻结 0.717 / 增强 0.512 / SAM-AMG 0.302 / Otsu 0.424）**其原始聚合 CSV 已不在库**，数字仅存于本表与 `结题报告.md` §3.2；**不用于任何结论**，仅作历史对齐。
+> 📌 表中标"旧 run"的四行（冻结 0.717 / 增强 0.512 / SAM-AMG 0.302 / Otsu 0.424）**其原始聚合 CSV 已不在库**，数字仅存于本表；**不用于任何结论**，仅作历史对齐。对应旧权重（`sam_vit_b_shadow_v2.pth` 等）已在 2026-10-18 清理，当前脚本不再默认加载。
 
 **补充结论**：同一 LoRA 方法，AISD 自带划分（含泄漏）划分 0.8393 vs 无泄漏划分 0.7878，**相差 0.052** —— 实证了泄漏使指标偏高约 5 个 IoU 点。
-**方向先验的探索结论（已更新为首轮审查后的口径）**：模块②「方向引导提示」的**全对照差异 ≤ 0.0007，落在噪声内**（`results/dirprompt_*_oracle_test.csv`）；方向提示**不如框提示**。**「方向未取得可测增益」不适用于"方向先验无效"这类表述**。
+**方向先验的探索结论（已更新为首轮审查后的口径）**：模块②「方向引导提示」的**同族无方向对照**（project vs nofilter/none；random vs none）差异 ≤ 0.0007，落在噪声内（`results/dirprompt_*_oracle_test.csv`）；方向点提示相对轴对齐框提示的 oracle IoU 为 **0.8037 vs 0.7878（+0.0158）**，来自提示族差异，不是方向增益。**「方向未取得可测增益」不适用于"方向先验无效"这类表述**。
 > ⚠️ **口径更正（2026-10-16，第二十八轮）**——原先此处写"未试过的路径（方向 Adapter 注入解码器、射线投射采样）至今悬空"，**表述不精确（未区分口径）**，按实现状态更正如下：
 > - **射线投射采样法**：**代码已实现** —— `direction_prompt.py` 的 `project` 分支即申报书该算法的**直译实现**（文件头逐句抄录申报书原文；`ray_sample()` 见 `:113-129`）。**但仅在 oracle（GT）方向口径下跑过；真实（回归）方向口径从未跑、从未作为主方法**（主方法仍用框提示）。
 > - **方向 Adapter（方向向量注入解码器）**：**代码已实现**（`direction_adapter.py`，含 `--self-test`），**但从未训练，`logs/`、`results/` 无产物**。
@@ -219,7 +221,7 @@ pip install python-pptx
 # (a) 演示：输出绿色叠加 PNG（默认=无泄漏口径权重）
 python demo.py                       # 检测默认图，输出 demo_result.png
 python demo.py --image 你的图片路径  # 检测任意图片
-python demo.py --checkpoint checkpoints/sam_vit_b_shadow_v2.pth   # 切换为冻结编码器版
+python demo.py --checkpoint checkpoints/sam_vit_b_shadow_frozen_leakfree.pth   # 切换为冻结编码器（无泄漏对照）
 
 # (b) 软件原型：输入影像 -> 输出阴影矢量（GeoJSON / Shapefile）
 python shadow_extract.py --image 你的影像.tif --out shadows.geojson
@@ -238,11 +240,18 @@ python shadow_extract.py --image 你的影像.tif --out shadows.geojson --overla
 ### 5.2 微调模型全量评估（Test51）
 
 ```bash
-python evaluate_lora.py              # LoRA 自带 Test51 口径评估（含泄漏，IoU 0.839）
-python train_lora_leakfree.py        # LoRA 无泄漏重训（主结果口径）
+# 主结果：无泄漏划分，实际训练 40 轮（脚本默认 150，必须显式 --epochs 40）
+python train_lora_leakfree.py --epochs 40          # seed-0
+python train_lora_leakfree_seed.py --seed 1 --epochs 40
+python train_lora_leakfree_seed.py --seed 2 --epochs 40
+python multiseed_summary.py                        # 3 seed 汇总
+
+# 仅历史对齐：AISD 自带 Test51（含泄漏），不能用于复现主表
+python evaluate_lora.py                            # 输出 lora_test51.csv
+
 python train_cnn_leakfree.py --arch unet    # U-Net 无泄漏基线
 python train_cnn_leakfree.py --arch segnet  # SegNet 无泄漏基线
-python final_eval.py                 # 冻结编码器版框提示（0.717）
+python final_eval.py                 # 历史脚本：Test51 泄漏口径；当前加载 frozen leakfree，勿引用 0.717
 ```
 
 ### 5.3 传统 / 零样本方法批量对比
@@ -254,8 +263,9 @@ python run_experiment.py             # 多种方法全量对比，输出 results
 ### 5.4 重新训练
 
 ```bash
-python train_adapter_v4.py           # LoRA 微调（核心方法，AMP + resume 续训）
-python train_adapter_v2.py           # 冻结编码器微调（对比基线）
+python train_lora_leakfree.py --epochs 40   # 主结果（无泄漏 seed-0）
+python train_adapter_v4.py --epochs 40      # 通用 LoRA 训练模块（非主结果入口）
+python train_adapter_v2.py           # 冻结编码器微调（会生成新的 sam_vit_b_shadow_v2.pth，非已删历史 v2）
 python train_unet.py                 # U-Net 基线
 python train_segnet.py               # SegNet 基线
 ```
@@ -269,24 +279,33 @@ RemoteSensing-Shadow-SAM-main/
 ├── methods.py                 # 5 种阴影检测方法（Otsu/C3I/SAM-AMG/Enhanced/Ours）
 ├── eval_shadow.py             # 指标计算（IoU/BER/F1/OA/Precision/Recall）
 ├── evaluate_lora.py           # LoRA 评估（自带划分的泄漏口径 0.839）
-├── train_lora_leakfree.py     # LoRA 无泄漏重训（主结果口径；3 seed 均值 0.7990）
+├── train_lora_leakfree.py     # LoRA 无泄漏重训（seed-0；3 seed 用 _seed.py）
 ├── evaluate_finetuned.py      # 冻结编码器版评估（点提示）
 ├── final_eval.py              # 冻结编码器版评估（框提示）
 ├── direction_experiment.py    # 方向提示消融实验
 ├── prompt_experiment.py       # 提示策略对比实验
 ├── run_experiment.py          # 批量方法对比，输出 summary.csv
 ├── train_adapter_v4.py        # LoRA 微调（核心，AMP + resume）
-├── train_adapter_v2.py        # 冻结编码器微调（对比基线）
+├── train_adapter_v2.py        # 冻结编码器微调（会生成新 v2 权重，非历史 v2）
 ├── train_unet.py              # U-Net 基线训练
 ├── train_segnet.py            # SegNet 基线训练
 ├── demo.py                    # 单图演示（支持 --checkpoint 切换权重）
 ├── shadow_extract.py          # **软件原型**：输入影像 -> 输出阴影矢量（GeoJSON/Shapefile）
+├── verify_shadow_extract.py   # 软件原型端到端自检（GeoJSON / Shapefile / 地理参考）
+├── shadow_extract_stages.py   # 分阶段可视化（原图→粗提取→框提示→SAM→误差图）
+├── visual_compare_methods.py  # 单图多方法对比（RSISD 水体/植被案例）
+├── visual_compare_aisd.py     # 单图多方法对比（AISD 域内案例）
+├── multiseed_summary.py       # 3-seed 汇总、配对检验、场景级 CI
+├── error_stratify.py          # 误差结构分层（连通域面积/边界带/场景）
+├── fpr_decompose.py           # 误检成分分解（HSV 启发式）
+├── prompt_source_eval.py      # 提示来源归因
 ├── ber_sweep_eval.py          # 压 BER 第二轮：掩膜概率阈值扫描 + 3-seed 掩膜集成
 ├── visualize.py               # 生成对比可视化图
 ├── interactive_sam.py         # 交互式分割 Demo（鼠标点选）
 ├── boxes_tta_full.py          # 框提示 + TTA 测试
 ├── metrics_chart.py           # 生成指标柱状图
 ├── make_ppt.py                # 生成结题答辩 PPT
+├── make_report_figures.py     # 生成报告/PPT 图表（pipeline/stage/compare）
 ├── env_setup.py               # Windows torch DLL 修复（勿删）
 ├── requirements.txt           # 依赖清单
 ├── legacy/                    # 早期/弃用脚本（v1、方向训练失败版等）
@@ -294,15 +313,22 @@ RemoteSensing-Shadow-SAM-main/
 ├── checkpoints/               # 模型权重（**已 .gitignore，不入库**；获取方式见 `资产获取说明.md`）
 │   ├── sam_vit_b_01ec64.pth               # SAM 官方 ViT-B 权重（Meta 发布）
 │   ├── sam_vit_b_shadow_v4_lora_leakfree.pth    # **LoRA 无泄漏权重（主结果；3 seed 均值 0.7990，单 seed-0 = 0.7878）**
+│   ├── sam_vit_b_shadow_v4_lora_leakfree_s1.pth # seed-1（resumed）
+│   ├── sam_vit_b_shadow_v4_lora_leakfree_s2.pth # seed-2
 │   ├── sam_vit_b_shadow_frozen_leakfree.pth     # 冻结编码器无泄漏权重（对照，0.5621）
-│   ├── sam_vit_b_shadow_v2.pth                  # 冻结编码器微调权重（**旧 run**，自带划分 0.717）
+│   ├── sam_vit_b_shadow_v2.pth                  # 由 train_adapter_v2.py 生成；当前未保留（历史 v2 已清理）
 │   ├── sam_vit_b_shadow_v4_lora_last.pth        # LoRA 自带划分的泄漏口径权重（0.8393，**禁作对外结果**）
-│   ├── maskrcnn_shadow_leakfree_res800.pth      # Mask R-CNN 基线权重（0.7382；另有 `_res512` 敏感性子行）
+│   ├── maskrcnn_shadow_leakfree_res800.pth      # Mask R-CNN 基线权重（3-seed 均值 0.7392；另有 `_s1/_s2` 与 `_res512` 敏感性）
+│   ├── unet_shadow_leakfree.pth / segnet_shadow_leakfree.pth   # CNN 基线（另有 seed1/2）
 │   ├── direction_resnet18_flip_basis.pth        # 方向翻转自监督骨干（无泄漏划分）
-│   ├── unet_shadow.pth                    # U-Net 权重
-│   └── segnet_shadow.pth                  # SegNet 权重
+│   ├── unet_shadow.pth                    # U-Net 旧权重（历史）
+│   └── segnet_shadow.pth                  # SegNet 旧权重（历史）
 ├── AISD/                      # 数据集（Train412/Val51/Test51；**已 .gitignore，不入库**；获取见 `资产获取说明.md`）
 ├── results/                   # 实验结果（*.csv 逐图/汇总；figures/ 与 metrics_bar.png 为图）
+├── results/visual_compare/    # 单图多方法对比产物（AISD / RSISD 两套）
+├── results/ppt_preview/       # 答辩 PPT 导出的逐页 PNG（视觉复核用）
+├── 结题报告.md                # **最终结题报告（论文格式）**
+├── 结题答辩PPT_最终版.pptx     # **最终答辩 PPT（由 make_ppt.py 生成）**
 └── segment-anything-main/     # SAM 官方源码（pip install -e 安装这个目录）
 ```
 
@@ -312,11 +338,12 @@ RemoteSensing-Shadow-SAM-main/
 
 ## 七、已知问题与后续计划
 
-1. **方向模块未取得可测增益（但已系统探索，非"未实现"）**：项目**已实现**学习式方向的翻转自监督判别（`train_direction_net.py`，竖直翻转二分类，验证准确率 **0.99~1.00**）与**方向 Adapter**（`train_direction_adapter.py`，条件注入提示编码器）。系统测试了 **4 种注入方式**（**几何方向过滤 / 方向点提示 / 方向点训练 / 方向 Adapter 条件注入**）：在 **oracle（给定真方向）上界**口径下，与"不用方向"的差异 **均 ≤0.0007 IoU（噪声内）**；另设**随机方向训练的对照**，复制出同量级效应 → 该效应**不依赖于方向内容**。**最上游假设（翻转自监督是否让骨干编码方向）仍悬置** —— 首次线性探针（GAP + 线性读出）**不足以回答**（方向是空间属性，全局池化可能抹平），加固版（空间特征 + 非线性读出 + 多次随机划分）**尚未实施**。完整局限见 `结题报告.md` §三 / §五。
+1. **方向模块未取得可测增益（但已系统探索，非"未实现"）**：项目**已实现**学习式方向的翻转自监督判别（`train_direction_net.py`，竖直翻转二分类，验证准确率 **0.99~1.00**）与**方向 Adapter**（`train_direction_adapter.py`，条件注入提示编码器）。系统测试了 **4 种注入方式**（**几何方向过滤 / 方向点提示 / 方向点训练 / 方向 Adapter 条件注入**）：在 **oracle（给定真方向）** 口径下，**同族无方向对照**（project vs nofilter/none；random vs none）的 IoU 差异 **≤0.0007（噪声内）**；但方向点提示相对轴对齐框提示的 oracle IoU 为 **0.8037 vs 0.7878（+0.0158）**，这部分来自提示族差异（点/扇形 vs 框），不能归因于方向。另设**随机方向训练的对照**，复制出同量级效应 → 该效应**不依赖于方向内容**。**最上游假设（翻转自监督是否让骨干编码方向）仍悬置** —— 首次线性探针（GAP + 线性读出）**不足以回答**（方向是空间属性，全局池化可能抹平），加固版（空间特征 + 非线性读出 + 多次随机划分）**尚未实施**。完整局限见 `结题报告.md` §3.7 / §6.3。
 2. **学术论文 / 软件著作权均未产出**：**论文 0%（尚未动笔）**；**软著说明书需按 3 seed headline（0.7990）重做**后再申请。二者都是未完成状态，不做"推进中"的美化。
-3. **申报书硬指标「BER 降至 5% 以下」未达成**：无泄漏划分 BER **0.0612（3 seed 均值）/ 0.0644（seed-0）**；自带划分（含泄漏）**0.05007（≈5.01%）** —— **两个口径均 >5%**（自带划分那一口径仅微幅高于 5%，**无裕量**）。已做**两轮**预注册补救：第一轮 4 候选未过基线门槛、**未进入 test**；第二轮 3 seed 集成 + 阈值扫描选中 `B30`，test BER **0.0644 → 0.0537**、**仍未达 5%**。详见 §3.3(c) 与 `review_log.md` 第三十轮。
+3. **申报书硬指标「BER 降至 5% 以下」：主方法未达成；5 天冲刺的 BER 变体数值上刚过线**：主方法无泄漏划分 BER **0.0612（3 seed 均值）/ 0.0644（seed-0）**；自带划分（含泄漏）**0.05007（≈5.01%）** —— 两个口径均 >5%。5 天冲刺中，`T25_none_tta`（3-seed 集成 + flip TTA + 阈值 0.25）test **BER 0.048175 / IoU 0.788718**，仅低于 5% 约 **0.0018**；IoU 比主方法低 0.0103，FPR 升高、FNR 降低；**这是 BER 变体，不是主方法**。完整限定见 `results/sprint20261018/SPRINT_APPENDIX.md`。
 4. **误检成分未获完整解释**：宏观 FPR 中约 **79%** 落在 HSV 粗分类的"其它"桶，**不代表**与异物同谱无关；**误差主项在召回侧**（**FNR 0.0882 vs FPR 0.0405，漏检是误检的 2.2 倍**）。详见 §3.3(d)。
-5. **对比与统计的限定（必须随引用一并出现）**：对比基线均为**单 seed**（本项目为 3 seed 均值）；测试集仅 **21 个独立场景**；**未做显著性检验**（只表述"数值上高于"）；Mask R-CNN 的**分辨率不对称仅"部分缓解"**（输入仍固定 512×512，主方法走 SAM 原图 1024）；场景级 CI **仍条件于单 seed（seed-0）**。
-6. **未实现 / 未复现项（如实列出）**：双流特征融合；射线投射采样的**真实（非 oracle）口径**（仅 oracle 上界跑过）；训练期的**辐射 / 几何校正**与更丰富增强（当前**仅水平翻转**，无 ColorJitter / RandomResizedCrop）；**SARU-Net 未复现**（仓库无网络定义代码）。**完整 11 条**见 `结题报告.md` §五。
+5. **对比与统计的限定（必须随引用一并出现）**：LoRA/U-Net/SegNet/Mask R-CNN 均为 **3 seed**；**Mask R-CNN seed-0 clean_run 未验证（无 meta），seed-1/2 干净；LoRA seed-1 为 resumed**；测试集仅 **21 个独立场景**；**未做场景级/多重比较校正**（只表述"数值上高于 + 配对检验支持数值优势"）；Mask R-CNN 的**分辨率不对称仅"部分缓解"**（输入仍固定 512×512，主方法走 SAM 原图 1024）；场景级 CI 已补 **3-seed 均值版本**（`results/scene_level_ci_multiseed.csv`），旧 seed-0 版仅作敏感性。
+6. **未实现 / 未复现项（如实列出）**：双流特征融合；射线投射采样的**真实（非 oracle）口径**（仅 oracle 上界跑过）；训练期的**辐射 / 几何校正**与更丰富增强（当前**仅水平翻转**，无 ColorJitter / RandomResizedCrop）；**SARU-Net 未复现**（仓库无网络定义代码）。**完整调整说明**见 `结题报告.md` 附录 A。S-EO 方向试点数据已获取（294 MB，OMA 42 + JAX 100，太阳方位角 108–170.6°），**实验未启动**；计划封存于 `archive/S-EO_direction_pilot_plan_20261018.md`。
+7. **5 天冲刺补充（2026-10-18，探索性）**：F1 BER 变体 test **0.048175**（见上）；H3 rotation 3-seed val **21.631±1.747°** vs matched flip **24.369°**，配对 **t=1.07/0.64 不显著** → 关闭、不评 test；H5 模块② regress 4 变体无方向增益（IoU 提升来自点/扇形提示，BER 均劣于 axis_box）；F3 cross-attn 3-seed val ΔBER **−0.000863 ± 0.000713**，未评 test。完整限定见 `results/sprint20261018/SPRINT_APPENDIX.md`。
 
-后续计划：**优先补写学术论文**；学习式方向估计的加固验证；更大规模 / 多传感器验证；封装为工具包 / QGIS 插件。
+后续计划：**优先补写学术论文与提交软著**；学习式方向估计的加固验证；更大规模 / 多传感器验证；把已验证的 CLI 扩展为可安装工具包 / QGIS 薄壳。结题报告与答辩 PPT 已完成，见仓库根目录。

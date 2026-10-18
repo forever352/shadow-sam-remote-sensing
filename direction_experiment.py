@@ -16,6 +16,10 @@
 用法:
     python direction_experiment.py --limit 5   # 先跑 5 张快速验证
     python direction_experiment.py             # 全量 51 张
+
+口径提示（2026-10-18）：本脚本的 load_sam() 来自 prompt_experiment，现加载
+frozen leakfree（冻结编码器 + 无泄漏对照），不是已删除历史 v2；评估集为
+AISD 自带 Test51（含 42/43 同源泄漏），输出不得标成无泄漏 0.5621/历史 0.717。
 """
 import argparse
 import glob

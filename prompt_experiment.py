@@ -27,11 +27,16 @@ BASE = Path(__file__).resolve().parent
 AISD = BASE / "AISD" / "AISD"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 transform = ResizeLongestSide(1024)
-FT_CKPT = str(BASE / "checkpoints" / "sam_vit_b_shadow_v2.pth")
+FT_CKPT = str(BASE / "checkpoints" / "sam_vit_b_shadow_frozen_leakfree.pth")
+# 注意：这是冻结编码器 + 无泄漏重训权重（对照），不是主方法 LoRA。
+# 调用方（final_eval / boxes_tta_full / direction_experiment）评估的是 AISD 自带 Test51（含同源泄漏），
+# 输出不得标成无泄漏 92 张的 0.5621，也不得标成已删除历史 v2 的 0.717。
 
 
-def load_sam():
-    sam = sam_model_registry["vit_b"](checkpoint=FT_CKPT).to(device)
+def load_sam(ckpt=None):
+    ckpt = ckpt or FT_CKPT
+    print(f"[prompt_experiment] load_sam: {ckpt}", flush=True)
+    sam = sam_model_registry["vit_b"](checkpoint=ckpt).to(device)
     sam.eval()
     return sam
 

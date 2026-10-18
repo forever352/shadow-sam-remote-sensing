@@ -1,0 +1,8 @@
+# rotation-prediction self-supervised pretraining (4-way)
+# time=2026-10-18 17:20:06 device=cuda
+# split: train=262 (68 bases) val=58 (16 bases) test=92 (21 bases, NOT touched)
+# epochs=1 batch=32 lr=0.001
+Epoch   1/1 loss=1.3733 val_acc=0.5259 (11s)
+# best val_acc=0.5259
+# checkpoint -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\checkpoints\direction_resnet18_rot_basis_smoke.pth
+# log -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\logs\sprint20261018\direction_rotation_20261018_172006.log

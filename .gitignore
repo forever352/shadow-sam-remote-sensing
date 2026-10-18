@@ -58,3 +58,10 @@ archive/old_figs/
 # 注意：图表 results/metrics_bar.png **要入库**（make_ppt.py 直接引它，且被报告引用），
 #       故此处只排除 PPT 本身，不排除 results/ 下的图。
 结题答辩PPT_最终版.pptx
+结题答辩PPT_最终版*.pptx
+
+# ===== 本地工具 / 备份（不入库）=====
+.agents/
+.claude/skills/
+skills-lock.json
+backups/*.pptx

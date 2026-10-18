@@ -1,0 +1,229 @@
+diff --git a/README.md b/README.md
+index d5c19b1..fc12e1b 100644
+--- a/README.md
++++ b/README.md
+@@ -94,7 +94,7 @@
+ 
+ > ‡ 早期 U-Net/SegNet 脚本存在**图像与掩膜增强错位 bug**（各自独立抽签），系统性压低 CNN 基线；该 bug 已在无泄漏版脚本中修复。
+ > ⚠️ **口径混排警示（2026-10-15 起）**：本表 Otsu / C3I / 增强 / SAM-AMG 四行是**早期在 AISD 自带划分的泄漏测试集上的跑数**；这些方法**已在无泄漏 92 张上重评**，新数字见 3.1 主表 (b)（增强 0.4837 / C3I 0.4564 / Otsu 0.4051 / **零样本 SAM 0.2663**）。**两套口径不可混引**——引用主方法对比一律用主表 (b)，本表仅作历史对齐。
+-> 📌 表中标"旧 run"的四行（冻结 0.717 / 增强 0.512 / SAM-AMG 0.302 / Otsu 0.424）**其原始聚合 CSV 已不在库**，数字仅存于本表与 `结题报告.md` §3.2；**不用于任何结论**，仅作历史对齐。
++> 📌 表中标"旧 run"的四行（冻结 0.717 / 增强 0.512 / SAM-AMG 0.302 / Otsu 0.424）**其原始聚合 CSV 已不在库**，数字仅存于本表与 `结题报告.md` §3.2；**不用于任何结论**，仅作历史对齐。对应旧权重（`sam_vit_b_shadow_v2.pth` 等）已在 2026-10-18 清理，当前脚本不再默认加载。
+ 
+ **补充结论**：同一 LoRA 方法，AISD 自带划分（含泄漏）划分 0.8393 vs 无泄漏划分 0.7878，**相差 0.052** —— 实证了泄漏使指标偏高约 5 个 IoU 点。
+ **方向先验的探索结论（已更新为首轮审查后的口径）**：模块②「方向引导提示」的**全对照差异 ≤ 0.0007，落在噪声内**（`results/dirprompt_*_oracle_test.csv`）；方向提示**不如框提示**。**「方向未取得可测增益」不适用于"方向先验无效"这类表述**。
+@@ -219,7 +219,7 @@ pip install python-pptx
+ # (a) 演示：输出绿色叠加 PNG（默认=无泄漏口径权重）
+ python demo.py                       # 检测默认图，输出 demo_result.png
+ python demo.py --image 你的图片路径  # 检测任意图片
+-python demo.py --checkpoint checkpoints/sam_vit_b_shadow_v2.pth   # 切换为冻结编码器版
++python demo.py --checkpoint checkpoints/sam_vit_b_shadow_frozen_leakfree.pth   # 切换为冻结编码器（无泄漏对照）
+ 
+ # (b) 软件原型：输入影像 -> 输出阴影矢量（GeoJSON / Shapefile）
+ python shadow_extract.py --image 你的影像.tif --out shadows.geojson
+@@ -242,7 +242,7 @@ python evaluate_lora.py              # LoRA 自带 Test51 口径评估（含泄
+ python train_lora_leakfree.py        # LoRA 无泄漏重训（主结果口径）
+ python train_cnn_leakfree.py --arch unet    # U-Net 无泄漏基线
+ python train_cnn_leakfree.py --arch segnet  # SegNet 无泄漏基线
+-python final_eval.py                 # 冻结编码器版框提示（0.717）
++python final_eval.py                 # 历史脚本：Test51 泄漏口径；当前加载 frozen leakfree，勿引用 0.717
+ ```
+ 
+ ### 5.3 传统 / 零样本方法批量对比
+@@ -255,7 +255,7 @@ python run_experiment.py             # 多种方法全量对比，输出 results
+ 
+ ```bash
+ python train_adapter_v4.py           # LoRA 微调（核心方法，AMP + resume 续训）
+-python train_adapter_v2.py           # 冻结编码器微调（对比基线）
++python train_adapter_v2.py           # 冻结编码器微调（会生成新的 sam_vit_b_shadow_v2.pth，非已删历史 v2）
+ python train_unet.py                 # U-Net 基线
+ python train_segnet.py               # SegNet 基线
+ ```
+@@ -276,7 +276,7 @@ RemoteSensing-Shadow-SAM-main/
+ ├── prompt_experiment.py       # 提示策略对比实验
+ ├── run_experiment.py          # 批量方法对比，输出 summary.csv
+ ├── train_adapter_v4.py        # LoRA 微调（核心，AMP + resume）
+-├── train_adapter_v2.py        # 冻结编码器微调（对比基线）
++├── train_adapter_v2.py        # 冻结编码器微调（会生成新 v2 权重，非历史 v2）
+ ├── train_unet.py              # U-Net 基线训练
+ ├── train_segnet.py            # SegNet 基线训练
+ ├── demo.py                    # 单图演示（支持 --checkpoint 切换权重）
+@@ -295,7 +295,7 @@ RemoteSensing-Shadow-SAM-main/
+ │   ├── sam_vit_b_01ec64.pth               # SAM 官方 ViT-B 权重（Meta 发布）
+ │   ├── sam_vit_b_shadow_v4_lora_leakfree.pth    # **LoRA 无泄漏权重（主结果；3 seed 均值 0.7990，单 seed-0 = 0.7878）**
+ │   ├── sam_vit_b_shadow_frozen_leakfree.pth     # 冻结编码器无泄漏权重（对照，0.5621）
+-│   ├── sam_vit_b_shadow_v2.pth                  # 冻结编码器微调权重（**旧 run**，自带划分 0.717）
++│   ├── sam_vit_b_shadow_v2.pth                  # 由 train_adapter_v2.py 生成；当前未保留（历史 v2 已清理）
+ │   ├── sam_vit_b_shadow_v4_lora_last.pth        # LoRA 自带划分的泄漏口径权重（0.8393，**禁作对外结果**）
+ │   ├── maskrcnn_shadow_leakfree_res800.pth      # Mask R-CNN 基线权重（3-seed 均值 0.7392；另有 `_s1/_s2` 与 `_res512` 敏感性）
+ │   ├── direction_resnet18_flip_basis.pth        # 方向翻转自监督骨干（无泄漏划分）
+diff --git a/boxes_tta_full.py b/boxes_tta_full.py
+index 725a6f3..7e392b1 100644
+--- a/boxes_tta_full.py
++++ b/boxes_tta_full.py
+@@ -1,5 +1,9 @@
+ """
+ 框提示 + TTA 在全量 51 张上的最终测试。
++
++口径提示（2026-10-18）：load_sam() 现加载 frozen leakfree（冻结编码器 + 无泄漏对照），
++不是已删除历史 v2；评估集为 AISD 自带 Test51（含 42/43 同源泄漏），
++输出不得标成无泄漏 92 张的 0.5621，也不得标成历史 v2 的 0.717。
+ """
+ import glob
+ from pathlib import Path
+diff --git a/direction_experiment.py b/direction_experiment.py
+index bed6120..98b55a6 100644
+--- a/direction_experiment.py
++++ b/direction_experiment.py
+@@ -16,6 +16,10 @@
+ 用法:
+     python direction_experiment.py --limit 5   # 先跑 5 张快速验证
+     python direction_experiment.py             # 全量 51 张
++
++口径提示（2026-10-18）：本脚本的 load_sam() 来自 prompt_experiment，现加载
++frozen leakfree（冻结编码器 + 无泄漏对照），不是已删除历史 v2；评估集为
++AISD 自带 Test51（含 42/43 同源泄漏），输出不得标成无泄漏 0.5621/历史 0.717。
+ """
+ import argparse
+ import glob
+diff --git a/evaluate_finetuned.py b/evaluate_finetuned.py
+index 3ef2518..ec466e1 100644
+--- a/evaluate_finetuned.py
++++ b/evaluate_finetuned.py
+@@ -2,9 +2,13 @@
+ 评估微调后的 SAM：用"增强 Otsu 自动点提示 + SAM"做阴影检测，在 AISD Test51 上算指标。
+ 可与零样本 SAM 对比，验证微调是否带来提升。
+ 
++口径提示（2026-10-18）：本脚本是点提示 + AISD 自带 Test51（含 42/43 同源泄漏），
++不是主方法的框提示 / LoRA；frozen leakfree 在 Test51 上的输出不得标成
++无泄漏 92 张的 0.5621，也不得标成已删除历史 v2/v0 的 0.717。
++
+ 用法:
+     python evaluate_finetuned.py                  # 零样本
+-    python evaluate_finetuned.py --checkpoint checkpoints/sam_vit_b_shadow.pth   # 微调后
++    python evaluate_finetuned.py --checkpoint checkpoints/sam_vit_b_shadow_frozen_leakfree.pth   # 冻结编码器对照
+     python evaluate_finetuned.py --limit 5        # 先跑前 5 张
+ """
+ import argparse
+diff --git a/evaluate_with_std.py b/evaluate_with_std.py
+index 022b41c..d77facf 100644
+--- a/evaluate_with_std.py
++++ b/evaluate_with_std.py
+@@ -1,4 +1,9 @@
+-"""计算各方法在 Test51 上的均值±标准差（用于报告严谨性）。"""
++"""计算各方法在 Test51 上的均值±标准差（用于报告严谨性）。
++
++口径提示（2026-10-18）：本脚本为历史 Test51 口径（含 42/43 同源泄漏），
++混合了旧 LoRA_last / U-Net / SegNet 权重与 frozen leakfree 对照权重，
++不是干净对比；输出不得标成无泄漏 0.5621 或历史 v2 0.717。
++"""
+ import glob
+ from pathlib import Path
+ 
+@@ -25,8 +30,8 @@ apply_lora(sam_lora)
+ sam_lora.load_state_dict(torch.load(str(BASE / "checkpoints" / "sam_vit_b_shadow_v4_lora_last.pth"), map_location=device))
+ sam_lora.to(device); sam_lora.eval()
+ 
+-sam_v2 = sam_model_registry["vit_b"](checkpoint=str(BASE / "checkpoints" / "sam_vit_b_shadow_v2.pth")).to(device)
+-sam_v2.eval()
++sam_frozen = sam_model_registry["vit_b"](checkpoint=str(BASE / "checkpoints" / "sam_vit_b_shadow_frozen_leakfree.pth")).to(device)
++sam_frozen.eval()
+ 
+ unet = UNet().to(device)
+ unet.load_state_dict(torch.load(str(BASE / "checkpoints" / "unet_shadow.pth"), map_location=device))
+@@ -63,7 +68,7 @@ def pred_cnn(model, img_bgr):
+ METHODS = {
+     "Otsu": lambda b, r: mask_otsu(b) > 0,
+     "增强预处理": lambda b, r: mask_enhanced(b) > 0,
+-    "冻结微调": lambda b, r: pred_sam_box(sam_v2, r, b),
++    "冻结编码器(无泄漏权重)": lambda b, r: pred_sam_box(sam_frozen, r, b),
+     "SegNet": lambda b, r: pred_cnn(segnet, b),
+     "U-Net": lambda b, r: pred_cnn(unet, b),
+     "LoRA(本项目)": lambda b, r: pred_sam_box(sam_lora, r, b),
+diff --git a/final_eval.py b/final_eval.py
+index 4f67000..d0639e7 100644
+--- a/final_eval.py
++++ b/final_eval.py
+@@ -1,5 +1,9 @@
+ """
+ 最终方法评估：框提示（增强 Otsu 连通域包围框）+ 微调 SAM，全量 51 张完整指标。
++
++口径提示（2026-10-18）：load_sam() 现加载 frozen leakfree（冻结编码器 + 无泄漏对照），
++不是已删除历史 v2；评估集为 AISD 自带 Test51（含 42/43 同源泄漏），
++输出不得标成无泄漏 92 张的 0.5621，也不得标成历史 v2 的 0.717。
+ """
+ import glob
+ from pathlib import Path
+diff --git a/prompt_experiment.py b/prompt_experiment.py
+index 891795b..012bcff 100644
+--- a/prompt_experiment.py
++++ b/prompt_experiment.py
+@@ -27,11 +27,16 @@ BASE = Path(__file__).resolve().parent
+ AISD = BASE / "AISD" / "AISD"
+ device = "cuda" if torch.cuda.is_available() else "cpu"
+ transform = ResizeLongestSide(1024)
+-FT_CKPT = str(BASE / "checkpoints" / "sam_vit_b_shadow_v2.pth")
++FT_CKPT = str(BASE / "checkpoints" / "sam_vit_b_shadow_frozen_leakfree.pth")
++# 注意：这是冻结编码器 + 无泄漏重训权重（对照），不是主方法 LoRA。
++# 调用方（final_eval / boxes_tta_full / direction_experiment）评估的是 AISD 自带 Test51（含同源泄漏），
++# 输出不得标成无泄漏 92 张的 0.5621，也不得标成已删除历史 v2 的 0.717。
+ 
+ 
+-def load_sam():
+-    sam = sam_model_registry["vit_b"](checkpoint=FT_CKPT).to(device)
++def load_sam(ckpt=None):
++    ckpt = ckpt or FT_CKPT
++    print(f"[prompt_experiment] load_sam: {ckpt}", flush=True)
++    sam = sam_model_registry["vit_b"](checkpoint=ckpt).to(device)
+     sam.eval()
+     return sam
+ 
+diff --git a/visualize.py b/visualize.py
+index d99931e..25a8881 100644
+--- a/visualize.py
++++ b/visualize.py
+@@ -1,6 +1,10 @@
+ """
+-生成对比可视化图：原图 | 真值 | Otsu | 增强预处理 | 零样本SAM | 微调SAM(本项目)
++生成对比可视化图：原图 | 真值 | Otsu | 增强预处理 | 零样本SAM | 冻结编码器微调SAM(对照)
+ 用于结题报告和 PPT。输出到 results/figures/。
++
++口径提示（2026-10-18）：评估集为 AISD 自带 Test51（含 42/43 同源泄漏）；
++默认加载 sam_vit_b_shadow_frozen_leakfree.pth（冻结编码器 + 无泄漏重训，对照），
++不是主方法 LoRA；results/figures/ 中旧图为历史 v2 产物，报告引用前请重跑。
+ """
+ from pathlib import Path
+ 
+@@ -22,7 +26,7 @@ plt.rcParams["axes.unicode_minus"] = False
+ 
+ BASE = Path(__file__).resolve().parent
+ ZERO_CKPT = str(BASE / "checkpoints" / "sam_vit_b_01ec64.pth")
+-FT_CKPT = str(BASE / "checkpoints" / "sam_vit_b_shadow_v2.pth")
++FT_CKPT = str(BASE / "checkpoints" / "sam_vit_b_shadow_frozen_leakfree.pth")
+ AISD_ROOT = BASE / "AISD" / "AISD"
+ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+ 
+@@ -55,7 +59,7 @@ def main():
+     imgs = sorted(img_dir.glob("*.tif"))
+     samples = imgs[:2] + imgs[25:27]  # 4 张代表性样本
+ 
+-    panels = ["原图", "真值", "Otsu", "增强预处理", "零样本SAM", "微调SAM(本项目)"]
++    panels = ["原图", "真值", "Otsu", "增强预处理", "零样本SAM", "冻结编码器微调SAM(对照)"]
+ 
+     out_dir = BASE / "results" / "figures"
+     out_dir.mkdir(parents=True, exist_ok=True)
+@@ -69,13 +73,13 @@ def main():
+             "Otsu": mask_otsu(img_bgr) > 0,
+             "增强预处理": mask_enhanced(img_bgr) > 0,
+             "零样本SAM": auto_mask(sam_zero, img_bgr),
+-            "微调SAM(本项目)": auto_mask(sam_ft, img_bgr),
++            "冻结编码器微调SAM(对照)": auto_mask(sam_ft, img_bgr),
+         }
+ 
+         fig, axes = plt.subplots(1, 6, figsize=(24, 4.2))
+         axes[0].imshow(img_rgb); axes[0].set_title("原图", fontsize=12); axes[0].axis("off")
+         axes[1].imshow(gt, cmap="gray"); axes[1].set_title("真值", fontsize=12); axes[1].axis("off")
+-        for ax, key in zip(axes[2:], ["Otsu", "增强预处理", "零样本SAM", "微调SAM(本项目)"]):
++        for ax, key in zip(axes[2:], ["Otsu", "增强预处理", "零样本SAM", "冻结编码器微调SAM(对照)"]):
+             overlay = np.zeros_like(img_rgb)
+             overlay[masks[key]] = [0, 255, 0]
+             ax.imshow(cv2.addWeighted(img_rgb, 0.6, overlay, 0.4, 0))

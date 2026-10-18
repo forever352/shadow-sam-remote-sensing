@@ -1,5 +1,9 @@
 """
 框提示 + TTA 在全量 51 张上的最终测试。
+
+口径提示（2026-10-18）：load_sam() 现加载 frozen leakfree（冻结编码器 + 无泄漏对照），
+不是已删除历史 v2；评估集为 AISD 自带 Test51（含 42/43 同源泄漏），
+输出不得标成无泄漏 92 张的 0.5621，也不得标成历史 v2 的 0.717。
 """
 import glob
 from pathlib import Path

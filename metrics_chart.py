@@ -16,11 +16,11 @@ plt.rcParams["axes.unicode_minus"] = False
 
 # ── 左：无泄漏划分主结果（同一划分重训、best-val 口径）──
 # 数据源：results/{segnet,unet,maskrcnn_leakfree_res800,lora_leakfree*}_test.csv
-# LoRA 为 3 个随机种子的均值（0.7878 / 0.8075 / 0.8016），其余三基线均为单 seed=0
+# LoRA/U-Net/SegNet 均为 3 个随机种子的均值；Mask R-CNN 为单 seed=0
 main = [
-    ("Mask R-CNN\n(全监督)†", 0.7382, 0.8481),
-    ("SegNet\n(全监督)", 0.7403, 0.8466),
-    ("U-Net\n(全监督)", 0.7525, 0.8552),
+    ("Mask R-CNN\n(全监督)†", 0.7392, 0.8486),
+    ("SegNet\n(全监督)", 0.7382, 0.8448),
+    ("U-Net\n(全监督)", 0.7547, 0.8567),
     ("LoRA微调\nSAM(本项目)", 0.7990, 0.8869),
 ]
 # ── 右：AISD 自带划分（含同源泄漏，禁与左图横比）──
@@ -73,8 +73,8 @@ draw(ax2, legacy, "AISD 自带划分（含同源泄漏，禁横比）\n51 张，
 fig.text(0.5, 0.005,
          "† Mask R-CNN 分辨率不对称仅“部分缓解”（输入仍固定 512）；"
          "右图标注“(旧run)”的四项为早期跑数，原聚合 CSV 已不在库，仅作历史对齐"
-         "　|　本项目 LoRA 为 3 seed 均值（0.7878/0.8075/0.8016），三基线为单 seed；"
-         "未做显著性检验，仅表述为“数值上高于”",
+         "　|　LoRA/U-Net/SegNet/Mask R-CNN 均为 3 seed 均值；Mask R-CNN seed-0 clean_run 未验证；"
+         "逐图/场景配对 t 仅描述性统计，未做多重比较校正",
          ha="center", fontsize=9, color="#555555")
 
 plt.tight_layout(rect=(0, 0.045, 1, 1))

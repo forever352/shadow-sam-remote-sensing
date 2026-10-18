@@ -12,11 +12,21 @@ torchvision
 numpy
 opencv-python
 matplotlib
+pillow
 
 # --- 3. segment-anything（SAM 本体）---
 # 不在 PyPI，需从项目自带源码以 editable 方式安装：
 #   pip install -e ./segment-anything-main
 # 安装后即可 `import segment_anything`
 
-# --- 4. 文档 / PPT（可选，仅 make_ppt.py 需要）---
+# --- 4. 矢量输出（可选；仅 shadow_extract.py 的对应分支需要）---
+# GeoJSON（像素坐标）：无额外依赖
+# 有地理参考输入（读取 CRS/transform）：rasterio
+# Shapefile 输出：geopandas + pyogrio + shapely
+rasterio
+shapely
+geopandas
+pyogrio
+
+# --- 5. 文档 / PPT（可选，仅 make_ppt.py 需要）---
 python-pptx

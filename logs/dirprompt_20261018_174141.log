@@ -1,0 +1,134 @@
+# 模块② 方向引导提示评估（方向来源=regress）
+# 时间: 2026-10-18 17:41:41  设备: cuda
+# 权重: D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\checkpoints\sam_vit_b_shadow_v4_lora_leakfree.pth
+# 划分: 无泄漏 basis 68/16/21（与主结果同一基座）
+# 提示参数（预注册默认）: phi=30.0 rays=7 samples=16 radius_k=1.6 grad_keep=0.3 dev_thresh=45.0 sector_mode=axis require_dark=False
+# sector_source=global  apply_dir_filter(随条件变化)  fallback_to_none=True
+
+# 图像数: 92
+  chicago30_sub1.tif          projec=0.8540  projec=0.8545  random=0.8540  none=0.8536  box=0.8453  ctr=0.8546
+  chicago30_sub3.tif          projec=0.8293  projec=0.8311  random=0.8313  none=0.8319  box=0.6090  ctr=0.8328
+  chicago30_sub4.tif          projec=0.7430  projec=0.7428  random=0.7413  none=0.7479  box=0.7556  ctr=0.7535
+  chicago30_sub5.tif          projec=0.8135  projec=0.8124  random=0.8124  none=0.8114  box=0.8020  ctr=0.8124
+  chicago30_sub6.tif          projec=0.8115  projec=0.8122  random=0.8126  none=0.8123  box=0.8052  ctr=0.8119
+  chicago30_sub7.tif          projec=0.8455  projec=0.8454  random=0.8453  none=0.8455  box=0.8413  ctr=0.8397
+  chicago30_sub8.tif          projec=0.7609  projec=0.7484  random=0.7487  none=0.7490  box=0.7540  ctr=0.7456
+  chicago30_sub9.tif          projec=0.7529  projec=0.7512  random=0.7524  none=0.7504  box=0.7545  ctr=0.7520
+  tyrol-e33_sub1.tif          projec=0.7562  projec=0.7584  random=0.7582  none=0.7571  box=0.7510  ctr=0.7588
+  tyrol-e33_sub2.tif          projec=0.8067  projec=0.8067  random=0.8078  none=0.8074  box=0.7893  ctr=0.8071
+  tyrol-e33_sub3.tif          projec=0.7305  projec=0.7342  random=0.7332  none=0.7303  box=0.7255  ctr=0.7296
+  tyrol-e33_sub4.tif          projec=0.7487  projec=0.7486  random=0.7493  none=0.7460  box=0.7397  ctr=0.7457
+  innsbruck18_sub1.tif        projec=0.8127  projec=0.8127  random=0.8150  none=0.8133  box=0.8057  ctr=0.8122
+  innsbruck18_sub2.tif        projec=0.8691  projec=0.8690  random=0.8714  none=0.8702  box=0.8619  ctr=0.8656
+  innsbruck18_sub4.tif        projec=0.8769  projec=0.8740  random=0.8741  none=0.8749  box=0.8692  ctr=0.8740
+  austin2_sub1.tif            projec=0.7254  projec=0.7253  random=0.7251  none=0.7249  box=0.7262  ctr=0.7244
+  austin2_sub4.tif            projec=0.7677  projec=0.7697  random=0.7691  none=0.7692  box=0.7683  ctr=0.7710
+  vienna28_sub1.tif           projec=0.8451  projec=0.8464  random=0.8460  none=0.8466  box=0.8376  ctr=0.8494
+  chicago22_sub11.tif         projec=0.7346  projec=0.7371  random=0.7376  none=0.7380  box=0.7048  ctr=0.7382
+  chicago22_sub12.tif         projec=0.7518  projec=0.7543  random=0.7558  none=0.7518  box=0.7368  ctr=0.7490
+  chicago22_sub2.tif          projec=0.8544  projec=0.8539  random=0.8540  none=0.8536  box=0.8491  ctr=0.8556
+  chicago22_sub4.tif          projec=0.8424  projec=0.8446  random=0.8416  none=0.8409  box=0.5667  ctr=0.8435
+  chicago22_sub5.tif          projec=0.5745  projec=0.5991  random=0.5989  none=0.5949  box=0.6228  ctr=0.6020
+  chicago22_sub6.tif          projec=0.8212  projec=0.8213  random=0.8215  none=0.8219  box=0.7612  ctr=0.8160
+  chicago22_sub9.tif          projec=0.7056  projec=0.7056  random=0.7052  none=0.7105  box=0.6762  ctr=0.6962
+  austin3_sub1.tif            projec=0.8340  projec=0.8329  random=0.8327  none=0.8320  box=0.7843  ctr=0.8273
+  austin3_sub2.tif            projec=0.7124  projec=0.7124  random=0.7123  none=0.7121  box=0.7119  ctr=0.7195
+  austin3_sub3.tif            projec=0.6930  projec=0.6905  random=0.6915  none=0.6888  box=0.6636  ctr=0.6844
+  vienna20_sub1.tif           projec=0.9084  projec=0.9082  random=0.9088  none=0.9097  box=0.8998  ctr=0.9080
+  vienna20_sub2.tif           projec=0.8484  projec=0.8504  random=0.8540  none=0.8514  box=0.8414  ctr=0.8462
+  vienna20_sub3.tif           projec=0.8386  projec=0.8385  random=0.8405  none=0.8405  box=0.8403  ctr=0.8402
+  chicago16_sub1.tif          projec=0.7534  projec=0.7446  random=0.7454  none=0.7246  box=0.7423  ctr=0.7401
+  chicago16_sub10.tif         projec=0.8373  projec=0.8356  random=0.8367  none=0.8320  box=0.7217  ctr=0.8373
+  chicago16_sub11.tif         projec=0.8120  projec=0.8104  random=0.8104  none=0.8102  box=0.8051  ctr=0.8111
+  chicago16_sub12.tif         projec=0.8379  projec=0.8399  random=0.8382  none=0.8410  box=0.8331  ctr=0.8422
+  chicago16_sub13.tif         projec=0.8027  projec=0.8032  random=0.8000  none=0.8024  box=0.7974  ctr=0.7997
+  chicago16_sub14.tif         projec=0.6736  projec=0.6753  random=0.6741  none=0.6773  box=0.6833  ctr=0.6770
+  chicago16_sub2.tif          projec=0.8515  projec=0.8238  random=0.8339  none=0.8219  box=0.8273  ctr=0.8478
+  chicago16_sub3.tif          projec=0.6726  projec=0.6809  random=0.6806  none=0.6811  box=0.6479  ctr=0.6560
+  chicago16_sub4.tif          projec=0.7739  projec=0.7762  random=0.7760  none=0.7739  box=0.7439  ctr=0.7554
+  chicago16_sub7.tif          projec=0.8890  projec=0.8868  random=0.8886  none=0.8890  box=0.8893  ctr=0.8883
+  chicago16_sub9.tif          projec=0.7094  projec=0.7124  random=0.7087  none=0.7094  box=0.6894  ctr=0.7086
+  innsbruck26_sub1.tif        projec=0.8746  projec=0.8747  random=0.8739  none=0.8748  box=0.8683  ctr=0.8739
+  innsbruck26_sub2.tif        projec=0.8139  projec=0.8163  random=0.8146  none=0.8164  box=0.8100  ctr=0.8175
+  innsbruck26_sub3.tif        projec=0.8849  projec=0.8849  random=0.8816  none=0.8817  box=0.8777  ctr=0.8833
+  innsbruck26_sub4.tif        projec=0.8422  projec=0.8412  random=0.8414  none=0.8420  box=0.8412  ctr=0.8414
+  tyrol-e17_sub1.tif          projec=0.8359  projec=0.8363  random=0.8352  none=0.8365  box=0.8285  ctr=0.8393
+  tyrol-e17_sub2.tif          projec=0.7765  projec=0.7743  random=0.7737  none=0.7752  box=0.7637  ctr=0.7738
+  austin24_sub1.tif           projec=0.6662  projec=0.6665  random=0.6646  none=0.6664  box=0.6564  ctr=0.6638
+  austin24_sub2.tif           projec=0.8152  projec=0.8144  random=0.8128  none=0.8103  box=0.8083  ctr=0.8054
+  austin24_sub3.tif           projec=0.8551  projec=0.8558  random=0.8543  none=0.8558  box=0.7835  ctr=0.8553
+  austin24_sub5.tif           projec=0.8216  projec=0.8216  random=0.8216  none=0.8182  box=0.8041  ctr=0.8022
+  austin24_sub6.tif           projec=0.7704  projec=0.7680  random=0.7681  none=0.7686  box=0.7618  ctr=0.7696
+  austin24_sub7.tif           projec=0.7762  projec=0.7764  random=0.7776  none=0.7762  box=0.7810  ctr=0.7820
+  austin24_sub8.tif           projec=0.7561  projec=0.7556  random=0.7557  none=0.7566  box=0.7388  ctr=0.7534
+  austin24_sub9.tif           projec=0.7723  projec=0.7757  random=0.7758  none=0.7749  box=0.7681  ctr=0.7784
+  chicago29_sub1.tif          projec=0.7459  projec=0.7451  random=0.7464  none=0.7461  box=0.7435  ctr=0.7456
+  chicago29_sub10.tif         projec=0.8518  projec=0.8511  random=0.8514  none=0.8523  box=0.8557  ctr=0.8568
+  chicago29_sub11.tif         projec=0.7904  projec=0.7919  random=0.7917  none=0.7915  box=0.7813  ctr=0.7886
+  chicago29_sub2.tif          projec=0.7808  projec=0.7809  random=0.7806  none=0.7808  box=0.7712  ctr=0.7791
+  chicago29_sub3.tif          projec=0.8622  projec=0.8602  random=0.8600  none=0.8602  box=0.8143  ctr=0.8582
+  chicago29_sub5.tif          projec=0.8968  projec=0.8956  random=0.8944  none=0.8965  box=0.8944  ctr=0.8970
+  chicago29_sub6.tif          projec=0.8495  projec=0.8511  random=0.8507  none=0.8504  box=0.8518  ctr=0.8502
+  chicago29_sub7.tif          projec=0.7818  projec=0.7805  random=0.7808  none=0.7818  box=0.7646  ctr=0.7803
+  chicago29_sub8.tif          projec=0.6271  projec=0.6193  random=0.6198  none=0.6225  box=0.6134  ctr=0.6239
+  chicago29_sub9.tif          projec=0.8378  projec=0.8378  random=0.8380  none=0.8385  box=0.8337  ctr=0.8405
+  vienna8_sub1.tif            projec=0.8362  projec=0.8383  random=0.8387  none=0.8368  box=0.8347  ctr=0.8346
+  vienna8_sub2.tif            projec=0.7965  projec=0.7966  random=0.7955  none=0.7968  box=0.7800  ctr=0.7991
+  vienna9_sub1.tif            projec=0.8412  projec=0.8428  random=0.8421  none=0.8418  box=0.8340  ctr=0.8414
+  vienna9_sub2.tif            projec=0.8946  projec=0.8946  random=0.8947  none=0.8944  box=0.8982  ctr=0.8957
+  vienna35_sub2.tif           projec=0.8291  projec=0.8291  random=0.8276  none=0.8271  box=0.8259  ctr=0.8287
+  vienna35_sub3.tif           projec=0.8465  projec=0.8454  random=0.8454  none=0.8464  box=0.8417  ctr=0.8424
+  vienna35_sub4.tif           projec=0.7559  projec=0.7480  random=0.7434  none=0.7482  box=0.7422  ctr=0.7547
+  vienna29_sub1.tif           projec=0.8925  projec=0.8932  random=0.8918  none=0.8942  box=0.8873  ctr=0.8907
+  vienna29_sub2.tif           projec=0.8287  projec=0.8298  random=0.8270  none=0.8274  box=0.8251  ctr=0.8259
+  vienna29_sub3.tif           projec=0.7993  projec=0.8058  random=0.8061  none=0.8047  box=0.8037  ctr=0.8051
+  vienna29_sub4.tif           projec=0.8370  projec=0.8378  random=0.8379  none=0.8391  box=0.8387  ctr=0.8363
+  innsbruck34_sub1.tif        projec=0.8097  projec=0.8095  random=0.8092  none=0.8086  box=0.7964  ctr=0.8134
+  innsbruck34_sub2.tif        projec=0.8270  projec=0.8310  random=0.8308  none=0.8318  box=0.8164  ctr=0.8253
+  innsbruck34_sub3.tif        projec=0.8572  projec=0.8582  random=0.8587  none=0.8564  box=0.8523  ctr=0.8552
+  austin11_sub1.tif           projec=0.8152  projec=0.8144  random=0.8137  none=0.8146  box=0.8075  ctr=0.8158
+  austin11_sub2.tif           projec=0.7849  projec=0.7849  random=0.7865  none=0.7849  box=0.7560  ctr=0.7849
+  austin11_sub3.tif           projec=0.8418  projec=0.8412  random=0.8410  none=0.8410  box=0.8363  ctr=0.8412
+  austin11_sub4.tif           projec=0.8846  projec=0.8846  random=0.8864  none=0.8844  box=0.8639  ctr=0.8672
+  austin11_sub5.tif           projec=0.8331  projec=0.8310  random=0.8318  none=0.8311  box=0.8325  ctr=0.8321
+  austin11_sub7.tif           projec=0.8056  projec=0.8050  random=0.8051  none=0.8033  box=0.8044  ctr=0.8027
+  innsbruck25_sub1.tif        projec=0.8528  projec=0.8528  random=0.8534  none=0.8528  box=0.8456  ctr=0.8550
+  innsbruck25_sub2.tif        projec=0.8220  projec=0.8220  random=0.8207  none=0.8224  box=0.8117  ctr=0.8196
+  innsbruck25_sub4.tif        projec=0.8059  projec=0.8072  random=0.8066  none=0.8063  box=0.7971  ctr=0.8069
+  innsbruck22_sub2.tif        projec=0.8387  projec=0.8400  random=0.8381  none=0.8373  box=0.8271  ctr=0.8368
+  innsbruck22_sub3.tif        projec=0.7986  projec=0.7813  random=0.7870  none=0.7836  box=0.7945  ctr=0.7995
+  innsbruck22_sub4.tif        projec=0.8375  projec=0.8360  random=0.8363  none=0.8346  box=0.8298  ctr=0.8391
+
+=== 汇总（无泄漏划分）===
+DirPrompt(regress-dir)_leakfree        IoU=0.8037±0.0616  BER=0.0667  F1=0.8898  (n=92)
+    逐图 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\dirprompt_project_regress_test_per_image.csv
+    汇总 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\dirprompt_project_regress_test.csv
+DirPrompt(regress-dir/no-filter)_leakfree IoU=0.8034±0.0607  BER=0.0663  F1=0.8897  (n=92)
+    逐图 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\dirprompt_project_nofilter_regress_test_per_image.csv
+    汇总 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\dirprompt_project_nofilter_regress_test.csv
+DirPrompt(random-dir)_leakfree         IoU=0.8034±0.0608  BER=0.0663  F1=0.8897  (n=92)
+    逐图 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\dirprompt_random_regress_test_per_image.csv
+    汇总 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\dirprompt_random_regress_test.csv
+DirPrompt(no-dir)_leakfree             IoU=0.8030±0.0610  BER=0.0663  F1=0.8894  (n=92)
+    逐图 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\dirprompt_none_regress_test_per_image.csv
+    汇总 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\dirprompt_none_regress_test.csv
+LoRA-SAM(axis-box)_leakfree            IoU=0.7878±0.0686  BER=0.0644  F1=0.8796  (n=92)
+    逐图 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\dirprompt_axis_box_regress_test_per_image.csv
+    汇总 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\dirprompt_axis_box_regress_test.csv
+LoRA-SAM(centroid-points)_leakfree     IoU=0.8026±0.0612  BER=0.0656  F1=0.8892  (n=92)
+    逐图 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\dirprompt_centroid_points_regress_test_per_image.csv
+    汇总 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\results\dirprompt_centroid_points_regress_test.csv
+
+# project 模式触发无方向兜底的图像数：8
+
+--- 漏斗累计（全部图像求和）---
+  project            连通域=  1909 方向过滤丢弃=   913 候选=  97657 过梯度= 12018 光度剔除=  2704 最终前景=  4205 兜底图数=8
+  project_nofilter   连通域=  1909 方向过滤丢弃=     0 候选= 184692 过梯度= 19692 光度剔除=  4439 最终前景=  7498 兜底图数=0
+  random             连通域=  1909 方向过滤丢弃=     0 候选= 184691 过梯度= 20000 光度剔除=  4384 最终前景=  7445 兜底图数=0
+  none               连通域=  1909 方向过滤丢弃=     0 候选=  66815 过梯度= 21372 光度剔除=  4487 最终前景=  8573 兜底图数=0
+
+--- 对照分解（判读用）---
+  (1) project_nofilter vs none  -> 「扇形(方向)」的净作用
+  (2) project         vs project_nofilter -> 「方向一致性过滤」的净作用
+  [!] 只看 project vs none 会把两者混在一起，结论无效
+运行日志 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\logs\dirprompt_20261018_174141.log

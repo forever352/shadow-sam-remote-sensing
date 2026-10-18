@@ -37,6 +37,8 @@ token 做 softmax 归一化；即便新 token 数值为 0，只要它的 Q/K 非
 """
 import argparse
 import math
+import time
+from pathlib import Path
 from typing import List
 
 import env_setup  # 必须在 import torch 之前
@@ -79,16 +81,71 @@ class DirectionAdapter(nn.Module):
         return sparse, dense
 
 
+class DirectionCrossAttention(nn.Module):
+    """Simplified Feature Aggregator: a direction token cross-attends to prompt tokens.
+
+    This is the minimal "dual-stream / cross-attention" implementation for the
+    5-day sprint. It does NOT implement the multi-scale DownConv/FusionConv
+    described in the proposal; it only fuses the physical direction stream with
+    the prompt streams via one cross-attention layer. Report it as simplified.
+
+    Identity init: gamma=0 -> output == input at initialization.
+    """
+
+    def __init__(self, in_dim: int = 2, hidden: int = 64,
+                 embed_dim: int = EMBED_DIM, heads: int = 4):
+        super().__init__()
+        self.dir_mlp = nn.Sequential(
+            nn.Linear(in_dim, hidden),
+            nn.GELU(),
+            nn.Linear(hidden, embed_dim),
+        )
+        self.attn = nn.MultiheadAttention(embed_dim, heads, batch_first=True)
+        # Zero-init the attention output projection -> out==0 at init -> identity.
+        # (Do NOT zero-init gamma: gamma=0 would block all upstream gradients.)
+        nn.init.zeros_(self.attn.out_proj.weight)
+        nn.init.zeros_(self.attn.out_proj.bias)
+        self.gamma = nn.Parameter(torch.ones(1))
+
+    def forward(self, sparse: torch.Tensor, dense: torch.Tensor,
+                direction: torch.Tensor):
+        b = sparse.shape[0]
+        d = direction if isinstance(direction, torch.Tensor) else torch.as_tensor(direction)
+        d = d.reshape(-1, 2).to(device=sparse.device, dtype=torch.float32)
+        if d.shape[0] == 1 and b > 1:
+            d = d.expand(b, 2)
+        # Run the small cross-attention in fp32: under autocast the gradients to
+        # dir_mlp / in_proj underflow to zero (verified by grad_self_check).
+        with torch.amp.autocast("cuda", enabled=False):
+            dir_token = self.dir_mlp(d).unsqueeze(1)              # [B,1,E]
+            dense_tokens = dense.float().flatten(2).transpose(1, 2)
+            tokens = torch.cat([sparse.float(), dense_tokens], dim=1)
+            out, _ = self.attn(dir_token, tokens, tokens, need_weights=False)
+            out = out.squeeze(1)                                  # [B,E]
+        sparse = sparse + (self.gamma * out).to(sparse.dtype).unsqueeze(1)
+        dense = dense + (self.gamma * out).to(dense.dtype).view(b, -1, 1, 1)
+        return sparse, dense
+
+
 # ══════════════════════════════════════════════════════════════════
 # 安装 / 取参
 # ══════════════════════════════════════════════════════════════════
 
-def install_direction_adapter(sam, hidden: int = 64):
-    """把 DirectionAdapter 挂到 `sam.prompt_encoder` 上（子模块，自动进参数体系）。
+def install_direction_adapter(sam, hidden: int = 64, mode: str = "film"):
+    """把方向 adapter 挂到 `sam.prompt_encoder` 上（子模块，自动进参数体系）。
+
+    mode="film": original FiLM adapter (main result).
+    mode="cross_attn": simplified Feature Aggregator (5-day sprint ablation).
 
     必须在 `sam.to(device)` **之前**调用（与 LoRA 注入同约定）。
     """
-    sam.prompt_encoder.direction_adapter = DirectionAdapter(hidden=hidden)
+    if mode == "cross_attn":
+        ad = DirectionCrossAttention(hidden=hidden)
+    elif mode == "film":
+        ad = DirectionAdapter(hidden=hidden)
+    else:
+        raise ValueError(f"unknown adapter mode: {mode}")
+    sam.prompt_encoder.direction_adapter = ad
     return sam.prompt_encoder.direction_adapter
 
 
@@ -184,29 +241,45 @@ def grad_self_check(adapter: DirectionAdapter, b: int = 2, n: int = 7,
 def _self_test():
     torch.manual_seed(0)
     dev = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"设备: {dev}")
+    log_dir = Path(__file__).resolve().parent / "logs" / "sprint20261018"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / f"direction_adapter_selftest_{time.strftime('%Y%m%d_%H%M%S')}.log"
+    lines = []
 
-    for amp in ([True, False] if dev == "cuda" else [False]):
-        ad = DirectionAdapter().to(dev)
-        delta = equivalence_check(ad, use_autocast=amp)
-        tag = "autocast" if amp else "fp32"
-        print(f"[1] 恒等性 ({tag})：max|Δ| = {delta:.3e}  (要求 < 1e-5)")
-        assert delta < 1e-5, f"{tag} 下注入改变了输出，恒等初始化失败！"
+    def log(msg=""):
+        print(msg)
+        lines.append(msg)
 
-    ad = DirectionAdapter().to(dev)
-    before = [p.detach().clone() for p in ad.parameters()]
-    rep = grad_self_check(ad)
-    print(f"[2] 梯度自检（{3} 步 SGD，autocast 下）：")
-    for k in rep["names"]:
-        print(f"      {k:<28} step1={rep['step1'][k]:.3e}  "
-              f"last={rep['step_last'][k]:.3e}  ever>0={rep['ever_nonzero'][k]}")
-    assert not rep["__dead__"], f"零梯度死锁（参数永远拿不到梯度）：{rep['__dead__']}"
-    print("      -> 每个参数都曾拿到非零梯度，adapter 可正常训练")
+    log(f"device={dev}")
+    for name, cls in [("film", DirectionAdapter),
+                      ("cross_attn", DirectionCrossAttention)]:
+        torch.manual_seed(0)
+        log(f"\n## {name}")
+        for amp in ([True, False] if dev == "cuda" else [False]):
+            ad = cls().to(dev)
+            delta = equivalence_check(ad, use_autocast=amp)
+            tag = "autocast" if amp else "fp32"
+            log(f"[1] identity ({tag}): max|delta| = {delta:.3e} (require < 1e-5)")
+            assert delta < 1e-5, f"{name}/{tag}: identity init failed"
 
-    moved = max(float((p.detach() - q).abs().max()) for p, q in zip(ad.parameters(), before))
-    print(f"[3] {3} 步 SGD 后参数最大变化量：{moved:.3e}  (要求 > 0)")
-    assert moved > 0, "参数未更新！"
-    print("\n[OK] direction_adapter 自测全部通过")
+        ad = cls().to(dev)
+        before = [p.detach().clone() for p in ad.parameters()]
+        rep = grad_self_check(ad)
+        log("[2] grad self-check (3 SGD steps, autocast):")
+        for k in rep["names"]:
+            log(f"      {k:<28} step1={rep['step1'][k]:.3e}  "
+                f"last={rep['step_last'][k]:.3e}  ever>0={rep['ever_nonzero'][k]}")
+        assert not rep["__dead__"], f"{name}: zero-grad deadlock {rep['__dead__']}"
+        log("      -> every parameter received a non-zero gradient")
+
+        moved = max(float((p.detach() - q).abs().max())
+                    for p, q in zip(ad.parameters(), before))
+        log(f"[3] max parameter change after 3 steps: {moved:.3e} (require > 0)")
+        assert moved > 0, f"{name}: parameters did not update"
+
+    log("\n[OK] both DirectionAdapter and DirectionCrossAttention passed")
+    Path(log_path).write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"\nlog -> {log_path}")
 
 
 if __name__ == "__main__":

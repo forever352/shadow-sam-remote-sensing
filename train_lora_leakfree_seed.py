@@ -40,7 +40,7 @@ from segment_anything import sam_model_registry
 
 from eval_shadow import compute_metrics
 from direction_experiment import method_boxes
-from train_adapter_v4 import apply_lora, lora_params, train_step, LR, LR_MIN, CKPT, AISD
+from train_adapter_v4 import apply_lora, lora_params, train_step, set_loss_mode, LR, LR_MIN, CKPT, AISD
 from train_direction_net import split_by_base
 
 BASE = Path(__file__).resolve().parent
@@ -81,7 +81,14 @@ def main():
     ap.add_argument("--seed", type=int, default=0,
                     help="【只影响三个全局种子(随机数/初始化)。绝不改数据划分】"
                          "seed=0 请勿用本脚本重跑（直接沿用既有产物）")
+    ap.add_argument("--tag", type=str, default="",
+                    help="输出后缀；Tversky 等冲刺实验必须指定，避免覆盖主权重")
+    ap.add_argument("--loss", choices=["focal_dice", "tversky_dice"],
+                    default="focal_dice", help="训练损失；默认与主结果一致")
     args = ap.parse_args()
+    if abs(args.val_frac - 0.2) > 1e-9 or abs(args.test_frac - 0.2) > 1e-9:
+        raise SystemExit("禁止改划分：--val-frac/--test-frac 必须为 0.2（AGENTS.md 失效模式 #1）")
+    set_loss_mode(args.loss)
 
     # [!] 仅此三行受 --seed 控制。下面的 split_by_base 划分 seed 恒为 0/1，不得改为 args.seed。
     random.seed(args.seed)
@@ -102,6 +109,7 @@ def main():
     log("# 无泄漏版 LoRA 微调 SAM（按原图基名重划 Train412）")
     log(f"# 时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
     log(f"# epochs={args.epochs} seed={args.seed}  口径=框提示（选择与报告一致）")
+    log(f"# loss={args.loss}  输出tag={args.tag or '(none)'}")
     log("# [多seed副本] 划分 seed 恒为 0/1（与主结果同划分）")
 
     # ---- 按原图基名划分：先划 test，再从剩余划 val ----
@@ -151,8 +159,10 @@ def main():
     opt = torch.optim.AdamW(params, lr=LR, weight_decay=1e-4)
     scaler = torch.cuda.amp.GradScaler()
 
-    # seed != 0 -> 文件名加 _s{seed}，绝不覆盖主结果
+    # seed != 0 -> 文件名加 _s{seed}，绝不覆盖主结果；--tag 再追加实验后缀
     _tag = "" if args.seed == 0 else f"_s{args.seed}"
+    if args.tag:
+        _tag += f"_{args.tag}"
     OUT = str(BASE / "checkpoints" / f"sam_vit_b_shadow_v4_lora_leakfree{_tag}.pth")
     RESUME_CKPT = str(BASE / "checkpoints" / f"sam_vit_b_shadow_v4_lora_leakfree{_tag}_resume.pth")
     _res_summ = RES_DIR / f"lora_leakfree{_tag}_test.csv"

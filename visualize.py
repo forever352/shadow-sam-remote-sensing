@@ -1,6 +1,10 @@
 """
-生成对比可视化图：原图 | 真值 | Otsu | 增强预处理 | 零样本SAM | 微调SAM(本项目)
+生成对比可视化图：原图 | 真值 | Otsu | 增强预处理 | 零样本SAM | 冻结编码器微调SAM(对照)
 用于结题报告和 PPT。输出到 results/figures/。
+
+口径提示（2026-10-18）：评估集为 AISD 自带 Test51（含 42/43 同源泄漏）；
+默认加载 sam_vit_b_shadow_frozen_leakfree.pth（冻结编码器 + 无泄漏重训，对照），
+不是主方法 LoRA；results/figures/ 中旧图为历史 v2 产物，报告引用前请重跑。
 """
 from pathlib import Path
 
@@ -22,7 +26,7 @@ plt.rcParams["axes.unicode_minus"] = False
 
 BASE = Path(__file__).resolve().parent
 ZERO_CKPT = str(BASE / "checkpoints" / "sam_vit_b_01ec64.pth")
-FT_CKPT = str(BASE / "checkpoints" / "sam_vit_b_shadow_v2.pth")
+FT_CKPT = str(BASE / "checkpoints" / "sam_vit_b_shadow_frozen_leakfree.pth")
 AISD_ROOT = BASE / "AISD" / "AISD"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -55,7 +59,7 @@ def main():
     imgs = sorted(img_dir.glob("*.tif"))
     samples = imgs[:2] + imgs[25:27]  # 4 张代表性样本
 
-    panels = ["原图", "真值", "Otsu", "增强预处理", "零样本SAM", "微调SAM(本项目)"]
+    panels = ["原图", "真值", "Otsu", "增强预处理", "零样本SAM", "冻结编码器微调SAM(对照)"]
 
     out_dir = BASE / "results" / "figures"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -69,13 +73,13 @@ def main():
             "Otsu": mask_otsu(img_bgr) > 0,
             "增强预处理": mask_enhanced(img_bgr) > 0,
             "零样本SAM": auto_mask(sam_zero, img_bgr),
-            "微调SAM(本项目)": auto_mask(sam_ft, img_bgr),
+            "冻结编码器微调SAM(对照)": auto_mask(sam_ft, img_bgr),
         }
 
         fig, axes = plt.subplots(1, 6, figsize=(24, 4.2))
         axes[0].imshow(img_rgb); axes[0].set_title("原图", fontsize=12); axes[0].axis("off")
         axes[1].imshow(gt, cmap="gray"); axes[1].set_title("真值", fontsize=12); axes[1].axis("off")
-        for ax, key in zip(axes[2:], ["Otsu", "增强预处理", "零样本SAM", "微调SAM(本项目)"]):
+        for ax, key in zip(axes[2:], ["Otsu", "增强预处理", "零样本SAM", "冻结编码器微调SAM(对照)"]):
             overlay = np.zeros_like(img_rgb)
             overlay[masks[key]] = [0, 255, 0]
             ax.imshow(cv2.addWeighted(img_rgb, 0.6, overlay, 0.4, 0))

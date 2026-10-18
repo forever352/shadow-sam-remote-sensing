@@ -111,6 +111,24 @@ def focal_loss(logits, target, gamma=2.0, alpha=0.75):
     return (aw * w * bce).mean()
 
 
+def tversky_loss(logits, target, alpha=0.3, beta=0.7, gamma=1.0):
+    """Recall-oriented Tversky loss (beta > alpha favors recall)."""
+    probs = torch.sigmoid(logits)
+    tp = (probs * target).sum(dim=(2, 3))
+    fp = (probs * (1 - target)).sum(dim=(2, 3))
+    fn = ((1 - probs) * target).sum(dim=(2, 3))
+    tv = (tp + 1e-6) / (tp + alpha * fp + beta * fn + 1e-6)
+    return ((1 - tv) ** gamma).mean()
+
+
+LOSS_MODE = "focal_dice"
+
+
+def set_loss_mode(mode):
+    global LOSS_MODE
+    LOSS_MODE = mode
+
+
 def sample_points(gt, n_fg=N_FG, n_bg=N_BG):
     ys, xs = np.where(gt > 0)
     yb, xb = np.where(gt == 0)
@@ -174,7 +192,10 @@ def train_step(sam, img_rgb, gt, opt, scaler):
         )
     gt256 = cv2.resize(gt, (256, 256), interpolation=cv2.INTER_NEAREST)
     gt_t = torch.as_tensor((gt256 > 0), dtype=torch.float32)[None, None].to(device)
-    loss = focal_loss(low_res, gt_t) + dice_loss(low_res, gt_t)
+    if LOSS_MODE == "tversky_dice":
+        loss = tversky_loss(low_res, gt_t) + dice_loss(low_res, gt_t)
+    else:
+        loss = focal_loss(low_res, gt_t) + dice_loss(low_res, gt_t)
     opt.zero_grad()
     scaler.scale(loss).backward()
     scaler.step(opt)

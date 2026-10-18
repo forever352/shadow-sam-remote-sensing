@@ -1,0 +1,30 @@
+device=cuda
+
+## film
+[1] identity (autocast): max|delta| = 0.000e+00 (require < 1e-5)
+[1] identity (fp32): max|delta| = 0.000e+00 (require < 1e-5)
+[2] grad self-check (3 SGD steps, autocast):
+      net.0.weight                 step1=0.000e+00  last=4.919e-04  ever>0=True
+      net.0.bias                   step1=0.000e+00  last=5.633e-04  ever>0=True
+      net.2.weight                 step1=3.922e-01  last=3.118e-01  ever>0=True
+      net.2.bias                   step1=1.372e-01  last=1.350e-01  ever>0=True
+      -> every parameter received a non-zero gradient
+[3] max parameter change after 3 steps: 3.617e-04 (require > 0)
+
+## cross_attn
+[1] identity (autocast): max|delta| = 0.000e+00 (require < 1e-5)
+[1] identity (fp32): max|delta| = 0.000e+00 (require < 1e-5)
+[2] grad self-check (3 SGD steps, autocast):
+      gamma                        step1=0.000e+00  last=1.116e-06  ever>0=True
+      dir_mlp.0.weight             step1=0.000e+00  last=2.318e-08  ever>0=True
+      dir_mlp.0.bias               step1=0.000e+00  last=2.359e-08  ever>0=True
+      dir_mlp.2.weight             step1=0.000e+00  last=1.799e-07  ever>0=True
+      dir_mlp.2.bias               step1=0.000e+00  last=7.973e-08  ever>0=True
+      attn.in_proj_weight          step1=0.000e+00  last=3.042e-06  ever>0=True
+      attn.in_proj_bias            step1=0.000e+00  last=1.841e-06  ever>0=True
+      attn.out_proj.weight         step1=4.947e-02  last=4.508e-02  ever>0=True
+      attn.out_proj.bias           step1=3.670e-02  last=3.297e-02  ever>0=True
+      -> every parameter received a non-zero gradient
+[3] max parameter change after 3 steps: 1.095e-04 (require > 0)
+
+[OK] both DirectionAdapter and DirectionCrossAttention passed

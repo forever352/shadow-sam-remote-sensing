@@ -1,0 +1,215 @@
+--- train_maskrcnn_leakfree.py	2026-10-15 20:40:06.280341200 +0800
++++ train_maskrcnn_leakfree_seed.py	2026-10-18 14:11:35.220999800 +0800
+@@ -1,45 +1,28 @@
+-"""Mask R-CNN 阴影检测基线（无泄漏划分，与 LoRA-SAM / U-Net / SegNet 同口径）。
++"""Mask R-CNN 阴影检测基线 **seed 副本**（补齐 seed 1/2）。
+ 
+-## 为什么有这个脚本
+-
+-申报书（`_shenbaoshu_attached_20261014.txt`）的硬判据之一是：
+-    "交并比（IoU）优于当前主流全监督网络（如 Mask R-CNN）。"
+-但本项目**从未跑过 Mask R-CNN**（见 `申报书问题清单.md` 3.2）。本脚本补齐该项。
+-
+-## 口径（与主方法完全对齐，确保可比）
+-
+-- **划分**：与 `train_lora_leakfree.py` / `train_cnn_leakfree.py` **逐字相同**：
+-    split_by_base(Train412, 0.2, seed=0) -> train_pool + test(92/21 原图)
+-    split_by_base(train_pool, 0.2, seed=1) -> train(262/68) + val(58/16)
+-  **注意：本脚本内的划分 seed 恒为 0/1，不随任何参数变化**（划分一变，结果全部不可比）。
+-  启动时会**断言**测试集 name 集合与 `results/lora_leakfree_test_per_image.csv` 一致，不等即抛异常。
+-- **输入**：整图 resize 到 512x512（`INTER_LINEAR`），与 U-Net/SegNet 一致。
+-- **实例定义**：GT 二值掩膜的连通域（`area >= 200`，与 `direction_utils.gt_direction` 同阈值）。
+-- **评估**：保留 `score >= tau` 的实例 -> 软掩膜 `>0.5` 并集 -> **最近邻** resize 回 GT 原尺寸
+-  -> `eval_shadow.compute_metrics` 出六项指标。**tau 与最佳 epoch 只在验证集(58)上选**。
+-- **提示来源说明（公平性，审查 M3）**：主方法（LoRA-SAM）的框提示来自 `mask_enhanced`
+-  （Otsu+CLAHE 粗提取），**不是 GT**；本脚本的 Mask R-CNN 亦为 COCO 预训练 + 全自动推理。
+-  两者皆为**全自动、无 GT 泄漏**的可比对手。
+-
+-## 收敛判据（审查 M2 要求，必须落盘）
+-
+-逐次验证落盘 IoU/BER 曲线（`results/maskrcnn_leakfree_val_curve.csv`），并记录
+-"最佳出现在第几次评估"。若**最佳出现在最后一次评估**，日志会明确标注"基线可能仍未收敛" ——
+-此时"LoRA 优于 Mask R-CNN"是对**未收敛基线**取优，报告须如实标注为下界。
++seed-0 主行由 `train_maskrcnn_leakfree.py` 产出（`_res800`，min_size=800 / max_size=1333）。
++本副本只用于 seed 1/2，输出统一带 `_s{seed}` 后缀，**绝不覆盖 seed-0**。
++3-seed 汇总必须使用同一协议：**800/1333**。
+ 
+ ## 用法
+-    python train_maskrcnn_leakfree.py --epochs 1 --limit-train 8 --limit-val 4 --eval-every 1
+-    python train_maskrcnn_leakfree.py --epochs 60
+-    python train_maskrcnn_leakfree.py --resume
+-    python train_maskrcnn_leakfree.py --evaluate
+-
+-## 落盘
+-    checkpoints/maskrcnn_shadow_leakfree.pth / _last.pth
+-    results/maskrcnn_leakfree_test.csv / _test_per_image.csv / _val_curve.csv
+-    logs/maskrcnn_leakfree_{ts}.log
++    python train_maskrcnn_leakfree_seed.py --seed 1 --epochs 60 --min-size 800 --max-size 1333
++    python train_maskrcnn_leakfree_seed.py --seed 1 --epochs 60 --min-size 800 --max-size 1333 --resume
++    python train_maskrcnn_leakfree_seed.py --seed 1 --epochs 60 --min-size 800 --max-size 1333 --evaluate
++
++## 落盘（tag 恒为 _s{seed}）
++    checkpoints/maskrcnn_shadow_leakfree_s{seed}.pth / _last.pth
++    checkpoints/maskrcnn_shadow_leakfree_s{seed}_meta.json
++    results/maskrcnn_leakfree_s{seed}_test.csv / _test_per_image.csv / _val_curve.csv
++    logs/maskrcnn_leakfree_s{seed}_{ts}.log
++
++## 与原脚本的差异（仅这些）
++- `--seed` 控制全局 RNG；划分 seed 恒为 0/1。
++- tag 强制 `_s{seed}`；`seed=0` 直接退出。
++- `_last.pth` 额外保存 scheduler state；meta JSON 记录 `resumed/clean_run/min_size/max_size`。
+ """
+ import argparse
+ import csv
++import json
+ import random
+ import time
+ from pathlib import Path
+@@ -227,27 +210,38 @@
+ def main():
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--epochs", type=int, default=60)
++    ap.add_argument("--seed", type=int, required=True,
++                    help="只控制模型初始化/数据 shuffle/增强 RNG；划分 seed 恒为 0/1。seed=0 请沿用既有结果")
+     ap.add_argument("--lr", type=float, default=0.0025)
+     ap.add_argument("--eval-every", type=int, default=5)
+-    ap.add_argument("--min-size", type=int, default=512)
+-    ap.add_argument("--max-size", type=int, default=800)
++    ap.add_argument("--min-size", type=int, default=800)
++    ap.add_argument("--max-size", type=int, default=1333)
+     ap.add_argument("--limit-train", type=int, default=0, help="冒烟用：只用前 N 张训练")
+     ap.add_argument("--limit-val", type=int, default=0, help="冒烟用：只用前 N 张验证")
+     ap.add_argument("--tag", type=str, default="",
+-                    help="输出文件名后缀（如 _res800）。同一脚本跑不同分辨率/设置时必须给不同 tag，"
+-                         "否则会**互相覆盖**，且旧结果会被静默改写")
++                    help="仅允许 _s{seed}（脚本自动设置）；禁止覆盖 seed-0/_res800")
+     ap.add_argument("--evaluate", action="store_true", help="只评估已有 best 权重")
+     ap.add_argument("--resume", action="store_true", help="从 _last.pth 续训")
+     args = ap.parse_args()
+-
+-    random.seed(0)
+-    np.random.seed(0)
+-    torch.manual_seed(0)
++    if args.seed == 0:
++        raise SystemExit("seed=0 请沿用既有 results/maskrcnn_leakfree_res800_test*.csv，不用本脚本重跑")
++    if (args.min_size, args.max_size) != (800, 1333):
++        raise SystemExit("seed 副本只允许 --min-size 800 --max-size 1333（与 seed-0 res800 一致）")
++    if args.tag and args.tag != f"_s{args.seed}":
++        raise SystemExit(f"seed 脚本只允许 tag=_s{args.seed}，拒绝 {args.tag}（防止覆盖 seed-0/_res800）")
++    args.tag = f"_s{args.seed}"
++    resumed_run = False
++
++    random.seed(args.seed)
++    np.random.seed(args.seed)
++    torch.manual_seed(args.seed)
++    if torch.cuda.is_available():
++        torch.cuda.manual_seed_all(args.seed)
+ 
+     for d in (CKPT_DIR, LOG_DIR, RES_DIR):
+         d.mkdir(exist_ok=True)
+     ts = time.strftime("%Y%m%d_%H%M%S")
+-    log_path = LOG_DIR / f"maskrcnn_leakfree_{ts}.log"
++    log_path = LOG_DIR / f"maskrcnn_leakfree{args.tag}_{ts}.log"
+     logf = open(log_path, "w", encoding="utf-8")
+ 
+     def log(msg=""):
+@@ -259,7 +253,7 @@
+     log(f"# 时间: {time.strftime('%Y-%m-%d %H:%M:%S')}  设备: {device}")
+     log(f"# 输入 {IN_SIZE}x{IN_SIZE}  实例=GT连通域(area>={MIN_AREA})  "
+         f"模型 min_size={args.min_size} max_size={args.max_size}  掩膜阈值={MASK_THR}")
+-    log(f"# epochs={args.epochs} lr={args.lr} eval_every={args.eval_every}  全局seed=0")
++    log(f"# epochs={args.epochs} lr={args.lr} eval_every={args.eval_every}  全局seed={args.seed}  tag={args.tag}")
+     log("# 划分 seed 恒为 0/1（与主方法逐字相同，不随任何参数变化）")
+ 
+     # ── 划分（与 train_lora_leakfree.py:96-97 逐字一致）──
+@@ -270,6 +264,30 @@
+     log(f"  训练 {len(tr_files)} 张({n_tr}原图) / 验证 {len(val_files)} 张({n_va}原图) "
+         f"/ 测试 {len(test_files)} 张({n_te}原图)")
+ 
++    # 硬断言：划分与 seed-0 完全一致
++    if not (len(tr_files) == 262 and len(val_files) == 58 and len(test_files) == 92 and n_te == 21):
++        raise RuntimeError(f"划分数量异常: {len(tr_files)}/{len(val_files)}/{len(test_files)}/{n_te} "
++                           f"(期望 262/58/92/21)")
++    def _base(p):
++        return Path(p).stem.split("_sub")[0]
++    b_tr = {_base(f) for f in tr_files}
++    b_va = {_base(f) for f in val_files}
++    b_te = {_base(f) for f in test_files}
++    if (b_tr & b_va) or (b_tr & b_te) or (b_va & b_te):
++        raise RuntimeError("三集基名存在交集（泄漏）")
++    import hashlib
++    names_here = {Path(f).name for f in test_files}
++    for ref_fn in ("lora_leakfree_test_per_image.csv",
++                   "maskrcnn_leakfree_res800_test_per_image.csv"):
++        ref_p = RES_DIR / ref_fn
++        with open(ref_p, newline="", encoding="utf-8-sig") as rf:
++            ref_names = {r["name"] for r in csv.DictReader(rf) if r.get("name")}
++        if names_here != ref_names:
++            raise RuntimeError(f"test 名称集合与 {ref_fn} 不一致")
++    name_hash = hashlib.sha256("\n".join(sorted(names_here)).encode("utf-8")).hexdigest()[:16]
++    log(f"  断言通过: 262/58/92 张、21 场景、三集基名不重叠、test 名称与 seed-0 一致")
++    log(f"  test 名称 sha256[:16]: {name_hash}")
++
+     def gt_of(f):
+         return AISD / "Train412" / "mask" / Path(f).name
+ 
+@@ -329,6 +347,21 @@
+     ckpt = CKPT_DIR / f"maskrcnn_shadow_leakfree{tag}.pth"
+     last_ckpt = CKPT_DIR / f"maskrcnn_shadow_leakfree{tag}_last.pth"
+     curve_path = RES_DIR / f"maskrcnn_leakfree{tag}_val_curve.csv"
++    meta_path = CKPT_DIR / f"maskrcnn_shadow_leakfree{tag}_meta.json"
++
++    def write_meta():
++        meta = {"seed": args.seed, "resumed": bool(resumed_run),
++                "clean_run": not bool(resumed_run),
++                "min_size": args.min_size, "max_size": args.max_size,
++                "epochs": args.epochs, "tag": tag}
++        meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
++
++    # --evaluate 可能发生在一次 resumed run 之后；保留已有 meta 的 resumed 标记
++    if meta_path.exists():
++        try:
++            resumed_run = bool(json.loads(meta_path.read_text(encoding="utf-8")).get("resumed", False))
++        except Exception:
++            resumed_run = False
+ 
+     # ── 只评估模式 ──
+     if args.evaluate:
+@@ -345,6 +378,7 @@
+         tacc = eval_tau_curve(model, [load_rgb512(f) for f in test_files],
+                               [gt_of(f) for f in test_files])
+         write_results(tacc[tau], tau, log, tag)
++        write_meta()
+         log(f"日志 -> {log_path}")
+         logf.close()
+         return
+@@ -358,8 +392,13 @@
+         try:
+             st = torch.load(last_ckpt, map_location=device)
+             model.load_state_dict(st["model"]); opt.load_state_dict(st["optim"])
++            if "sched" in st:
++                sched.load_state_dict(st["sched"])
+             start_epoch = st["epoch"] + 1; best = st["best"]; curve = st.get("curve", [])
++            resumed_run = True
+             log(f"续训：从 {last_ckpt} 恢复（已完成 epoch {st['epoch']}，best val IoU {best:.4f}）")
++            log("  [!] 该 run 为 resumed，非干净 60 轮（RNG 未恢复；scheduler 已恢复）")
++            write_meta()  # 提前落盘，防最终评估被杀后 resumed 标记丢失
+         except Exception as e:
+             log(f"！{last_ckpt} 读取失败（{type(e).__name__}: {e}），从 epoch 1 重新开始")
+     if start_epoch > args.epochs:
+@@ -412,6 +451,7 @@
+ 
+         tmp = Path(str(last_ckpt) + ".tmp")
+         torch.save({"model": model.state_dict(), "optim": opt.state_dict(),
++                    "sched": sched.state_dict(),
+                     "epoch": epoch, "best": best, "curve": curve}, tmp)
+         tmp.replace(last_ckpt)
+ 
+@@ -445,6 +485,7 @@
+     tacc = eval_tau_curve(model, [load_rgb512(f) for f in test_files],
+                           [gt_of(f) for f in test_files])
+     write_results(tacc[tau], tau, log, tag)
++    write_meta()
+     log(f"日志 -> {log_path}")
+     logf.close()
+ 

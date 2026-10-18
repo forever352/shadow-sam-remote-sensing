@@ -1,0 +1,136 @@
+--- train_cnn_leakfree.py	2026-10-14 16:43:57.496301500 +0800
++++ train_cnn_leakfree_seed.py	2026-10-18 01:58:22.343801200 +0800
+@@ -80,20 +80,28 @@
+     ap.add_argument("--split", choices=["leakfree", "official"], default="leakfree",
+                     help="leakfree=按原图基名重划(68/16/21)；official=官方 Train412/Val51/Test51")
+     ap.add_argument("--epochs", type=int, default=60)
++    ap.add_argument("--seed", type=int, required=True,
++                    help="只控制模型初始化/数据 shuffle/增强 RNG；划分 seed 恒为 0/1。seed=0 请沿用既有结果")
+     ap.add_argument("--evaluate", action="store_true", help="只评估已有检查点，不训练")
+     ap.add_argument("--resume", action="store_true",
+-                    help="从 <arch>_shadow_<split>_last.pth 续训（恢复 epoch/best/优化器）。"
++                    help="从 <arch>_shadow_<split>_s<seed>_last.pth 续训（恢复 epoch/best/优化器）。"
+                          "注意：不改变数据划分（划分由 split_by_base 的固定 seed 决定）")
+     args = ap.parse_args()
+-
+-    random.seed(0)
+-    np.random.seed(0)
+-    torch.manual_seed(0)
++    if args.split != "leakfree":
++        raise SystemExit("本脚本仅支持 --split leakfree；official 划分请用原脚本")
++    if args.seed == 0:
++        raise SystemExit("seed=0 请沿用既有 results/{arch}_leakfree_test*.csv，不用本脚本重跑")
++
++    random.seed(args.seed)
++    np.random.seed(args.seed)
++    torch.manual_seed(args.seed)
++    if torch.cuda.is_available():
++        torch.cuda.manual_seed_all(args.seed)
+ 
+     LOG_DIR.mkdir(exist_ok=True)
+     RES_DIR.mkdir(exist_ok=True)
+     ts = time.strftime("%Y%m%d_%H%M%S")
+-    log_path = LOG_DIR / f"{args.arch}_{args.split}_{ts}.log"
++    log_path = LOG_DIR / f"{args.arch}_{args.split}_s{args.seed}_{ts}.log"
+     logf = open(log_path, "w", encoding="utf-8")
+ 
+     def log(msg=""):
+@@ -101,8 +109,9 @@
+         logf.write(msg + "\n")
+         logf.flush()
+ 
+-    log(f"# {args.arch.upper()} 基线（划分={args.split}）")
+-    log(f"# 时间: {time.strftime('%Y-%m-%d %H:%M:%S')}  epochs={args.epochs}  seed=0")
++    log(f"# {args.arch.upper()} 基线（划分={args.split}，seed={args.seed}）")
++    log(f"# 时间: {time.strftime('%Y-%m-%d %H:%M:%S')}  epochs={args.epochs}  seed={args.seed}")
++    log(f"# 超参: VAL_EVERY={VAL_EVERY}  lr=1e-3  loss=BCE+Dice  input=512  aug=horizontal_flip")
+ 
+     def _imgs(split):
+         return sorted(str(p) for p in (AISD / split / "shadow").glob("*.tif"))
+@@ -119,6 +128,31 @@
+         log(f"Train412 {len(files)} 张")
+         log(f"  训练 {len(tr_files)} 张({n_tr}原图) / 验证 {len(val_files)} 张({n_va}原图) / 测试 {len(test_files)} 张({n_te}原图)")
+         log(f"  与 LoRA 无泄漏版同一划分（三集基名互不重叠）")
++        # 划分与 seed-0 完全一致；任何不一致都必须立即停下
++        if not (len(tr_files) == 262 and len(val_files) == 58):
++            raise RuntimeError(f"train/val 数量异常: {len(tr_files)}/{len(val_files)} (期望 262/58)")
++        if not (len(test_files) == 92 and n_te == 21):
++            raise RuntimeError(f"test 数量异常: {len(test_files)}/{n_te} (期望 92/21)")
++        def _base(p):
++            return Path(p).stem.split("_sub")[0]
++        b_tr = {_base(f) for f in tr_files}
++        b_va = {_base(f) for f in val_files}
++        b_te = {_base(f) for f in test_files}
++        if (b_tr & b_va) or (b_tr & b_te) or (b_va & b_te):
++            raise RuntimeError("三集基名存在交集（泄漏）")
++        test_names = {Path(f).name for f in test_files}
++        for ref_fn in (f"{args.arch}_leakfree_test_per_image.csv",
++                       "lora_leakfree_test_per_image.csv"):
++            ref_p = RES_DIR / ref_fn
++            with open(ref_p, newline="", encoding="utf-8-sig") as rf:
++                ref_names = {r["name"] for r in csv.DictReader(rf)}
++            if test_names != ref_names:
++                raise RuntimeError(f"test 名称集合与 {ref_fn} 不一致")
++        import hashlib
++        name_hash = hashlib.sha256("\n".join(sorted(test_names)).encode("utf-8")).hexdigest()[:16]
++        log(f"  断言通过: 262/58/92 张、21 场景、三集基名不重叠、test 名称与 seed-0 一致")
++        log(f"  test 名称 sha256[:16]: {name_hash}")
++        log(f"  split={args.split} seed={args.seed}")
+         train_pairs = list(zip(tr_files, [gt_of(f) for f in tr_files]))
+         val_gts = [gt_of(f) for f in val_files]
+         test_gts = [gt_of(f) for f in test_files]
+@@ -136,8 +170,8 @@
+     log(f"参数量 {sum(p.numel() for p in model.parameters())/1e6:.2f}M  设备 {device}")
+ 
+     opt = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
+-    ckpt = str(BASE / "checkpoints" / f"{args.arch}_shadow_{args.split}.pth")
+-    last_ckpt = str(BASE / "checkpoints" / f"{args.arch}_shadow_{args.split}_last.pth")
++    ckpt = str(BASE / "checkpoints" / f"{args.arch}_shadow_{args.split}_s{args.seed}.pth")
++    last_ckpt = str(BASE / "checkpoints" / f"{args.arch}_shadow_{args.split}_s{args.seed}_last.pth")
+ 
+     if args.evaluate:
+         if not Path(ckpt).exists():
+@@ -151,17 +185,17 @@
+         log(f"=== 测试集（{len(trows)} 张，split={args.split}）===")
+         for k in METRIC_KEYS:
+             log(f"{k:10s} {tavg[k]:.4f} ± {tstd[k]:.4f}")
+-        with open(RES_DIR / f"{args.arch}_{args.split}_test_per_image.csv", "w", newline="", encoding="utf-8") as f:
++        with open(RES_DIR / f"{args.arch}_{args.split}_s{args.seed}_test_per_image.csv", "w", newline="", encoding="utf-8") as f:
+             w = csv.DictWriter(f, fieldnames=["name"] + METRIC_KEYS)
+             w.writeheader()
+             for r in trows:
+                 w.writerow({k: r[k] for k in ["name"] + METRIC_KEYS})
+-        with open(RES_DIR / f"{args.arch}_{args.split}_test.csv", "w", newline="", encoding="utf-8") as f:
++        with open(RES_DIR / f"{args.arch}_{args.split}_s{args.seed}_test.csv", "w", newline="", encoding="utf-8") as f:
+             w = csv.writer(f)
+             w.writerow(["method", "n_images"] + METRIC_KEYS)
+             w.writerow([f"{args.arch.upper()}({args.split})", len(trows)] + [f"{tavg[k]:.6f}" for k in METRIC_KEYS])
+             w.writerow([f"{args.arch.upper()}({args.split})_std", len(trows)] + [f"{tstd[k]:.6f}" for k in METRIC_KEYS])
+-        log(f"汇总 -> {RES_DIR / (args.arch + '_' + args.split + '_test.csv')}")
++        log(f"汇总 -> {RES_DIR / (args.arch + '_' + args.split + '_s' + str(args.seed) + '_test.csv')}")
+         logf.close()
+         return
+ 
+@@ -237,19 +271,19 @@
+     for k in METRIC_KEYS:
+         log(f"{k:10s} {tavg[k]:.4f} ± {tstd[k]:.4f}")
+ 
+-    with open(RES_DIR / f"{args.arch}_{args.split}_test_per_image.csv", "w", newline="", encoding="utf-8") as f:
++    with open(RES_DIR / f"{args.arch}_{args.split}_s{args.seed}_test_per_image.csv", "w", newline="", encoding="utf-8") as f:
+         w = csv.DictWriter(f, fieldnames=["name"] + METRIC_KEYS)
+         w.writeheader()
+         for r in trows:
+             w.writerow({k: r[k] for k in ["name"] + METRIC_KEYS})
+-    with open(RES_DIR / f"{args.arch}_{args.split}_test.csv", "w", newline="", encoding="utf-8") as f:
++    with open(RES_DIR / f"{args.arch}_{args.split}_s{args.seed}_test.csv", "w", newline="", encoding="utf-8") as f:
+         w = csv.writer(f)
+         w.writerow(["method", "n_images"] + METRIC_KEYS)
+         w.writerow([f"{args.arch.upper()}({args.split})", len(trows)] + [f"{tavg[k]:.6f}" for k in METRIC_KEYS])
+         w.writerow([f"{args.arch.upper()}({args.split})_std", len(trows)] + [f"{tstd[k]:.6f}" for k in METRIC_KEYS])
+ 
+     log("")
+-    log(f"汇总 -> {RES_DIR / (args.arch + '_' + args.split + '_test.csv')}")
++    log(f"汇总 -> {RES_DIR / (args.arch + '_' + args.split + '_s' + str(args.seed) + '_test.csv')}")
+     log(f"日志 -> {log_path}")
+     logf.close()
+ 

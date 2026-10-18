@@ -1,0 +1,219 @@
+{
+  "n_configs": 110,
+  "n_bases": 16,
+  "full_val_chosen": "T25_none_tta",
+  "full_val_chosen_BER": 0.04589605912599973,
+  "full_val_chosen_IoU": 0.8129140829310975,
+  "full_val_eligible": 13,
+  "val_criterion": 0.047,
+  "leave_one_base_out": {
+    "n_folds": 16,
+    "selection_subset_chosen_freq": {
+      "T20_none_tta": 1,
+      "T25_none_tta": 15
+    },
+    "selection_subset_ber_below_criterion": 16,
+    "heldout_ber_below_criterion": 9,
+    "heldout_gain_positive": 16,
+    "folds": [
+      {
+        "held_out": "austin13",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.04669438360874316,
+        "selection_subset_IoU": 0.8107913289795283,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.03897724694222332,
+        "heldout_baseline_BER": 0.04594712256424958,
+        "heldout_gain": 0.006969875622026257,
+        "eligible": 13
+      },
+      {
+        "held_out": "austin15",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.04467999358489605,
+        "selection_subset_IoU": 0.8135164958304032,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.056435293815565,
+        "heldout_baseline_BER": 0.06651488595417764,
+        "heldout_gain": 0.010079592138612634,
+        "eligible": 14
+      },
+      {
+        "held_out": "austin16",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.0456626527941907,
+        "selection_subset_IoU": 0.8104514287322678,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.047596590972036924,
+        "heldout_baseline_BER": 0.05109494896695379,
+        "heldout_gain": 0.0034983579949168647,
+        "eligible": 12
+      },
+      {
+        "held_out": "austin23",
+        "chosen": "T20_none_tta",
+        "selection_subset_BER": 0.04612490542184469,
+        "selection_subset_IoU": 0.8045149113224571,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.04645297758588192,
+        "heldout_baseline_BER": 0.046704437652475075,
+        "heldout_gain": 0.00025146006659315656,
+        "eligible": 13
+      },
+      {
+        "held_out": "chicago24",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.04541142142503691,
+        "selection_subset_IoU": 0.8123406034431544,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.051033218756205465,
+        "heldout_baseline_BER": 0.05449590173282391,
+        "heldout_gain": 0.0034626829766184475,
+        "eligible": 12
+      },
+      {
+        "held_out": "chicago25",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.04548959710171831,
+        "selection_subset_IoU": 0.8127535593129013,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.05138329645379885,
+        "heldout_baseline_BER": 0.06127898058095092,
+        "heldout_gain": 0.009895684127152075,
+        "eligible": 12
+      },
+      {
+        "held_out": "innsbruck9",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.04631172302506451,
+        "selection_subset_IoU": 0.8125296298577108,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.03827555430981198,
+        "heldout_baseline_BER": 0.04228237902801709,
+        "heldout_gain": 0.0040068247182051125,
+        "eligible": 12
+      },
+      {
+        "held_out": "tyrol-w3",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.0462017155086436,
+        "selection_subset_IoU": 0.8154533640559123,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.03733768041197119,
+        "heldout_baseline_BER": 0.04195105617168466,
+        "heldout_gain": 0.004613375759713469,
+        "eligible": 12
+      },
+      {
+        "held_out": "tyrol-w30",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.0461637077961585,
+        "selection_subset_IoU": 0.8138267244039284,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.030640084926949702,
+        "heldout_baseline_BER": 0.04020157029355326,
+        "heldout_gain": 0.009561485366603555,
+        "eligible": 12
+      },
+      {
+        "held_out": "vienna18",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.04568241645069383,
+        "selection_subset_IoU": 0.81325222779134,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.058073691618435265,
+        "heldout_baseline_BER": 0.06647634062346494,
+        "heldout_gain": 0.008402649005029676,
+        "eligible": 13
+      },
+      {
+        "held_out": "vienna21",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.0457165130427288,
+        "selection_subset_IoU": 0.8118345633730141,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.05092334945758545,
+        "heldout_baseline_BER": 0.057156299985076015,
+        "heldout_gain": 0.006232950527490566,
+        "eligible": 12
+      },
+      {
+        "held_out": "vienna23",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.045635006953069934,
+        "selection_subset_IoU": 0.8137323919439139,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.05320551996803377,
+        "heldout_baseline_BER": 0.06410214877867185,
+        "heldout_gain": 0.010896628810638076,
+        "eligible": 14
+      },
+      {
+        "held_out": "vienna32",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.04635842965611771,
+        "selection_subset_IoU": 0.8115638972713644,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.019540938909274344,
+        "heldout_baseline_BER": 0.022157756997172748,
+        "heldout_gain": 0.0026168180878984038,
+        "eligible": 12
+      },
+      {
+        "held_out": "vienna34",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.045918205157236575,
+        "selection_subset_IoU": 0.8146172394295417,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.044633735345499324,
+        "heldout_baseline_BER": 0.04826060836356741,
+        "heldout_gain": 0.0036268730180680844,
+        "eligible": 14
+      },
+      {
+        "held_out": "vienna36",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.04600524915634053,
+        "selection_subset_IoU": 0.8133248487373552,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.03967222739657371,
+        "heldout_baseline_BER": 0.04689715762173008,
+        "heldout_gain": 0.00722493022515637,
+        "eligible": 12
+      },
+      {
+        "held_out": "vienna5",
+        "chosen": "T25_none_tta",
+        "selection_subset_BER": 0.046100291540618406,
+        "selection_subset_IoU": 0.8119343257128134,
+        "selection_subset_below_criterion": true,
+        "heldout_BER": 0.03425481149273455,
+        "heldout_baseline_BER": 0.04027649098900381,
+        "heldout_gain": 0.006021679496269257,
+        "eligible": 12
+      }
+    ]
+  },
+  "base_subsampling": {
+    "n_draws": 1000,
+    "note": "12-of-16 base draws without replacement; not a weighted bootstrap",
+    "chosen_freq_top": [
+      [
+        "T25_none_tta",
+        720
+      ],
+      [
+        "T20_none_tta",
+        142
+      ],
+      [
+        "T30_none_tta",
+        138
+      ]
+    ],
+    "fixed_T25_none_tta_BER_mean": 0.04583566894253552,
+    "fixed_T25_none_tta_BER_p05": 0.04394272844383431,
+    "fixed_T25_none_tta_BER_p95": 0.04743516663494416,
+    "fixed_T25_none_tta_BER_below_criterion_frac": 0.868
+  }
+}

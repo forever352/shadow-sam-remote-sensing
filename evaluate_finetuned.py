@@ -2,9 +2,13 @@
 评估微调后的 SAM：用"增强 Otsu 自动点提示 + SAM"做阴影检测，在 AISD Test51 上算指标。
 可与零样本 SAM 对比，验证微调是否带来提升。
 
+口径提示（2026-10-18）：本脚本是点提示 + AISD 自带 Test51（含 42/43 同源泄漏），
+不是主方法的框提示 / LoRA；frozen leakfree 在 Test51 上的输出不得标成
+无泄漏 92 张的 0.5621，也不得标成已删除历史 v2/v0 的 0.717。
+
 用法:
     python evaluate_finetuned.py                  # 零样本
-    python evaluate_finetuned.py --checkpoint checkpoints/sam_vit_b_shadow.pth   # 微调后
+    python evaluate_finetuned.py --checkpoint checkpoints/sam_vit_b_shadow_frozen_leakfree.pth   # 冻结编码器对照
     python evaluate_finetuned.py --limit 5        # 先跑前 5 张
 """
 import argparse

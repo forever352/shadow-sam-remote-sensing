@@ -1,0 +1,15 @@
+# 分阶段可视化摘要
+时间: 2026-10-18 23:52:43
+影像: AISD\AISD\Train412\shadow\chicago22_sub9.tif
+尺寸: 616 x 616
+权重: D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\checkpoints\sam_vit_b_shadow_v4_lora_leakfree.pth
+连通域框数: 42
+阴影像素占比: 13.73%
+输出目录: results\stages\chicago22_sub9
+GT: AISD\AISD\Train412\mask\chicago22_sub9.tif
+IoU: 0.676187
+BER: 0.081370
+F1: 0.806815
+OA: 0.950877
+Precision: 0.747374
+Recall: 0.876528

@@ -1,4 +1,9 @@
-"""计算各方法在 Test51 上的均值±标准差（用于报告严谨性）。"""
+"""计算各方法在 Test51 上的均值±标准差（用于报告严谨性）。
+
+口径提示（2026-10-18）：本脚本为历史 Test51 口径（含 42/43 同源泄漏），
+混合了旧 LoRA_last / U-Net / SegNet 权重与 frozen leakfree 对照权重，
+不是干净对比；输出不得标成无泄漏 0.5621 或历史 v2 0.717。
+"""
 import glob
 from pathlib import Path
 
@@ -25,8 +30,8 @@ apply_lora(sam_lora)
 sam_lora.load_state_dict(torch.load(str(BASE / "checkpoints" / "sam_vit_b_shadow_v4_lora_last.pth"), map_location=device))
 sam_lora.to(device); sam_lora.eval()
 
-sam_v2 = sam_model_registry["vit_b"](checkpoint=str(BASE / "checkpoints" / "sam_vit_b_shadow_v2.pth")).to(device)
-sam_v2.eval()
+sam_frozen = sam_model_registry["vit_b"](checkpoint=str(BASE / "checkpoints" / "sam_vit_b_shadow_frozen_leakfree.pth")).to(device)
+sam_frozen.eval()
 
 unet = UNet().to(device)
 unet.load_state_dict(torch.load(str(BASE / "checkpoints" / "unet_shadow.pth"), map_location=device))
@@ -63,7 +68,7 @@ def pred_cnn(model, img_bgr):
 METHODS = {
     "Otsu": lambda b, r: mask_otsu(b) > 0,
     "增强预处理": lambda b, r: mask_enhanced(b) > 0,
-    "冻结微调": lambda b, r: pred_sam_box(sam_v2, r, b),
+    "冻结编码器(无泄漏权重)": lambda b, r: pred_sam_box(sam_frozen, r, b),
     "SegNet": lambda b, r: pred_cnn(segnet, b),
     "U-Net": lambda b, r: pred_cnn(unet, b),
     "LoRA(本项目)": lambda b, r: pred_sam_box(sam_lora, r, b),

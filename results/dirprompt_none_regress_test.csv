@@ -1,0 +1,3 @@
+method,n_images,IoU,BER,F1,OA,Precision,Recall
+DirPrompt(no-dir)_leakfree,92,0.802989,0.066272,0.889415,0.957155,0.885670,0.896808
+DirPrompt(no-dir)_leakfree_std,92,0.060976,0.023382,0.038949,0.017318,0.056082,0.050171

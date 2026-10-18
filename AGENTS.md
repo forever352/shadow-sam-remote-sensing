@@ -108,7 +108,7 @@ preflight 自检 → supervisor 审方案 → 执行 → supervisor 审结果 �
 | 结果落盘规范 | `results/{method}_test.csv`（含 `_std` 行）+ `_test_per_image.csv` |
 | 主结果（无泄漏） | `results/lora_leakfree_test.csv` = IoU 0.787821 / BER 0.064359（seed=0） |
 | 多 seed | `results/lora_leakfree_s1_test.csv`（seed-1，**epoch 11 中断后 resume**）；seed-2 跑中 |
-| CNN 无泄漏基线 | `results/{unet,segnet}_leakfree_test.csv` |
+| **CNN 无泄漏基线** | `results/{unet,segnet}_leakfree{,_s1,_s2}_test.csv`（3 seed 均值；`results/cnn_multiseed_summary.csv`） |
 | **Mask R-CNN 基线** | 主行 `results/maskrcnn_leakfree_res800_test.csv`（0.7382）；子行 `..._leakfree_test.csv`（0.7330） |
 | **传统/零样本基线（无泄漏）** | `results/{otsu,c3i,enhanced,sam_amg}_leakfree_test.csv` |
 | 压 BER 实验 | `ber_reduce_eval.py` → `results/ber_reduce_{val_grid,test,selection.json}` |
@@ -116,6 +116,8 @@ preflight 自检 → supervisor 审方案 → 执行 → supervisor 审结果 �
 | 方向模块代码 | `direction_utils.py` / `direction_adapter.py` / `direction_prompt.py` / `train_direction_dtict.py` |
 | 跨数据集 | `eval_cross_dataset.py`、`datasets/RSISD/` |
 | SAM 补丁 | `segment-anything-main/.../prompt_encoder.py`（diff 存 `backups/patches/`） |
-| 审查日志 | `review_log.md`（**已入档至第四十八轮**，截至 2026-10-16） |
+| 审查日志 | `review_log.md`（**已入档至第六十九轮**，截至 2026-10-18） |
+| 多 seed 汇总 / 配对 / 场景 CI | `results/cnn_multiseed_summary.csv`、`results/cnn_multiseed_paired.csv`、`results/scene_level_ci_multiseed.csv`、`results/maskrcnn_multiseed_meta.csv`（第五十一/五十二轮；LoRA/U-Net/SegNet/Mask R-CNN 均 3 seed；Mask R-CNN seed-0 clean_run 未验证） |
+| 提示来源归因 / 误差结构 | `results/prompt_source_*`、`results/error_*_enhanced.csv`、`logs/prompt_source_*.log`、`logs/error_stratify_*.log`（第五十轮；对外只说“输出对提示来源不敏感”） |
 | 运行手册（**已过期，2026-10-16 归档**） | `archive/GPU执行清单_队列跑完后.md` |
 | 应急预案 | `执行顺序与应急预案.md` |

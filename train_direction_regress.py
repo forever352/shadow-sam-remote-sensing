@@ -18,6 +18,7 @@
     python train_direction_regress.py --epochs 40
 """
 import argparse
+import csv
 import math
 import random
 import time
@@ -40,6 +41,7 @@ AISD = BASE / "AISD" / "AISD"
 BACKBONE = str(BASE / "checkpoints" / "direction_resnet18_flip_basis.pth")
 OUT = str(BASE / "checkpoints" / "direction_resnet18_regress.pth")
 LOG_DIR = BASE / "logs"
+OUT_DIR = BASE / "results" / "sprint20261018"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -113,27 +115,35 @@ class DirectionDataset(torch.utils.data.Dataset):
         return x, torch.as_tensor(d)
 
 
-def build_model():
-    """ResNet-18 + 回归头(2维)；骨干加载阶段1的翻转预训练权重。"""
-    model = resnet18(weights=None)
-    model.fc = nn.Linear(model.fc.in_features, 2)
-    if Path(BACKBONE).exists():
-        sd = torch.load(BACKBONE, map_location="cpu")
-        sd = {k: v for k, v in sd.items() if not k.startswith("fc.")}
-        model.load_state_dict(sd, strict=False)  # 骨干加载，fc 用新回归头
-        print(f"已加载翻转预训练骨干: {BACKBONE}", flush=True)
-    else:
-        print(f"⚠️ 未找到 {BACKBONE}，用 ImageNet 初始化", flush=True)
+def build_model(backbone=BACKBONE, init="backbone"):
+    """ResNet-18 + 回归头(2维)。
+
+    init="backbone": 必须存在，否则抛异常（禁止静默回退 ImageNet）。
+    init="imagenet": 显式使用 ImageNet 初始化（仅作参照组）。
+    """
+    if init == "imagenet":
         model = resnet18(weights="DEFAULT")
         model.fc = nn.Linear(model.fc.in_features, 2)
+        print("显式使用 ImageNet 初始化（参照组）", flush=True)
+        return model
+    if not Path(backbone).exists():
+        raise FileNotFoundError(
+            f"backbone 不存在: {backbone}。禁止静默回退 ImageNet；"
+            f"如要 ImageNet 参照组，请显式传 --init imagenet")
+    model = resnet18(weights=None)
+    model.fc = nn.Linear(model.fc.in_features, 2)
+    sd = torch.load(backbone, map_location="cpu")
+    sd = {k: v for k, v in sd.items() if not k.startswith("fc.")}
+    model.load_state_dict(sd, strict=False)  # 骨干加载，fc 用新回归头
+    print(f"已加载预训练骨干: {backbone}", flush=True)
     return model
 
 
 @torch.no_grad()
-def evaluate_angle(model, files):
-    """返回平均角度误差(度) + 样本数。"""
+def evaluate_angle_rows(model, files):
+    """Return per-image angle errors: [{name, angle_err_deg}, ...]."""
     model.eval()
-    errs = []
+    rows = []
     tf = transforms.Compose([
         transforms.Resize(256), transforms.CenterCrop(IMG_SIZE),
         transforms.ToTensor(), transforms.Normalize(MEAN, STD),
@@ -149,9 +159,25 @@ def evaluate_angle(model, files):
         x = tf(Image.fromarray(img))[None].to(device)
         p = F.normalize(model(x)[0], dim=0)
         cos = float(torch.clamp((p * torch.as_tensor(d).to(device)).sum(), -1, 1))
-        # 二倍角：向量夹角 = 2Δθ → 实际误差 = 夹角/2
-        errs.append(math.degrees(math.acos(cos)) / 2.0)
-    return (float(np.mean(errs)) if errs else float("nan")), len(errs)
+        rows.append({"name": Path(f).name,
+                     "angle_err_deg": math.degrees(math.acos(cos)) / 2.0})
+    return rows
+
+
+@torch.no_grad()
+def evaluate_angle(model, files):
+    """返回平均角度误差(度) + 样本数。"""
+    rows = evaluate_angle_rows(model, files)
+    return (float(np.mean([r["angle_err_deg"] for r in rows])) if rows else float("nan"),
+            len(rows))
+
+
+def write_rows_csv(path, rows):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=["name", "angle_err_deg"])
+        w.writeheader()
+        w.writerows(rows)
 
 
 def main():
@@ -163,10 +189,19 @@ def main():
                     help="训练也用全图变换（不做随机裁剪）。用于消除「随机裁剪 vs 整图标签」错配")
     ap.add_argument("--tag", type=str, default="",
                     help="输出标签后缀，避免不同运行互相覆盖（冒烟请务必指定）")
+    ap.add_argument("--backbone", type=str, default=BACKBONE,
+                    help="预训练骨干路径；默认 flip_basis")
+    ap.add_argument("--init", choices=["backbone", "imagenet"], default="backbone",
+                    help="backbone=加载 --backbone（缺失即报错）；imagenet=显式参照组")
+    ap.add_argument("--val-only", action="store_true",
+                    help="只报 train/val 角误差，不碰 test（5天冲刺预注册要求）")
+    ap.add_argument("--allow-test", action="store_true",
+                    help="显式允许评 test；不加则一律跳过（防止误触）")
+    ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
     out_path = str(BASE / "checkpoints" / (f"direction_resnet18_regress_{args.tag}.pth" if args.tag else "direction_resnet18_regress.pth"))
 
-    random.seed(0); np.random.seed(0); torch.manual_seed(0)
+    random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
 
     LOG_DIR.mkdir(exist_ok=True)
     ts = time.strftime("%Y%m%d_%H%M%S")
@@ -176,8 +211,9 @@ def main():
     def log(msg=""):
         print(msg, flush=True); logf.write(msg + "\n"); logf.flush()
 
-    log("# 方向回归头（从翻转预训练骨干微调出阴影方向向量 cos2θ/sin2θ）")
-    log(f"# 时间: {time.strftime('%Y-%m-%d %H:%M:%S')}  epochs={args.epochs} seed=0")
+    log("# 方向回归头（从预训练骨干微调出阴影方向向量 cos2theta/sin2theta）")
+    log(f"# 时间: {time.strftime('%Y-%m-%d %H:%M:%S')}  epochs={args.epochs} seed={args.seed}")
+    log(f"# backbone: {args.backbone}  init={args.init}")
 
     files = sorted(str(p) for p in (AISD / "Train412" / "shadow").glob("*.tif"))
     train_pool, test_files, _, _ = split_by_base(files, 0.2, seed=0)
@@ -189,7 +225,7 @@ def main():
     log(f"# 有效样本（能算出方向）：训练 {len(train_ds)} / 验证 {len(val_ds)}")
     train_loader = torch.utils.data.DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=0)
 
-    model = build_model().to(device)
+    model = build_model(args.backbone, args.init).to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
 
     best_err = 999.0
@@ -212,11 +248,15 @@ def main():
                 msg += "  -> 保存最佳"
         log(msg)
 
-    # 最终：测试集角度误差
+    # 最终：测试集角度误差（--val-only 或未显式 --allow-test 时不碰 test）
     if Path(out_path).exists():
         model.load_state_dict(torch.load(out_path, map_location=device))
-    terr, tn = evaluate_angle(model, test_files)
     valr, vn = evaluate_angle(model, val_files)
+    take_test = (not args.val_only) and args.allow_test
+    if take_test:
+        terr, tn = evaluate_angle(model, test_files)
+    else:
+        terr, tn = float("nan"), 0
     # ★ 训练集角度误差（**直接测量**，此前只能由 loss 反推 —— 第五/六轮审查要求补）
     trerr, trn = evaluate_angle(model, tr_files)
 
@@ -230,7 +270,7 @@ def main():
         nrm = math.hypot(mc, ms)
         const_d = np.array([mc / nrm, ms / nrm]) if nrm > 0 else np.array([1.0, 0.0])
         const_errs = []
-        for fs in (val_files, test_files):
+        for fs in ((val_files, test_files) if take_test else (val_files,)):
             ds = DirectionDataset(fs, train=False)
             for _, d in ds.items:
                 c = float(np.clip(np.dot(const_d, np.asarray(d, dtype=np.float64)), -1, 1))
@@ -244,7 +284,10 @@ def main():
     log("=== 方向回归结果 ===")
     log(f"训练集角度误差: {trerr:.2f}° (n={trn})   ← 直接测量")
     log(f"验证集角度误差: {valr:.2f}° (n={vn})")
-    log(f"测试集角度误差: {terr:.2f}° (n={tn})   ← 无泄漏")
+    if not take_test:
+        log("测试集角度误差: [SKIP] 未显式 --allow-test（预注册：仅对 val 最优骨干评一次 test）")
+    else:
+        log(f"测试集角度误差: {terr:.2f}° (n={tn})   ← 无泄漏")
     log(f"最佳验证误差: {best_err:.2f}°，模型 -> {out_path}")
     log("")
     log("--- 基线对照 ---")
@@ -252,6 +295,32 @@ def main():
     log(f"随机水平（180° 周期均匀分布的期望绝对角误差）        : 45.00°")
     log("")
     log(f"日志 -> {log_path}")
+
+    # Per-image angle errors + summary (required by sprint C1)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    tag = args.tag or "default"
+    write_rows_csv(OUT_DIR / f"direction_regress_{tag}_val_per_image.csv",
+                   evaluate_angle_rows(model, val_files))
+    write_rows_csv(OUT_DIR / f"direction_regress_{tag}_train_per_image.csv",
+                   evaluate_angle_rows(model, tr_files))
+    if take_test:
+        write_rows_csv(OUT_DIR / f"direction_regress_{tag}_test_per_image.csv",
+                       evaluate_angle_rows(model, test_files))
+    with open(OUT_DIR / f"direction_regress_{tag}_summary.csv", "w",
+              newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=[
+            "tag", "backbone", "init", "seed", "train_deg", "val_deg",
+            "test_deg", "constant_deg", "random_deg", "ckpt", "log"])
+        w.writeheader()
+        w.writerow({
+            "tag": tag, "backbone": args.backbone, "init": args.init,
+            "seed": args.seed, "train_deg": f"{trerr:.4f}",
+            "val_deg": f"{valr:.4f}",
+            "test_deg": f"{terr:.4f}" if take_test else "",
+            "constant_deg": f"{const_err:.4f}",
+            "random_deg": "45.0000", "ckpt": out_path,
+            "log": Path(log_path).name,
+        })
     logf.close()
 
 

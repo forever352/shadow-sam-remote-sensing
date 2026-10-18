@@ -1,0 +1,29 @@
+level,method_or_comparison,metric,n,mean,std,mean_diff,paired_sd,ci_lo,ci_hi,t,p,wins,losses,pairing
+image,LoRA-SAM,IoU,92,0.798970,0.056830,,,,,,,,,3-seed mean per image
+image,LoRA-SAM,BER,92,0.061231,0.017309,,,,,,,,,3-seed mean per image
+scene,LoRA-SAM,IoU,21,0.806454,0.039222,,,,,,,,,3-seed mean per image
+scene,LoRA-SAM,BER,21,0.058532,0.010106,,,,,,,,,3-seed mean per image
+image,U-Net,IoU,92,0.754652,0.088720,,,,,,,,,3-seed mean per image
+image,U-Net,BER,92,0.085981,0.039179,,,,,,,,,3-seed mean per image
+scene,U-Net,IoU,21,0.756662,0.062465,,,,,,,,,3-seed mean per image
+scene,U-Net,BER,21,0.081624,0.021878,,,,,,,,,3-seed mean per image
+image,SegNet,IoU,92,0.738195,0.097890,,,,,,,,,3-seed mean per image
+image,SegNet,BER,92,0.100344,0.048731,,,,,,,,,3-seed mean per image
+scene,SegNet,IoU,21,0.740986,0.077711,,,,,,,,,3-seed mean per image
+scene,SegNet,BER,21,0.096234,0.034153,,,,,,,,,3-seed mean per image
+image,Mask R-CNN,IoU,92,0.739156,0.057965,,,,,,,,,3-seed mean per image
+image,Mask R-CNN,BER,92,0.095513,0.024776,,,,,,,,,3-seed mean per image
+scene,Mask R-CNN,IoU,21,0.746241,0.037321,,,,,,,,,3-seed mean per image
+scene,Mask R-CNN,BER,21,0.090561,0.014255,,,,,,,,,3-seed mean per image
+paired_image,U-Net vs LoRA-SAM,IoU,92,,,-0.044318,0.078856,-0.060987,-0.028891,-5.391,7.023e-08,22,70,3-seed mean per image
+paired_scene,U-Net vs LoRA-SAM,IoU,21,,,-0.049791,0.046691,-0.069428,-0.030869,-4.887,1.025e-06,4,17,3-seed mean per image
+paired_image,U-Net vs LoRA-SAM,BER,92,,,+0.024751,0.036087,+0.018114,+0.032712,+6.578,4.753e-11,79,13,3-seed mean per image
+paired_scene,U-Net vs LoRA-SAM,BER,21,,,+0.023092,0.018679,+0.015526,+0.030954,+5.665,1.468e-08,19,2,3-seed mean per image
+paired_image,SegNet vs LoRA-SAM,IoU,92,,,-0.060774,0.086943,-0.079850,-0.044657,-6.705,2.018e-11,6,86,3-seed mean per image
+paired_scene,SegNet vs LoRA-SAM,IoU,21,,,-0.065468,0.061994,-0.093863,-0.042003,-4.839,1.303e-06,0,21,3-seed mean per image
+paired_image,SegNet vs LoRA-SAM,BER,92,,,+0.039113,0.045062,+0.030884,+0.049155,+8.325,0,91,1,3-seed mean per image
+paired_scene,SegNet vs LoRA-SAM,BER,21,,,+0.037702,0.032701,+0.025303,+0.052536,+5.283,1.268e-07,21,0,3-seed mean per image
+paired_image,Mask R-CNN vs LoRA-SAM,IoU,92,,,-0.059814,0.043009,-0.068824,-0.051091,-13.339,0,5,87,3-seed mean per image
+paired_scene,Mask R-CNN vs LoRA-SAM,IoU,21,,,-0.060213,0.019133,-0.068347,-0.052480,-14.422,0,0,21,3-seed mean per image
+paired_image,Mask R-CNN vs LoRA-SAM,BER,92,,,+0.034283,0.016464,+0.031103,+0.037843,+19.972,0,92,0,3-seed mean per image
+paired_scene,Mask R-CNN vs LoRA-SAM,BER,21,,,+0.032029,0.007866,+0.028749,+0.035367,+18.659,0,21,0,3-seed mean per image

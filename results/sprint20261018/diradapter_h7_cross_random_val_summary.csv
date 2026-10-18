@@ -1,0 +1,2 @@
+tag,adapter_mode,direction_source,epochs,best_epoch,best_val_IoU,best_val_BER,ckpt,log
+h7_cross_random,cross_attn,random,20,1,0.808780,0.058887,D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\checkpoints\sam_vit_b_shadow_v4_dir_adapter_h7_cross_random_leakfree.pth,diradapter_20261018_182638.log

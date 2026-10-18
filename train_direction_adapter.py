@@ -63,6 +63,7 @@ OFFICIAL = str(BASE / "checkpoints" / "sam_vit_b_01ec64.pth")
 BASE_CKPT = str(BASE / "checkpoints" / "sam_vit_b_shadow_v4_lora_leakfree.pth")
 CKPT_DIR = BASE / "checkpoints"
 RES_DIR = BASE / "results"
+OUT_DIR = BASE / "results" / "sprint20261018"
 LOG_DIR = BASE / "logs"
 METRIC_KEYS = ["IoU", "BER", "F1", "OA", "Precision", "Recall"]
 LR = 1e-4
@@ -85,7 +86,27 @@ def leakfree_split():
     return tr, va, test_files
 
 
-def build_sam(ckpt_override=None, with_adapter=True, hidden=64):
+def write_val_summary(tag, adapter_mode, direction_source, epochs, seed,
+                      best_ep, best_iou, best_ber, ckpt, log_path):
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    p = OUT_DIR / f"diradapter_{tag}_val_summary.csv"
+    with open(p, "w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=[
+            "tag", "adapter_mode", "direction_source", "epochs", "seed",
+            "best_epoch", "best_val_IoU", "best_val_BER", "ckpt", "log"])
+        w.writeheader()
+        w.writerow({
+            "tag": tag, "adapter_mode": adapter_mode,
+            "direction_source": direction_source, "epochs": epochs,
+            "seed": seed,
+            "best_epoch": best_ep, "best_val_IoU": f"{best_iou:.6f}",
+            "best_val_BER": f"{best_ber:.6f}", "ckpt": ckpt,
+            "log": Path(log_path).name,
+        })
+    return p
+
+
+def build_sam(ckpt_override=None, with_adapter=True, hidden=64, adapter_mode="film"):
     """按正确顺序构建：官方权重 -> apply_lora -> install_adapter ->（可选）增量加载。
 
     注意顺序：LoRA 与 adapter 都必须在 `sam.to(device)` **之前**挂上。
@@ -94,7 +115,7 @@ def build_sam(ckpt_override=None, with_adapter=True, hidden=64):
     sam = sam_model_registry["vit_b"](checkpoint=OFFICIAL)
     apply_lora(sam)
     if with_adapter:
-        install_direction_adapter(sam, hidden=hidden)
+        install_direction_adapter(sam, hidden=hidden, mode=adapter_mode)
     src = ckpt_override if ckpt_override else BASE_CKPT
     if Path(src).exists():
         sd = torch.load(src, map_location="cpu")
@@ -236,6 +257,12 @@ def main():
     ap.add_argument("--limit-train", type=int, default=0)
     ap.add_argument("--limit-val", type=int, default=0)
     ap.add_argument("--hidden", type=int, default=64)
+    ap.add_argument("--adapter-mode", choices=["film", "cross_attn"], default="film",
+                    help="film=原方向 Adapter；cross_attn=简化版 Feature Aggregator")
+    ap.add_argument("--val-only", action="store_true",
+                    help="训练结束只保留 val 结果，不评 test（冲刺预注册要求）")
+    ap.add_argument("--seed", type=int, default=0,
+                    help="只影响随机数/初始化；数据划分不变")
     ap.add_argument("--ckpt", type=str, default=None,
                     help="初始化权重（默认主结果权重）。warm-start 时传上一次运行的产物："
                          "--ckpt checkpoints/sam_vit_b_shadow_v4_dir_adapter_<tag>.pth")
@@ -244,7 +271,7 @@ def main():
                          "否则会互相覆盖（冒烟请用 --tag smoke）")
     args = ap.parse_args()
 
-    random.seed(0); np.random.seed(0); torch.manual_seed(0)
+    random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
     RES_DIR.mkdir(exist_ok=True); LOG_DIR.mkdir(exist_ok=True)
     ts = time.strftime("%Y%m%d_%H%M%S")
     log_path = LOG_DIR / f"diradapter_{ts}.log"
@@ -257,6 +284,7 @@ def main():
         f"{'，只训 adapter' if args.freeze_base else '，联合微调'}）")
     log(f"# 时间: {time.strftime('%Y-%m-%d %H:%M:%S')}  设备: {device}")
     log(f"# 基线权重（只读）: {args.ckpt or BASE_CKPT}")
+    log(f"# adapter_mode={args.adapter_mode}  seed={args.seed}")
 
     tr, va, te = leakfree_split()
     if args.limit_train:
@@ -269,7 +297,9 @@ def main():
     if args.direction_source == "regress":
         dmodel = load_direction_net(device=device)
 
-    sam, missing, unexpected = build_sam(args.ckpt, with_adapter=True, hidden=args.hidden)
+    sam, missing, unexpected = build_sam(args.ckpt, with_adapter=True,
+                                         hidden=args.hidden,
+                                         adapter_mode=args.adapter_mode)
     log(f"# 增量加载：missing={len(missing)} keys, unexpected={len(unexpected)} keys")
     if unexpected:
         log(f"！unexpected 非空（键名/结构不符）：{unexpected[:5]}")
@@ -341,6 +371,7 @@ def main():
     ckpt_out = str(CKPT_DIR / f"sam_vit_b_shadow_v4_dir_adapter_{args.tag}_leakfree.pth")
     best = 0.0
     best_ep = 0
+    best_ber = float("nan")
 
     for epoch in range(1, args.epochs + 1):
         lr = LR_MIN + 0.5 * (LR - LR_MIN) * (1 + math.cos(math.pi * epoch / args.epochs))
@@ -382,8 +413,21 @@ def main():
             log(f"    -> 验证 IoU={vavg['IoU']:.4f}  BER={vavg['BER']:.4f}")
             if vavg["IoU"] > best:
                 best, best_ep = vavg["IoU"], epoch
+                best_ber = vavg["BER"]
                 torch.save(sam.state_dict(), ckpt_out)
                 log(f"    -> 保存最佳 (val IoU {best:.4f})")
+
+    if args.val_only:
+        vp = write_val_summary(args.tag, args.adapter_mode, args.direction_source,
+                               args.epochs, args.seed, best_ep, best, best_ber,
+                               ckpt_out, log_path)
+        log("")
+        log("[SKIP] --val-only: test not evaluated")
+        log(f"val summary -> {vp}")
+        log(f"权重 -> {ckpt_out}")
+        log(f"运行日志 -> {log_path}")
+        logf.close()
+        return
 
     # 最终评估（测试集）
     if Path(ckpt_out).exists():
@@ -417,6 +461,10 @@ def main():
     log(f"# 铁律：新方法必须 >= 0.7878 才替换主方法，否则保留 LoRA-only 并如实报告为'尝试'")
     log(f"逐图 -> {p}")
     log(f"汇总 -> {s}")
+    vp = write_val_summary(args.tag, args.adapter_mode, args.direction_source,
+                           args.epochs, args.seed, best_ep, best, best_ber,
+                           ckpt_out, log_path)
+    log(f"val summary -> {vp}")
     log(f"权重 -> {ckpt_out}")
     log(f"运行日志 -> {log_path}")
     logf.close()

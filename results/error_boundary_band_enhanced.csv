@@ -1,0 +1,4 @@
+source,radius_px,n_images,n_nonempty_bands,mean_band_pixels,precision,recall,f1,n_empty_band_images
+enhanced,1,92,92,31543.8,0.740611,0.757558,0.745383,0
+enhanced,3,92,92,55648.9,0.811563,0.832095,0.819106,0
+enhanced,5,92,92,77486.3,0.839910,0.862883,0.849118,0

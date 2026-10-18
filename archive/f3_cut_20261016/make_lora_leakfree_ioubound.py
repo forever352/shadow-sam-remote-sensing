@@ -142,7 +142,7 @@ def main():
 
     # 1) 文档头
     s = rep(s, DOC_OLD, DOC_NEW)
-    s = rep(s, '"""\nimport argparse\n', '"""\n' + ADD_DOC + '\nimport argparse\n')
+    s = rep(s, '"""\nimport argparse\n', ADD_DOC + '\n"""\nimport argparse\n')
 
     # 2) 追加 import（纯新增，不动原行）
     s = rep(s,

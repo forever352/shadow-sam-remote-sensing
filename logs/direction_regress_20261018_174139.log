@@ -1,0 +1,57 @@
+# 方向回归头（从预训练骨干微调出阴影方向向量 cos2theta/sin2theta）
+# 时间: 2026-10-18 17:41:39  epochs=40 seed=0
+# backbone: checkpoints/direction_resnet18_flip_basis.pth  init=backbone
+# 划分=basis（与方法同基座）：训练 262 / 验证 58 / 测试 92
+# 有效样本（能算出方向）：训练 262 / 验证 58
+Epoch   1/40  loss=0.8967  (4s)
+Epoch   2/40  loss=0.6940  (3s)
+Epoch   3/40  loss=0.6028  (3s)
+Epoch   4/40  loss=0.5684  (3s)
+Epoch   5/40  loss=0.5669  (3s)  | 验证角度误差=29.28° (n=58)  -> 保存最佳
+Epoch   6/40  loss=0.5042  (3s)
+Epoch   7/40  loss=0.4845  (3s)
+Epoch   8/40  loss=0.5458  (3s)
+Epoch   9/40  loss=0.4330  (3s)
+Epoch  10/40  loss=0.5757  (3s)  | 验证角度误差=45.67° (n=58)
+Epoch  11/40  loss=0.7242  (3s)
+Epoch  12/40  loss=0.6351  (3s)
+Epoch  13/40  loss=0.6422  (3s)
+Epoch  14/40  loss=0.6354  (3s)
+Epoch  15/40  loss=0.5891  (3s)  | 验证角度误差=29.10° (n=58)  -> 保存最佳
+Epoch  16/40  loss=0.5649  (3s)
+Epoch  17/40  loss=0.5620  (3s)
+Epoch  18/40  loss=0.5125  (3s)
+Epoch  19/40  loss=0.4989  (3s)
+Epoch  20/40  loss=0.4652  (3s)  | 验证角度误差=28.08° (n=58)  -> 保存最佳
+Epoch  21/40  loss=0.5220  (3s)
+Epoch  22/40  loss=0.4752  (3s)
+Epoch  23/40  loss=0.4423  (3s)
+Epoch  24/40  loss=0.5158  (3s)
+Epoch  25/40  loss=0.4041  (3s)  | 验证角度误差=26.42° (n=58)  -> 保存最佳
+Epoch  26/40  loss=0.4562  (2s)
+Epoch  27/40  loss=0.4812  (2s)
+Epoch  28/40  loss=0.4019  (2s)
+Epoch  29/40  loss=0.4119  (2s)
+Epoch  30/40  loss=0.4162  (2s)  | 验证角度误差=24.37° (n=58)  -> 保存最佳
+Epoch  31/40  loss=0.4163  (2s)
+Epoch  32/40  loss=0.4389  (2s)
+Epoch  33/40  loss=0.4231  (2s)
+Epoch  34/40  loss=0.4019  (2s)
+Epoch  35/40  loss=0.3999  (2s)  | 验证角度误差=25.58° (n=58)
+Epoch  36/40  loss=0.4153  (2s)
+Epoch  37/40  loss=0.3962  (2s)
+Epoch  38/40  loss=0.3842  (2s)
+Epoch  39/40  loss=0.4568  (2s)
+Epoch  40/40  loss=0.5121  (2s)  | 验证角度误差=30.73° (n=58)
+
+=== 方向回归结果 ===
+训练集角度误差: 22.23° (n=262)   ← 直接测量
+验证集角度误差: 24.37° (n=58)
+测试集角度误差: [SKIP] 未显式 --allow-test（预注册：仅对 val 最优骨干评一次 test）
+最佳验证误差: 24.37°，模型 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\checkpoints\direction_resnet18_regress_flip_ref.pth
+
+--- 基线对照 ---
+常数预测器（恒预测训练集圆形均值方向 θ=-12.2°）: 32.41°
+随机水平（180° 周期均匀分布的期望绝对角误差）        : 45.00°
+
+日志 -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\logs\direction_regress_20261018_174139.log

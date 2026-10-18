@@ -1,0 +1,4 @@
+seed,clean_run,resumed,min_size,max_size,tau,source,note
+0,unknown,unknown,800,1333,0.05,maskrcnn_leakfree_res800_test.csv,"seed-0 meta absent; clean_run unverified. Log 20261015_190926 shows 60/60, no resume. Its '[冒烟产物]' wording is an old write_results() bug for non-empty tag, not a real smoke run (review_log 第十三/十四轮); numbers valid."
+1,True,False,800,1333,0.05,maskrcnn_leakfree_s1_test.csv,"clean 60 epochs, no resume"
+2,True,False,800,1333,0.2,maskrcnn_leakfree_s2_test.csv,"clean 60 epochs, no resume"

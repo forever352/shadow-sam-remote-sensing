@@ -1,0 +1,79 @@
+======================================================================
+长任务前置自检（preflight）
+======================================================================
+
+[1] 数据与权重存在性
+  [PASS] AISD Train412  -- 412 张
+  [PASS] RSISD 数据集
+  [PASS]   RSISD/test200  -- 200 张
+  [PASS]   RSISD/val86  -- 86 张
+  [PASS]   RSISD/train1000  -- 1000 张
+  [PASS] 权重 sam_vit_b_01ec64.pth
+  [PASS] 权重 sam_vit_b_shadow_v4_lora_leakfree.pth
+  [PASS] 权重 sam_vit_b_shadow_v4_lora_leakfree_s1.pth
+  [PASS] 权重 sam_vit_b_shadow_v4_lora_leakfree_s2.pth
+  [PASS] 权重 direction_resnet18_flip_basis.pth  -- [!] 缺失会阻塞 T1.1 及以后全部工作
+  [PASS] 权重 direction_resnet18_regress.pth  -- [!] 缺失会阻塞 train_direction_adapter.py 的 regress 模式（主方法口径）
+  [PASS] SARU 权重 best_AISD_ckp.pth
+
+[2] 划分一致性（基底）
+  [PASS] train 张数 = 262  -- 实际 262
+  [PASS] val   张数 = 58  -- 实际 58
+  [PASS] test  张数 = 92  -- 实际 92
+  [PASS] 三集基名交集为 0（无泄漏）  -- train&val=0 train&test=0 val&test=0
+  [PASS]   lora_leakfree_test_per_image.csv 的 92 个文件名 == 复算 test 集  -- n=92
+  [PASS]   unet_leakfree_test_per_image.csv 的 92 个文件名 == 复算 test 集  -- n=92
+  [PASS]   segnet_leakfree_test_per_image.csv 的 92 个文件名 == 复算 test 集  -- n=92
+
+[3] 脚本 split 调用一致性（静态扫描）
+  [PASS] ber_reduce_eval.py                 字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] ber_sweep_eval.py                  字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] diagnose_direction_labels.py       字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] direction_probe_linear.py          字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] direction_prompt_eval.py           字面量 [('0.2', '0'), ('0.2', '1')]
+  [WARN] direction_utils.py 含 split_by_base 但未匹配到调用（可能仅 re-export）  -- 人工确认
+  [WARN] error_stratify.py 的 split 调用为 [('0.2', '0')]（非基准 [('0.2', '0'), ('0.2', '1')]）  -- 若产出对外结果需核实
+  [PASS] fpr_decompose.py                   字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] probe_direction_labels.py          字面量 [('0.2', '0'), ('0.2', '1')]
+  [WARN] prompt_source_eval.py 的 split 调用为 [('0.2', '0')]（非基准 [('0.2', '0'), ('0.2', '1')]）  -- 若产出对外结果需核实
+  [PASS] run_baselines_leakfree.py          字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] sam_box_zeroshot_eval.py           字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] train_cnn_leakfree.py              字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] train_cnn_leakfree_seed.py         字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] train_direction_adapter.py         字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] train_direction_dtict.py           字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] train_direction_net.py             字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] train_direction_regress.py         字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] train_direction_rotation.py        字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] train_frozen_leakfree.py           经 argparse 默认值解析后 [('0.2', '0'), ('0.2', '1')]
+  [PASS] train_lora_leakfree.py             经 argparse 默认值解析后 [('0.2', '0'), ('0.2', '1')]
+  [PASS] train_lora_leakfree_seed.py        经 argparse 默认值解析后 [('0.2', '0'), ('0.2', '1')]
+  [PASS] train_maskrcnn_leakfree.py         字面量 [('0.2', '0'), ('0.2', '1')]
+  [PASS] train_maskrcnn_leakfree_seed.py    字面量 [('0.2', '0'), ('0.2', '1')]
+
+[4] 已有结果与权重自洽性
+  [PASS] 主结果 lora_leakfree IoU ~= 0.787821  -- 实际 0.787821
+  [PASS]   逐图重算均值 == 汇总行  -- 重算 0.787821
+
+[5] SAM 源码补丁（方向 Adapter 依赖）
+  [PASS] prompt_encoder.forward 含 direction 参数
+  [PASS] 含 adapter 注入分支
+  [PASS] patch 备份存在
+
+[6] 新脚本可编译
+  [PASS] direction_utils.py
+  [PASS] direction_adapter.py
+  [PASS] direction_prompt.py
+  [PASS] direction_prompt_eval.py
+  [PASS] train_direction_adapter.py
+  [PASS] evaluate_direction_adapter.py
+  [PASS] train_direction_dtict.py
+  [PASS] eval_cross_dataset.py
+  [PASS] ber_sweep_eval.py
+  [PASS] train_frozen_leakfree.py
+  [PASS] shadow_extract.py
+
+======================================================================
+结论：56 PASS / 0 FAIL / 3 WARN
+[OK] 无 FAIL -- 可以启动长任务。
+======================================================================

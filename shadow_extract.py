@@ -47,7 +47,8 @@ import json
 import time
 from pathlib import Path
 
-import env_setup  # 必须在 import torch 之前
+# noinspection PyUnusedImports
+import env_setup  # noqa: F401  必须在 import torch 之前；仅用于 DLL/OpenMP 副作用
 
 import torch
 import cv2
@@ -79,7 +80,7 @@ def load_sam(ckpt_path):
 
 @torch.no_grad()
 def predict_mask(sam, img_bgr, min_area):
-    """增强粗提取 -> 框提示 -> 微调 SAM -> 二值掩膜。"""
+    """增强粗提取 -> 框提示 -> 微调 SAM -> 布尔掩膜。"""
     img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
     em = mask_enhanced(img_bgr)
     boxes = component_boxes(em, min_area=min_area)
@@ -90,7 +91,7 @@ def predict_mask(sam, img_bgr, min_area):
 
 
 def mask_to_polygons(mask, simplify_px, min_poly_area):
-    """二值掩膜 -> shapely Polygon 列表（孔洞正确、几何精确）。
+    """布尔掩膜 -> shapely Polygon 列表（孔洞正确、几何精确）。
 
     用 `rasterio.features.shapes`（GDAL polygonize），坐标为**像素角点**约定
     （每个像素是一个单位正方形），因此面积是精确的。
@@ -125,8 +126,9 @@ def read_geo(meta_path):
     """尝试用 rasterio 读出 CRS/transform；失败则返回 (None, None)。"""
     try:
         import rasterio
-    except Exception:
+    except (ImportError, OSError):
         return None, None
+    # noinspection PyBroadException
     try:
         with rasterio.open(str(meta_path)) as ds:
             return ds.crs, ds.transform
@@ -134,7 +136,7 @@ def read_geo(meta_path):
         return None, None
 
 
-def geojson_feature(poly, idx, transform, crs_str):
+def geojson_feature(poly, idx, transform):
     """构造一个 GeoJSON Feature。"""
     coords = []
 
@@ -173,7 +175,7 @@ def write_geojson(out_path, features, crs):
         try:
             fc["crs"] = {"type": "name",
                          "properties": {"name": crs.to_string()}}
-        except Exception:
+        except (AttributeError, TypeError, ValueError):
             pass
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(fc, f, ensure_ascii=False)
@@ -187,7 +189,7 @@ def write_shapefile(out_path, features, crs):
     geoms = [shape(f["geometry"]) for f in features]
     props = [f["properties"] for f in features]
     gdf = gpd.GeoDataFrame(props, geometry=geoms, crs=crs if crs is not None else None)
-    gdf.to_file(str(out_path), driver="ESRI Shapefile", engine="pyogrio")
+    gdf.to_file(out_path, driver="ESRI Shapefile", engine="pyogrio")
 
 
 def main():
@@ -249,7 +251,7 @@ def main():
         print("# 地理参考: 无 -> 输出像素坐标（x=列, y=行）")
         transform = None
 
-    features = [geojson_feature(p, i, transform, crs) for i, p in enumerate(polys)]
+    features = [geojson_feature(p, i, transform) for i, p in enumerate(polys)]
 
     if args.format == "geojson":
         write_geojson(out_path, features, crs)

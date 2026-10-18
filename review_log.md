@@ -1130,7 +1130,7 @@ L2. 日志 L20-28 把"探针负结果"直接写成"骨干几乎不含方向信�
 本日志部分条目引用了提交哈希。这些哈希**有一部分已无法解析**，原因是**两次**历史重写：
 
 1. **第一次**（2026-10-16，上传前清理）：用 `git filter-branch` 从**全部历史**移除 `archive/reference_docs/`（含姓名/学号/手机号/QQ/邮箱的申报材料）→ **此后所有提交的哈希全部改变**。
-2. **第二次**（2026-10-16，本会话）：同样用 `git filter-branch`，把**全部 32 个提交**的作者/提交者身份由 `unknown <3529950084@qq.com>` 改为 **`ShadowHunter <shadowhunter@users.noreply.github.com>`**（**32/32 全部带该邮箱**，含最新那条《资产获取说明》提交；该 QQ 邮箱会随 push 公开在 GitHub 的**每一个提交页**）。改写后已清 `refs/original` + reflog + `gc --prune=now`，**全历史（含不可达对象）检索该邮箱 0 命中**（监督对备份仓库同一检索得 64 行命中，反向证明检索有效）。
+2. **第二次**（2026-10-16，本会话）：同样用 `git filter-branch`，把**全部 32 个提交**的作者/提交者身份由 `unknown <[已脱敏QQ邮箱]>` 改为 **`ShadowHunter <shadowhunter@users.noreply.github.com>`**（**32/32 全部带该邮箱**，含最新那条《资产获取说明》提交；该 QQ 邮箱会随 push 公开在 GitHub 的**每一个提交页**）。改写后已清 `refs/original` + reflog + `gc --prune=now`，**全历史（含不可达对象）检索该邮箱 0 命中**（监督对备份仓库同一检索得 64 行命中，反向证明检索有效）。
 
 > ⚠️ **备份的位置提醒**：重写前的完整 `.git`（含该邮箱）在**仓库外层目录** `D:\RemoteSensing-Shadow-SAM-main\_git_backup_before_email_rewrite`。
 > **它仅存本机、不得随任何打包/网盘/父目录上传动作外泄**；若不再需要找回旧内容，可择机删除。
@@ -1657,7 +1657,7 @@ H1. **"加固版方向编码探针已过审（含 6 条必改）"无落盘证据
 
 **低风险**：L1（"B 每 5 轮存最佳权重"表述有误 —— 实为 `VAL_EVERY=1`，**每轮**）；L2（preflight 未检查 B 必需的 `direction_resnet18_regress.pth`，编译清单未含 `train_frozen_leakfree.py`）；L3（A 只有单 seed，与 LoRA 应统一用 **seed-0 的 0.787821** 对比）；L4（官方划分的 **0.717** 与 A 的无泄漏结果**不可直接比大小**，只能作"同口径缺口补齐"，不得表述为提升/下降）。
 
-**G1（监督提出的必改，经主智能体实查为误报）**：监督称 `keep_awake.py` **未运行**且队列未启动它 → B（无 resume）被杀即永久丢失。**主智能体实查进程命令行**：PID 12704 = `C:\Users\35299\anaconda3\pythonw.exe keep_awake.py` —— **守护一直在运行**（监督看到 pythonw.exe 但未辨认其命令行）。→ **G1 不成立**；但队列仍加了 `ensure_awake()` 幂等检查（`wmic` 在本机不可用、已实测；PowerShell 变体实测可命中）。
+**G1（监督提出的必改，经主智能体实查为误报）**：监督称 `keep_awake.py` **未运行**且队列未启动它 → B（无 resume）被杀即永久丢失。**主智能体实查进程命令行**：PID 12704 = `C:\Users\<user>\anaconda3\pythonw.exe keep_awake.py` —— **守护一直在运行**（监督看到 pythonw.exe 但未辨认其命令行）。→ **G1 不成立**；但队列仍加了 `ensure_awake()` 幂等检查（`wmic` 在本机不可用、已实测；PowerShell 变体实测可命中）。
 
 **必须修正与处置**：1. M1 → **已修**（编码器前向并入 `torch.no_grad(), torch.cuda.amp.autocast()`）；2. M2 → **已修**（B 加 `--freeze-base`）；3. M4 → **已修**（A 完成判据改检 `results/frozen_leakfree_test.csv`）；4. G1 → **实查为误报**，仍加幂等防护。
 
@@ -2091,18 +2091,18 @@ H1. **"加固版方向编码探针已过审（含 6 条必改）"无落盘证据
 
 ### 2026-10-16 审查类型：**结果审查**（第四十八轮：历史重写（提交身份）+ 失效哈希登记；supervisor 子代理执行）
 
-- **本轮由来**：上传前核查中发现**前几轮扫描漏掉的一类 PII** —— 全部提交的作者身份是 `unknown <3529950084@qq.com>`。该邮箱**不在任何文件内容里**（`git grep` 为空），故此前基于**文件内容**的 PII 扫描**都扫不到**；但一推上 GitHub，**每个提交页都会公开显示该 QQ 邮箱**。人类裁定：**重写全历史**，作者名改为团队名 `ShadowHunter`。
+- **本轮由来**：上传前核查中发现**前几轮扫描漏掉的一类 PII** —— 全部提交的作者身份是 `unknown <[已脱敏QQ邮箱]>`。该邮箱**不在任何文件内容里**（`git grep` 为空），故此前基于**文件内容**的 PII 扫描**都扫不到**；但一推上 GitHub，**每个提交页都会公开显示该 QQ 邮箱**。人类裁定：**重写全历史**，作者名改为团队名 `ShadowHunter`。
 - **主智能体处置**：先备份重写前的完整 `.git`（外层目录 `_git_backup_before_email_rewrite`，45 MB）→ `git filter-branch -f --env-filter`（本机无 `git filter-repo`）统一 name/email → 清 `refs/original` + reflog expire + `gc --prune=now` → 设 `git config user.name/user.email`。
 - **结论：有条件通过**（高风险：无；中风险 1；低风险 2）。
 
 **高风险：无** —— 监督独立核验：
-- **邮箱痕迹 0 残留，且检索方法经反向对照证明有效**：当前仓库 `git cat-file --batch-all-objects --batch | grep 3529950084` → **0**、`git fsck --unreachable --dangling` → 空；**备份仓库同一命令 → 64 行命中**（= 32 提交 × author+committer），证明"0 命中"不是检索写错。refs 只剩 `refs/heads/master`，`.git/refs/original` 不存在，reflog 为空。
+- **邮箱痕迹 0 残留，且检索方法经反向对照证明有效**：当前仓库 `git cat-file --batch-all-objects --batch | grep [已脱敏QQ号]` → **0**、`git fsck --unreachable --dangling` → 空；**备份仓库同一命令 → 64 行命中**（= 32 提交 × author+committer），证明"0 命中"不是检索写错。refs 只剩 `refs/heads/master`，`.git/refs/original` 不存在，reflog 为空。
 - **内容零损坏（逐提交比对）**：提交总数 current **32** = backup **32**；**标题序列 `diff` 一致**；**tree hash 序列 `diff` 一致** → **filter-branch 只动提交元数据，未触碰任何 tree/blob**。对象类型分布差 3 个 blob，经 `rev-list --objects --all` 复核为**备份中的悬空 blob（referenced-by = 0）**，属既有残留、被本次 gc 清掉，与本次改写无关。
 - **身份统一**：`git log --all --format="%an|%ae|%cn|%ce" | sort -u` → 唯一一组 `ShadowHunter|shadowhunter@users.noreply.github.com`；`git config` 亦同。
 - **备份可用**：`git --git-dir=<备份> log -1 cd67cc4` 正常返回；备份在仓库外层，**不入库属实**。
 
 **中风险（必改）**
-- **C1（数字无据）**：主智能体在登记块里写"重写时共 32 个；**其中 31 个**在上一步之前就已带该邮箱"。监督实测备份 `log --all --format="%an|%ae" | sort | uniq -c` = **`32 unknown|3529950084@qq.com`** → **32/32 全部**带该邮箱，**"31" 无证据支撑**，且该括注会把读者引向"有 1 个是例外"的错误理解。→ **已删去该括注，改为"32/32 全部带该邮箱"**。
+- **C1（数字无据）**：主智能体在登记块里写"重写时共 32 个；**其中 31 个**在上一步之前就已带该邮箱"。监督实测备份 `log --all --format="%an|%ae" | sort | uniq -c` = **`32 unknown|[已脱敏QQ邮箱]`** → **32/32 全部**带该邮箱，**"31" 无证据支撑**，且该括注会把读者引向"有 1 个是例外"的错误理解。→ **已删去该括注，改为"32/32 全部带该邮箱"**。
 
 **低风险**
 - **L1**：备份 `.git`（含该邮箱）位于**仓库外层目录**，**任何打包/网盘/父目录上传动作都会连带泄漏** → **已在登记块中加醒目提醒**"仅存本机、不得外泄"。
@@ -2113,6 +2113,424 @@ H1. **"加固版方向编码探针已过审（含 6 条必改）"无落盘证据
 **是否允许提交：是**（C1 改正后）。
 
 **本条追加后的机械同步（非新主张，供留痕）**：本条目使最高编号由 47 变为 **48**，各文档轮次数字**同步改为"第四十八轮"**；同为第四十三轮 M1 项所要求的**纯派生值更新**。
+
+---
+
+### 2026-10-18 审查类型：**结果审查**（第四十九轮：申报书对标审查（初审）；supervisor 子代理执行）
+
+- **本轮由来**：人类附申报书，要求"对着申报书审查项目、指出不达标处并给建议"。主智能体准备引用一批主结果/基线/BER/方向模块数字与落差判断，按 `AGENTS.md` 先送审。
+- **审查对象**：申报书归档提取稿 `_shenbaoshu_attached_20261014.txt`（本轮 .docx 路径被系统策略拦截，未直接读取，存在版本差异风险）；`结题报告.md` §三/§五/§七；`进度接力.md`；`results/` 主表、Mask R-CNN、BER sweep、方向回归、dirprompt、diradapter、RSISD、零样本、传统方法 CSV；`ber_sweep_selection.json`；`logs/direction_regress_*`、`logs/diradapter_eval_*`、`logs/verify_shadow_extract_*`；软著初稿；`README.md`。
+- **结论：不通过**（高风险：无；中风险：10；低风险：4；必须修正：7）。
+
+**高风险：无** —— 主结果数字与落盘 CSV 逐位一致；未发现新的数据泄漏、测试集参与训练、指标计算错误或主结果不可复现。
+
+**中风险（必改，摘要）**
+1. 把"方向 Adapter 未实现"写成未实现，与 `结题报告.md:268` 矛盾——实际**已实现/已训练/已评估**（ΔBER −0.0038），仅"解码端方向权重抑制"未实现。
+2. 把"射线投射采样"写成未做，与 `结题报告.md:266` 不符——**代码已实现**，仅 oracle 口径跑过、未进主方法。
+3. 把"场景级配对 CI 条件于单 seed"当作 **Mask R-CNN** 的统计限定，属**证据错配**：`scene_level_ci.csv` 只覆盖 LoRA−U-Net / LoRA−SegNet / U-Net−SegNet，**未对 Mask R-CNN 计算**。Mask R-CNN 的现有证据是逐图配对 t≈1.70、46 胜/46 负、+0.0608 大于其逐图 std 0.0568。
+4. WHU 与 ShadowFormer 不能与执行缺口混列：WHU **无阴影标注、属申报书用途错位**；ShadowFormer 是**阴影去除、指标不可比**——两项不是"该补做"的执行缺口。
+5. "方向模块未取得可测增益"与实测 ΔBER 冲突。正确写法：**方向提示（oracle 上界）未取得可测 IoU 增益；方向 Adapter 的 ΔBER 效应不依赖于方向输入内容**。
+6. 主结果缺强制限定：± 为 **seed 间样本 sd（ddof=1，n=3，仅作量级参考）**；macro/92 子图/21 场景；seed-1 在 epoch 11 中断后 `--resume`（不恢复优化器矩/GradScaler/RNG）；新 headline 高于旧值系 seed-0 最低、协议预注册且三值全报。
+7. BER 第二轮缺限定：B30 是 **3-seed 集成 + 概率阈值扫描**、val 选中、选中点位于网格边界 0.30、族 B 中 IoU 最低；脚本对 **11 个候选都算了 test**，不能表述为"test 只查看一次"；`success_criterion_met=false`。
+8. 已交付项缺限定：零样本 SAM 有两行（AMG+暗度筛选 0.2663；同框提示无微调 0.3480）；增强 Otsu 0.4837 是**主方法内部模块**，非外部基线；RSISD 是**零样本迁移、单 seed、任务较易**（Otsu 0.5711），绝对 IoU 不可与 AISD 横比；原型端到端验证仅**一张 512×512 子图 + 一个合成地理参考样本**。
+9. 遗漏申报书更关键承诺：模块③原设计"冻结图像编码器、仅改掩膜解码器"，实际主方法用 **LoRA 适配编码器+解码器+提示编码器**；模块②粗提取原设计 **HSV+C3I**，实际用**增强 Otsu**；"水体混淆/细小阴影漏检"未解决（FNR 0.0882 > FPR 0.0405，水样仅占误检 8.3% 下界）；模块①要求"太阳方位角特征向量"，实际是全局阴影方向回归、未验证与太阳方位角一致；"IoU 优于当前主流全监督网络（如 Mask R-CNN）"被窄化为仅比 Mask R-CNN，且基准是自建重划而非 AISD 自带划分。
+10. `结题报告.md:221` §3.3(a) 的 0.714/0.690/0.717 与当前 `dirprompt_*_oracle_test.csv`（0.802989/0.803656/0.803413/0.802594）不一致，且当前 CSV/日志找不到这三个聚合值的落盘证据；若对外引用方向提示，必须用当前 CSV 并注明 §3.3(a) 是旧 run。
+
+**低风险**
+- 内部 `<15~20°` 门槛应写"项目内部判据，非申报书规定"。
+- "强基线"建议改为"在自建无泄漏划分上数值上较高的本项目主方法"。
+- 软著名称在申报书中是"拟定"，改名允许；应说明，避免被误读为违反承诺。
+- "oracle 极差 ≤0.0007"应写明是 project/nofilter/random/none 四个变体的极差；若含 centroid-points 则为 0.0008。
+
+**是否允许进入下一阶段：否。** 主智能体须按上述 7 项必改修正后重新送审；数字本身无需重跑实验。
+
+**本次审查 token 估算：约 50k。**
+
+**Erratum（第四十九轮，2026-10-18，复审发现后追加；不回改上文与历史条目）**
+- 上文"中风险第 3 条"把 `t≈1.70 / 46 胜 46 负` 归给 **LoRA vs Mask R-CNN**，**属错误归属**。该统计量实际属于 **Mask R-CNN res800 vs 512**（逐图配对差 +0.005157、sd 0.029277、t≈1.690、46 胜/46 负）；`review_log.md:1013` 的原始归属是正确的。
+- **LoRA vs Mask R-CNN 的真实逐图配对统计**（主智能体独立复算自 per-image CSV）：
+  - seed-0：+0.049635、sd 0.056378、**t≈8.444、80 胜 / 12 负**（n=92）；
+  - 3-seed 均值：+0.060784、sd 0.041452、**t≈14.065、84 胜 / 8 负**（n=92）。
+- **场景级配对未针对 Mask R-CNN 计算**（`results/scene_level_ci.csv` 仅覆盖 LoRA−U-Net / LoRA−SegNet / U-Net−SegNet）；不得以任何方式把逐图统计量冒充场景级。
+- **历史条目 `review_log.md:1023` 中"引用 0.049635 时…逐图 46 胜 46 负未达显著"是同一错误拼接**。按项目规则**不回改历史条目**；自本条起，引用 0.049635 必须使用上面的 t≈8.44 / 80 胜 12 负，并保留"基线单 seed、分辨率不对称、种子处理不对称、未做多重比较校正"四项限定，仍**不升级为"显著优于"**。
+- 受影响并已修正的对外文档：`结题报告.md:114-116`、`README.md:73`、`进度接力.md:65`、`项目接手说明.md:25`、`make_ppt.py:191`。`结题报告.md:121` 与 `review_log.md:1013` 的 res800-vs-512 归属正确，未改。
+
+**复审结论（2026-10-18，supervisor 子代理执行）：通过。**
+- **高风险：无**。原高风险项（`t≈1.70/46胜46负` 错配给 LoRA vs Mask R-CNN）已修复并复核；`结题报告.md:114-116`、`README.md:73`、`进度接力.md:65`、`项目接手说明.md:25`、`make_ppt.py:191` 均已同步；PPT slide 8 XML 中 `8.44`/`14.07` 存在、`1.70` 不存在；旧 PPT 已备份。
+- **中风险：无**（6 项发布前核对项，已纳入对外答复）：① 方向负结果四重局限 + 单 seed；② 方向 Adapter 单 seed / 92 张 / 21 场景 / 与主方法 0.7878 无关；③ FNR/FPR/水样 8.3% 标 seed-0，FNR 为整体漏检率；④ 3 seed 仅 LoRA 主方法，其余均单 seed；⑤ SAM 自带 two-way transformer 不计入未实现的 Feature Aggregator/Cross-Attention；⑥ oracle 极差范围、C3I 用 0.4564、软著名称原为"拟定"。
+- **低风险/建议**：`结题报告.md:111`、`README.md:73/121/319`、`make_ppt.py:188/285`、`metrics_chart.py:77` 仍写"未做显著性检验"，而同段已报告逐图配对 t；建议统一为"未做场景级/多重比较校正的正式显著性结论；逐图配对 t 仅作描述性统计"。发布前全库 grep：`1.70` 只允许出现在 res800 vs 512（+0.0052）语境。
+- **是否允许进入下一阶段：是**（以最终对外答复包含上述 6 项核对项为前提）。
+- **本次审查 token 估算：约 15k。**
+
+---
+
+### 2026-10-18 审查类型：**结果审查**（第五十轮：提示来源归因 + 误差结构；supervisor 子代理执行）
+
+- **本轮由来**：实验 1（提示来源归因）与实验 2（误差结构）跑完后，主智能体拟对外汇报；按 `AGENTS.md` 先送审。
+- **审查对象**：`results/prompt_source_test.csv`、`prompt_source_test_per_image.csv`、`prompt_source_oracle_diagnostic.csv`、`prompt_source_oracle_per_image.csv`、`results/error_component_size_enhanced.csv`、`error_boundary_band_enhanced.csv`、`error_by_scene_enhanced.csv`、`results/prompt_source_masks/`、`logs/prompt_source_20261018_020031.log`、`logs/error_stratify_20261018_020506.log`、`logs/prompt_extreme_diag_20261018.log`。
+- **结论：不通过**（实验数据与门禁本身通过；对外结论有必须修正的过度表述；实验 3 放行；P1 预注册后放行；P2 仅探索性）。
+
+**高风险：无。** 监督独立复算通过：
+- 复现门禁 **4.856e-07**（容差 1e-6）；权重 sha256[:16] `7ee95497608fc614`；test 名称 sha256[:16] `7e6aeb5546b6cb8e`。
+- 六源汇总、图级/场景级配对、掩膜重合（0.9615-0.9932）、误差结构表均与落盘 CSV 一致。
+- 92/92 张齐全；test 名称断言在日志中。
+
+**必须修正（对外结论）**
+1. 禁说“模型在很大程度上忽略提示内容/主要依赖图像特征”。当前证据只是“**输出对提示来源不敏感**”，不能推断模型内部忽略提示；各来源共用同一权重与图像，输出天然高度相关。
+2. 禁说“提示无效/完全无效”。oracle 场景级仍有 +0.0059 IoU（t=3.18）；chicago30_sub3 左上角小框 mask IoU 降到 0.499。
+3. 禁说“random 更好/优于 enhanced”。random IoU 图级 t=1.75（ns）、场景 t=1.73（ns）、BER ns；只能写“不可区分”。
+4. 禁说“oracle 更好/可部署”。oracle 是 `(oracle-box)` 上界，仅诊断；+0.0059 场景 IoU 小于 seed 间 sd 0.0101。
+5. 禁说“小阴影是误差主项”而不分口径。按连通域宏平均召回，`<256 px` 最低（0.538），FN 占 20.4%、GT 像素占 4.6%；但按**绝对漏检像素量**，`>=4096 px` 贡献 39.0%。正确写法：“按连通域召回率小尺寸最弱；按漏检像素量大尺寸贡献最大——‘主项’取决于口径。”
+6. 禁说“边界是误差主项”。边界带 r=1/3/5 的带内 F1 为 0.745/0.819/0.849，是**带内条件指标**，不等于边界贡献了总误差主项。
+7. 禁把提示来源结果写成“解释了方向提示/射线投射为什么无增益”的因果解释；只能说“与本项目方向提示/射线投射无可测增益的结论**一致**”。
+8. 5 张极端提示诊断（`logs/prompt_extreme_diag_20261018.log`）**未预注册、n=5、仅一个场景**，只能作假设生成，不得写入主结论/PPT；chicago30_sub3 的 0.499 是反例。
+9. 框并集覆盖率（0.703/0.538/0.527）目前不在结果 CSV 中，需先落盘并写清定义；oracle 覆盖率低于 enhanced 但 IoU 更高，不能据此给“提示质量”排序。
+10. 禁说“otsu 更好”。otsu IoU +0.005486 名义显著，但 BER +0.001349 变差（图级 t=2.21、场景 t=3.35），是 IoU/BER 权衡；5 源 × 2 指标未做多重比较校正，只能标探索性。
+
+**允许的表述（摘要）**
+- “在固定 seed-0 主权重、同一无泄漏 92 张/21 场景、统一 `mask -> component_boxes(300) -> predict_box` 路径下，enhanced 行与主结果复现门禁通过（最大偏差 4.856e-07）。五个非 oracle 来源的聚合指标差异很小：图级 IoU 最大差 +0.0058（random）/+0.0055（otsu），oracle 上界 +0.0079；场景级最大差约 +0.006。otsu/oracle 的 IoU 配对差异达到名义显著，但效应量小于 seed 间 IoU sd 0.0101；random/jitter10 不显著；otsu 的 BER 反而变差。各来源预测掩膜与 enhanced 高度重合（均值 96.2%-99.3%），但这是描述性诊断，不能据此推断模型内部忽略提示。oracle 仅作上界诊断，不入主表。”
+- “误差结构按连通域宏平均：`<256 px` 召回最低（0.538），FN 占比 20.4% 远高于其 GT 像素占比 4.6%；但按绝对漏检量，`>=4096 px` 贡献 39.0%。边界带内 F1 随 r=1/3/5 从 0.745 升到 0.849，说明边界附近更难；这是带内条件指标，不等于边界贡献了总误差主项。”
+
+**放行范围**
+- **实验 3（U-Net/SegNet seed 1/2）：放行**。启动前 preflight；用 queue/resume；主表继续披露 Mask R-CNN 单 seed。
+- **P1 全量提示敏感性：建议做，但只用于“输出级提示敏感性”**；需预注册（92 张全量、全图框/左上角 10% 框/中心点/随机点；报告 mask IoU vs enhanced + 六项 + FPR/FNR + 图级/场景级配对；test 只评估一次）。
+- **P2 小阴影/边界定向实验：暂不放行为确证性实验**；假设来自 test 误差结构，再用同一 test 评估属于 test-informed 设计；只能标探索性并披露。
+
+**是否允许进入下一阶段：** 实验 3 是；P1 预注册后是；P2 否（仅探索性）；对外结论改写后可再送审。
+
+**本次审查 token 估算：约 25k。**
+
+---
+
+### 2026-10-18 追加审查（第五十轮·追加：`shadow_extract.py` 清理与 provenance 登记；supervisor 子代理执行）
+
+- **本轮由来**：人类在 PyCharm 中看到 `shadow_extract.py` 的 inspection 告警，要求处理。主智能体做了非行为性清理 + 两处异常收窄，按 `AGENTS.md` 送审。
+- **结论：通过**（完整 verify 三分支全过；无需重跑训练/主实验）。
+
+**改动清单（2026-10-18）**
+1. `shadow_extract.py:50`：`import env_setup` 加 `# noqa: F401`。**无行为变化**；该 import 仅用于 DLL/OpenMP 副作用，不得删除。PyCharm 若不识别 `noqa`，用 `# noinspection PyUnusedImports` 或 inspection 例外。
+2. `geojson_feature()`：删除未使用形参 `crs_str`，调用点同步。**无行为变化**（仅一个调用点）。
+3. `write_shapefile()`：`gdf.to_file(str(out_path), ...)` → `gdf.to_file(out_path, ...)`。**无行为变化**；已由完整 Shapefile 分支验证（读回 42 要素）。
+4. `read_geo()`：`import rasterio` 的 `except Exception` → `except (ImportError, OSError)`。**行为变更登记**：`ImportError/OSError` 仍回退像素坐标；其它导入异常不再静默。
+5. `write_geojson()`：`crs.to_string()` 的 `except Exception` → `except (AttributeError, TypeError, ValueError)`。**行为变更登记**：AttributeError/TypeError/ValueError（含 CRSError）**仍按原逻辑静默省略 `crs` 成员**；其它异常（如 RuntimeError）不再静默、会向上抛出。
+6. `requirements.txt`：补 `rasterio`/`shapely`/`geopandas`/`pyogrio`，注释改为“GeoJSON 像素坐标无额外依赖；rasterio 用于地理参考输入；geopandas+pyogrio+shapely 用于 Shapefile”。
+
+**验证证据**
+- **新日志（当前证据）**：`logs/verify_shadow_extract_20261018_035314.log`
+  - (1) 无地理参考 GeoJSON：42 多边形；`area_px` 46614；栅格化 46609，差 −5 px（0.0107%）；栅格化 IoU **0.843834**（对照管线 0.845274，差 −0.001440）。
+  - (2) Shapefile：`.shp/.shx/.dbf` 齐全，读回 **42 要素**，CRS=None。
+  - (3) 合成 EPSG:32650：顶层 `crs` 正确；`coord_system=map`；坐标范围在推算范围内。
+- **旧日志（保留为历史，不再证明当前脚本）**：`logs/verify_shadow_extract_20261016_112212.log`。
+- `代码与文件索引.md:46` 已注明“以最新日志为准”。
+
+**回滚方式**：`git diff` 查看本轮改动；如需回滚，恢复 `shadow_extract.py` 的 5 处 import/签名/except/`to_file` 与 `requirements.txt` 第 4 节即可。两处异常收窄若需恢复原行为，分别改回 `except Exception`。
+
+**后续零行为补充（2026-10-18，IDE 告警清理）**：docstring 中 `二值掩膜` → `布尔掩膜`（避开 PyCharm 中文量词误报）；新增 `# noinspection PyUnusedImports`（`env_setup`）与 `# noinspection PyBroadException`（`read_geo()` 的 `rasterio.open` 兜底）；新增项目词典 `.idea/dictionaries/project.xml`（Otsu/leakfree/AISD/pred/polygonize/coords/Peucker/rasterio/shapely/geopandas/pyogrio）。**均为注释/文档/IDE 配置，无行为变化，不触发验证重跑。**
+
+**本次审查 token 估算：约 12k。**
+
+---
+
+### 2026-10-18 结果审查（第五十一轮：CNN 基线 3-seed 汇总与配对统计；supervisor 子代理执行）
+
+- **本轮由来**：U-Net/SegNet seed 1/2 队列完成（4/4，05:08:36 结束），主智能体拟更新主表并对外报数；按 `AGENTS.md` 先送审。
+- **审查对象**：`results/unet_leakfree_s{0,1,2}_test*.csv`、`results/segnet_leakfree_s{0,1,2}_test*.csv`、`results/lora_leakfree_s{0,1,2}_test*.csv`、`logs/cnn_seeds_queue.log`、`multiseed_summary.py` 及新汇总 CSV。
+- **结论：通过**（数字与落盘一致；可更新主表/对外表述；PPT 最后更新）。
+
+**核验通过的数字（macro；± 为 seed 间样本 sd，ddof=1，n=3）**
+- LoRA：IoU **0.798970 ±0.010104**；BER **0.061231 ±0.002728**；单值 0.787821 / 0.807521 / 0.801568。
+- U-Net：IoU **0.754652 ±0.002827**；BER **0.085981 ±0.009090**；单值 0.752456 / 0.753658 / 0.757842。
+- SegNet：IoU **0.738195 ±0.004362**；BER **0.100344 ±0.002014**；单值 0.740308 / 0.741099 / 0.733179。
+- 配对（先对逐图 3 seed 取均值再配对）：U-Net vs LoRA IoU 图级 −0.044318（t=-5.391，22胜70负）/ 场景级 −0.049791（t=-4.887，4胜17负）；BER 图级 +0.024751（t=+6.578）/ 场景 +0.023092（t=+5.665）。SegNet vs LoRA IoU 图级 −0.060774（t=-6.705，6胜86负）/ 场景级 −0.065468（t=-4.839，0胜21负）；BER 图级 +0.039113（t=+8.325）/ 场景 +0.037702（t=+5.283）。
+- **sd 口径正确**：± 是 3 seed 的样本 sd，不是逐图 std；逐图 std 仍在各自 `_test.csv` 的 `_std` 行。
+
+**放行后的落盘与文档更新**
+- 新增 `multiseed_summary.py`，生成 `results/cnn_multiseed_summary.csv`、`results/cnn_multiseed_paired.csv`、`results/scene_level_ci_multiseed.csv`（不覆盖旧 `scene_level_ci.csv`）。
+- 主表：U-Net / SegNet 改用 3-seed 均值；差值改为 U-Net **+0.0443** / SegNet **+0.0608**；Mask R-CNN 仍 **+0.0608（单 seed）**。
+- 种子附注：删除“三个基线均为单 seed”；改为“LoRA/U-Net/SegNet 均为 3 seed；Mask R-CNN 仍单 seed”。
+- 对外表述：可写“**数值上高于，且 3-seed 配对检验支持该数值优势**”；**禁写**“显著超越全监督 / SOTA / 显著优于”。
+- 必须随引用披露：单划分（68/16/21）、21 个独立场景、未做多重比较校正、Mask R-CNN 仍单 seed、LoRA seed-1 曾中断续训（U-Net/SegNet seed 1/2 为干净 from-scratch）、效应量随 macro/pooled/scene 口径变化。
+- PPT/柱状图：最后更新；旧 PPT 备份 `backups/结题答辩PPT_最终版_20261018_before_multiseed.pptx`；重生成后 slide 8 含 `0.7547`/`0.7382`，不含 `0.7525`/`0.7403`。
+
+**本次审查 token 估算：约 20k。**
+
+---
+
+### 2026-10-18 结果审查（第五十二轮：Mask R-CNN 3-seed 汇总与主表合并；supervisor 子代理执行）
+
+- **本轮由来**：Mask R-CNN seed 1/2 完成（seed1 15:08、seed2 16:00，队列结束），主智能体拟并入主表；按 `AGENTS.md` 先送审。
+- **审查对象**：`results/maskrcnn_leakfree_res800_test.csv`、`maskrcnn_leakfree_s1/s2_test.csv` 及逐图 CSV、`results/maskrcnn_multiseed_meta.csv`、`cnn_multiseed_summary.csv`、`cnn_multiseed_paired.csv`、`scene_level_ci_multiseed.csv`、`logs/maskrcnn_leakfree_20261015_190926.log`、`logs/maskrcnn_seeds_queue.log`。
+- **结论：通过**（数字逐位一致；可写主表；须补 2 条 provenance 注记并更新旧差值/旧 t 值）。
+
+**核验通过的数字（macro；± 为 seed 间样本 sd，ddof=1，n=3）**
+- Mask R-CNN(res800)：IoU **0.739156 ±0.003862**；BER **0.095513 ±0.004185**；单值 IoU 0.738186 / 0.735871 / 0.743411；BER 0.096761 / 0.098933 / 0.090847。
+- 3v3 vs LoRA：IoU 图级 −0.059814（sd 0.043009，t=-13.339，5胜87负）/ 场景级 −0.060213（sd 0.019133，t=-14.422，0胜21负）；BER 图级 +0.034283（t=+19.972，92/0）/ 场景 +0.032029（t=+18.659，21/0）。
+- tau：seed-0/1/2 = **0.05/0.05/0.2**；三 seed 均 min_size=800 / max_size=1333。
+
+**必须补的 provenance 注记（已写入 `maskrcnn_multiseed_meta.csv`）**
+1. seed-0 日志 `maskrcnn_leakfree_20261015_190926.log` 末尾的“[冒烟产物]”是旧版 `write_results()` 对非空 tag 的措辞 bug；该批实际为正式 res800 60/60 跑，数字有效（review_log 第十三/十四轮）。不得改日志本身。
+2. `clean_run` 不能写成“三个 seed 都 clean”：seed-0 无 meta，`clean_run=unknown`（日志 60/60、无 resume）；seed-1/2 `clean_run=true, resumed=false`；LoRA seed-1 为 resumed；U-Net/SegNet seed-0 同样无 meta。
+3. 正确表述：“LoRA/U-Net/SegNet/Mask R-CNN 均为 3 seed；**种子数量不对称已消除**；clean-run 证据强度不同；**分辨率不对称仍在**。”
+
+**主表合并口径**
+- Mask R-CNN(res800) 主表：**0.7392 ±0.0039 / BER 0.0955 ±0.0042**；与 LoRA 差值 **+0.0598（图级）/ +0.0602（场景级）**。
+- 旧 `+0.0608（3-seed vs 单 seed）` → **+0.0598（3v3）**；旧 `t≈14.07` → **t=-13.34（图级）/-14.42（场景级）**；seed-0 的 +0.0496/t≈8.44 仅作 seed-0 敏感性。
+- 512/800 子行仍是单 seed 敏感性，不补 seed 1/2，不混入 res800 3-seed 均值。
+- 分辨率不对称声明保留：输入固定 512×512 上采样到 800、主方法走原图 1024；不得写“对比已公平/偏置已消除”。
+
+**已更新**：`结题报告.md`、`README.md`、`进度接力.md`、`项目接手说明.md`、`make_ppt.py`、`metrics_chart.py`；PPT/柱状图已重新生成（旧 PPT 备份 `backups/结题答辩PPT_最终版_20261018_before_maskrcnn_multiseed.pptx`，slide 8 含 0.7392/0.0955，不含旧 0.0968）。
+
+**本次审查 token 估算：约 20k。**
+
+---
+
+### 2026-10-18 答复审查（第五十三轮：申报书成果可行性/剩余任务/时间与成功率；supervisor 子代理执行）
+
+- **本轮由来**：人类询问“项目想达到申报书成果还有机会吗？还需哪些任务？预期时间和成功率？”主智能体拟对外答复，按 `AGENTS.md` 先送审。
+- **审查对象**：答复草案全文；`results/` 下多 seed、BER、方向模块、提示来源、跨数据集 CSV；`结题报告.md` §五；`进度接力.md`；`README.md`；`申报书问题清单.md`；`archive/任务规划.md`；`review_log.md` 相关轮次。
+- **结论：不通过。** 数字层全部可核；问题集中在时间算术自相矛盾、主观概率未标注、强制披露与承诺清单漏项，以及“全部技术承诺”按字面不可兑现的误导风险。
+- **高风险：无**（未发现新泄漏、测试集参与训练、指标计算错误、对比不公平或不可复现）。
+- **中风险（摘要）**：① 论文“10–15 个工作日草稿 + 审阅 + 投稿”与 10 月底仅约 10 个工作日冲突；② 未区分“投稿/提交”主体与“录用/受理/证书”节点；③ 无在审稿件时“截止前录用 <5–10%”应为约 0；④ 软著“60–70% 拿证”未条件化于加急 3–5 工作日；⑤“全部技术承诺 30–40%”按字面不成立（ShadowFormer/WHU 字面兑现 0%）；⑥ 所有成功率未统一标注为主观估计；⑦ 主结果强制披露缺失（± 定义、best-val、单划分/21 场景、多重比较、Mask R-CNN seed-0 clean_run、LoRA seed-1 resume、分辨率不对称、效应量口径、禁 SOTA）；⑧ B30 限定不完整（11 候选都算 test、网格边界 0.30、族 B 中 IoU 最低、IoU 0.7902 < 0.7990）；⑨ 方向回归 28.29/28.37° 未披露“未经单独送审”及与早期已审批次的差异；⑩ 方向提示/Adapter 限定缺失；⑪ 承诺清单漏项（太阳方位角、加固探针、HSV+C3I vs 增强 Otsu、模块③原设计与实际差异、SARU 未复现、算力、水体/小阴影、“优于主流”范围）；⑫ 优先级未把“确认截止日/延期”置顶；⑬ 正向事实遗漏（翻转自监督已实现、3-seed 配对支持数值优势）；⑭ RSISD/原型/软著措辞需精确。
+- **必须修正**：先确认截止日/延期；论文时间表日期化并区分“材料完成/人类投出/录用”；“截止前录用”改为约 0；软著拿证条件化为“10/24 前提交 + 加急 3–5 工作日 + 一次通过”，概率下调至约 35–50%；删除单一“全部技术承诺 30–40%”，改逐项表；所有成功率加“主观估计、非实验证据、非承诺”；补全主结果/B30/方向模块/承诺清单披露；优先级改为“截止确认 → 论文与软著并行 → 冻结实验 → 可选时间盒实验 → 文档”。
+- **是否允许对外答复：否（当前版本）**；按上述改写后重新送审。
+- **本次审查 token 估算：约 45k。**
+
+---
+
+### 2026-10-18 答复复审（第五十四轮：修订版可行性答复；supervisor 子代理执行）
+
+- **本轮由来**：按第五十三轮 14 条必改意见改写后，主智能体送复审。
+- **审查对象**：修订版答复草案全文；多 seed/BER/方向模块/提示来源/跨数据集 CSV；`结题报告.md` §五/§七；`申报书问题清单.md`；`archive/任务规划.md`；`review_log.md` 相关轮次。
+- **结论：有条件通过（附必须修正；当前版本不得直接对外）。**
+- **高风险：无。** 主结果四方法与 `results/cnn_multiseed_summary.csv:2-5` 逐位一致；B30 与 `results/ber_sweep_selection.json` 一致；方向回归、Adapter、方向提示、RSISD 均与对应 CSV 一致。
+- **中风险（摘要）**：① “10/31 完成论文投出+软著提交约 80–90%”超过论文投出分项 60–70%，联合概率定义矛盾；② 论文“6–8 个工作日草稿”与排期 10/19–10/23 仅 5 个工作日不一致；③ “论文录用+软著证书约 0–5%”未区分“且/或”；④ “综合成功率”会被读成联合概率；⑤ 强制披露仍缺 Mask R-CNN tau=0.05/0.05/0.2、U-Net/SegNet/Mask R-CNN seed-0 均无 meta、软件原型限制、论文 target venue；⑥ “IoU 已达成”“不是回归头调参能解决”“大概率下降”“非关键”四处措辞越界；⑦ 软著“提交/受理/拿证”未分环节；⑧ 数据准备 3–5 天、损失 1 周未限定 seed 数与重训范围。
+- **必须修正**：重算/重定义 80–90%，使其不超过论文投出 60–70%；对齐论文排期；明确“且/或”；“综合成功率”改“分项主观概率”；补四项披露；修正四处措辞；分开软著三环节；限定补做实验的 seed 数与范围。
+- **是否允许对外答复**：当前版本不允许；完成必须修正 1–8 后允许对外答复，无需再次全量复审，但需核对修正点是否落实。
+- **本次审查 token 估算：约 25k。**
+
+**主智能体补充时间证据（第五十四轮后追加，不与上文冲突）**：申报书原文 `_shenbaoshu_attached_20261014.txt:223` 写“研究周期拟定为 12 个月”，`:275` 指导老师签字 2025-12-12 → 推算结束约 **2026-12-12**；`archive/任务规划.md:5` 写“2025-12 ~ 2026-10”，两者冲突。主智能体在对外答复中采用**双基准**（主假设 2026-12-12，保守假设 2026-10-31），并请人类确认正式结题通知。该时间基准调整不改变任何实验数字。
+
+---
+
+### 2026-10-18 答复复审（第五十五轮：12 个月时间基准补充审查；supervisor 子代理执行）
+
+- **本轮由来**：主智能体发现申报书原文“研究周期 12 个月”与归档任务规划“2026-10”冲突，补充送审。
+- **结论：有条件通过。** 时间基准更正采纳；仍需双基准分栏、联合概率口径与上一轮未落实的披露/措辞修正。当前版本不得直接对外。
+- **时间基准核验**：申报书 `:223` 明确 12 个月，`:275` 签字日 2025-12-12 → 结束约 **2026-12-12**（约 8 周 / 39–40 个工作日）；`archive/任务规划.md:5` 的 2026-10 为内部归档、自述状态过期。接受 12-12 为主假设，但**必须请人类向项目办/结题通知确认**；若确认 10/31，则 12/12 口径概率全部作废。
+- **中风险（摘要）**：① 双基准必须分栏，不能混用；② “论文投出+软著提交+诚实结题 85–90%”需注明高度相关条件，独立相乘约 73–81%；③ “论文录用+软著证书”需区分“且”（约 2.5–8.5%）与“或”（约 50–85%）；④ 论文录用 5–10% 只可能来自中文期刊快审/desk acceptance；IGARSS 2027 窗口在 12/12 之后，12/12 前录用≈0；⑤ 软著 50–65%/70–85% 需写提交日期、加急渠道、材料一次通过三条件；⑥ 补 tau、U-Net/SegNet seed-0、原型、venue 四项披露；⑦ 修正四处措辞、分开提交/受理/拿证、限定数据准备/损失时间范围；⑧ 12/12 主情景给独立排期（10/19–11/06 草稿、11/09–11/11 审阅、11/12 投出；11 月上旬软著提交）。
+- **低风险**：12/12 是周六，最后工作日 12/11，材料预留到 12/10 前；软著 30–60 工作日为外部行政时效，以中国版权保护中心/代理机构当前口径为准；方向消融已完成（负结果）、CNN 增强 bug 已修复并同划分重训，宜作平衡事实。
+- **是否允许对外答复**：当前版本不允许；完成必须修正 1–8 后允许对外答复。若人类确认截止 2026-10-31，必须回到保守情景。
+- **本次审查 token 估算：约 15k。**
+
+---
+
+### 2026-10-18 结果审查（第五十六轮：F1 BER val 结果 + F1 test 预签核；supervisor 子代理执行）
+
+- **本轮由来**：5 天冲刺预注册 v2 放行 F1 val；主智能体跑完 110 候选 val 后，送审并请求 test 预签核。
+- **审查对象**：`results/sprint20261018/ber_tta_selection.json`、`ber_tta_val_grid.csv`、`ber_tta_val_per_image.csv`、`ber_tta_robustness.json`、`TEST_LEDGER.csv`、`logs/sprint20261018/ber_tta_val_20261018_172807.log`、`preflight_before_f1val.log`、`ber_tta_eval.py`、`ber_sweep_eval.py`、`logs/PREREG_5day_sprint_20261018.md` v2。
+- **结论：有条件通过，批准 F1 test 预签核**（须先完成预注册 v2.1 + 精确 signoff JSON + preflight）。
+- **独立复算（逐位一致）**：基线 B30 val BER **0.05117473726720168** / IoU **0.8143068968841348**（gate dev 2.627e-07）；选中 `T25_none_tta` val BER **0.04589605912599973** / IoU **0.8129140829310975**；逐图配对 mean_gain **0.005278678141**、t **9.180**、54 胜/4 负；原图基名 n=16 mean_gain **0.006192404862**、t **8.477**、16 胜/0 负；110 候选、13 eligible；阈值 0.25 不在边界；`selection_sha256=d349f344...` 与脚本 sha256 一致。
+- **高风险：无**（在 signoff 精确匹配、test 只跑一次的前提下）。
+- **中风险**：① 预注册 test 判据与代码不一致，须写 v2.1 加入场景级 `base_paired_mean_gain>0`；② signoff 的 `command` 精确为 `ber_tta_eval.py --stage test`（不含 `python`），`checkpoints` 用 `SEED_CKPTS` 绝对路径；③ 110 候选选择偏置可接受用于探索性 test；④ 增益主要来自 TTA（B30 0.051175 → 仅 TTA 0.046230 → 仅阈值 0.050805 不显著 → TTA+阈值 0.045896）；⑤ top-4 差异在窄带内（约 0.000334），不写唯一最优；⑥ test 非 virgin holdout；⑦ val→test gap 可能大于 B30 的 0.002489，失败如实写。
+- **必须修正**：写预注册 v2.1（test 判据 + signoff 字段）；按精确值生成 `TEST_SIGNOFF.json`；test 前重跑 preflight；签核后不得改脚本/selection/checkpoints；test 只跑一次，崩溃先报告不自动重跑。
+- **放行范围**：仅 F1 test；F3/H7、F4、H2（H1 未 val 失败前）、H4 仍不放行。
+- **本次审查 token 估算：约 40k。**
+
+---
+
+### 2026-10-18 结果审查（第五十七轮：H3 rotation val 负结果 + H5 方向诊断；supervisor 子代理执行）
+
+- **本轮由来**：rotation 3-seed 回归头 val-only 与 H5 regress 诊断跑完，主智能体送审并询问是否关闭 H3、如何报告 H5。
+- **结论：通过。** H3 按 kill criterion 关闭、不评 test 的处理正确；H5 的“IoU/BER 权衡、非方向增益、不入主表”解读正确。两者可写入“5 天冲刺”附录。
+- **H3 核验**：flip_ref 24.3685、imagenet_ref 24.4146、rot_s0 23.0176、rot_s1 22.2068、rot_s2 19.6684、rot_mean **21.6309 ± 1.7473**；flip − rot_mean 图级 +2.7376°、t 1.0724、30/28；原图级 n=16 +1.3280°、t 0.6359、7/9；flip − rot_s2 图级 +4.7001°、t 1.5375（不显著）；flip − imagenet 图级 −0.0461°、t −0.0175、原图级 −4.8570°、t −1.6245。训练/val gap 明显（rot 训练 11.4–14.7° vs val 19.7–23.0°）。
+- **H5 核验**：project IoU 0.803690±0.061623 / BER 0.066741 / F1 0.889813；project_nofilter 0.803443/0.066300；random 0.803413/0.066326；none 0.802989/0.066272；axis_box 0.787821/0.064359；centroid_points 0.802594/0.065570。project 兜底 8/92。
+- **中风险（摘要）**：H3 必须用 matched flip_ref 24.369 作配对基线（历史 28.37 不用于配对）；不得 cherry-pick rot_s2；写“配对不显著 → kill criterion 关闭、不评 test”；写 flip vs ImageNet 无优势；披露 3-vs-1 seed 不对称、16 val 原图、训练/val gap；ImageNet summary 的 `backbone` 列有误导。H5 的 IoU 提升来自点/扇形提示（random/none 也高于 axis_box），方向分量无贡献，BER 全部劣于 axis_box；只用 seed-0 axis_box 作同口径参照，不与 3-seed 均值横比；± 为逐图 sd；单次 test、test 已多次查看。
+- **放行范围**：H3/H5 可写“5 天冲刺”附录（仅探索性；主表/headline 不改）；F3/H7、F4、H4、H2 继续不放行（H2 未触发）。
+- **本次审查 token 估算：约 28k。**
+
+---
+
+### 2026-10-18 方案审查（第五十八轮：F3 cross-attn val-only 放行；supervisor 子代理执行）
+
+- **本轮由来**：主智能体补齐 F3 的 4 条前置后，再次请求放行 F3 val-only。
+- **结论：有条件通过。** F3 val-only 放行（regress + random 两个 run，各 1 seed）；F3/H7 test、F4、H4、H2 仍不放行。
+- **已核验**：`direction_adapter_selftest_20261018_175540.log` 同时覆盖 film 与 cross_attn，恒等性 `max|Δ|=0.0`、`__dead__=[]`；`train_direction_adapter.py` 的 `--val-only` 在 test 评估前 return；`--freeze-base` 只训 adapter/cross-attn；预注册 F3 已改为“冻结图像编码器（含 LoRA）与 prompt/decoder，只训融合层”；`preflight_before_f3.log` 56 PASS/0 FAIL/3 WARN。
+- **中风险**：① H3 结论限定为“配对不显著”，不写“方向先验无效”；② H3 用 matched flip_ref 24.369，历史 28.37 只作背景；③ H3 rotation 3 seed vs flip/ImageNet 1 seed，sd 不可当 CI；④ H5 IoU 提升来自点/扇形提示（random/none 也高于 axis_box），方向无贡献，BER 劣于 axis_box；⑤ H5 project 8/92 兜底；⑥ F3 1 seed 只够“可训练/无净增益”消融，不作“方向流有效”结论；⑦ F3 必须用不同 tag（`h7_cross_regress`/`h7_cross_random`），不得覆盖主 adapter；⑧ F3 `--val-only` 只写 log，须补 `h7_cross_val_summary.csv`；⑨ cross-attn 的 dir_mlp/in_proj 梯度很小（2e-8–3e-6），随机方向对照必需；⑩ 不用 `--check-only`（会评 test）。
+- **放行范围**：F3 val-only 两个 run；结果只进“5 天冲刺”附录，不替换主方法、不写“Feature Aggregator 已兑现”。
+- **本次审查 token 估算：约 35k。**
+
+---
+
+### 2026-10-18 结果审查（第五十九轮：F3/H7 3-seed val 复核；supervisor 子代理执行）
+
+- **本轮由来**：补跑 F3 cross-attn regress/random × seed 1/2 后，送审 3-seed 汇总与 H7 最终措辞。
+- **结论：有条件通过。** H7 的 3-seed val 措辞方向正确，可写入“5 天冲刺”附录；须把“远小于”改为“约 0.32 倍”、把“方向特异”改为“相对随机方向对照”，并补 per-seed 表。F3/H7 test 仍不评；F4 写“不可比/未复现”；H4/H2 不启动。
+- **核验（逐位一致）**：per-seed ΔBER（regress−random）s0 **−0.00168523**、s1 **−0.00048655**、s2 **−0.00041681**；seed 级 mean **−0.00086287**、sd **0.00071304**（n=3），三 seed 同号、|mean|>sd；3-seed 逐图平均 ΔBER 图级 mean −0.00086287、sd 0.00142079、t **−4.625**、9/49；原图级 n=16 mean −0.00088842、sd 0.00061947、t **−5.7367**、0/16；ΔIoU 图级 mean −0.0000315、sd 0.0053898、t −0.0445、16/42；原图级 −0.000288、t −0.529、5/11。s0/s1/s2 的 ΔIoU 符号不一致（+0.001216/+0.000441/−0.001751）。
+- **中风险（摘要）**：效应量 0.000863/0.002728=**0.316**，写“约 0.32 倍”不写“远小于”；seed 0 主导（−0.001685 vs −0.00049/−0.00042），必须列 per-seed 表；3-seed 逐图 t 为描述性、同图跨 seed 平均、非独立；best-val 选择与配对同集；IoU 无一致差异，s2 是 IoU/BER 权衡；random 占 regress 总 BER 改善约 54%；val-only、固定 0.5、58/16、单划分、未评 test；不写“方向流有效/无效”“Feature Aggregator 已兑现”。
+- **放行范围**：H7 可写入冲刺附录（按修正措辞）；F3/H7 test 不评；F4 写“不可比/未复现”；H4/H2 不启动。
+- **本次审查 token 估算：约 20k。**
+
+---
+
+### 2026-10-18 上传前 PII 补扫（主智能体记录，非新审查轮次）
+
+- 上传前对**当前文件内容**做 tracked 扫描，发现 `review_log.md`（3 处）与 `进度接力.md`（1 处）仍含旧 QQ 邮箱**字面量**。此前“全历史 0 命中”指 **git 对象/提交身份**，不含当前工作区文件文本；两者不是同一层。
+- 已把邮箱替换为 `[已脱敏QQ邮箱]`，**不改审计事实**；同时保留原意“该邮箱曾出现在 32/32 提交身份中，已重写为 ShadowHunter”。
+- 另：`archive/reference_docs/` 已被 `.gitignore` 排除，`_application_form.txt` 等含姓名/电话的原始材料**不会进入本次上传**；本地保留。
+- 本次为 PII 脱敏，不涉及实验数字；待 supervisor 对收尾文档与上传清单复核后再 push。
+
+---
+
+### 2026-10-18 上传前收尾复核（第六十轮：supervisor；结论：不通过 → 人类决定暂不 commit）
+
+- **审查对象**：结题报告 §八、进度接力 5 天冲刺小节、README §七、代码与文件索引 §3.11、S-EO 封存计划、review_log 第五十三–五十九轮、暂存清单（716 文件 / 14.21 MB）、`.gitignore`、`direction_adapter.py` / `train_direction_adapter.py` 暂存差异、`origin/main` 状态。
+- **结论：不通过（当前暂存状态）**；**是否允许 commit/push：否**。
+- **高风险**：① `direction_adapter.py` 未暂存，导致 F3 的 `cross_attn` 代码不在索引中、结果不可由仓库复现 → **已修：`git add direction_adapter.py`**；② 旧 QQ 邮箱与本机用户名已在**远端 HEAD 文件内容**中（`review_log.md` 4 处、`进度接力.md` 1 处），普通 commit 的 diff 会再次展示 → **人类决定：暂不 commit、不 push**。
+- **已落实的中风险修正**：审查轮次统一到第五十九轮（进度接力/AGENTS/项目接手说明/申报书问题清单）；27 个 sprint 日志 `git add -f` 入库；`archive/S-EO...` 的“根因”改为“关键怀疑（待验证）”；`申报书问题清单.md` 的“效果达标”改为“未达可用门槛”；`make_ppt.py` 新增第 16 页“5 天冲刺补充（探索性）”，PPT 已本地重生成（PPT 文件按 `.gitignore` 不入库）；`.gitignore` 增加 `.agents/`、`.claude/skills/`、`skills-lock.json`、`backups/*.pptx`。
+- **未决**：PII 历史处理（普通 commit 接受历史曝光 / 重写历史 + force-push / 只本地 commit / 暂不 commit）。**人类选择：暂不 commit**。因此当前只有暂存区，无新提交、无 push。
+- **本次审查 token 估算：约 45k。**
+
+---
+
+### 2026-10-18 会话接手复核（第六十一轮：主智能体对项目现状的理解；supervisor 子代理执行）
+
+- **本轮由来**：人类问“是否已读完项目、了解实际情况”。主智能体首答仅基于 4 份材料即给出“Python 工具包 vs QGIS 插件”建议，补读关键文档后按 AGENTS.md 送审；第一版判**不通过**，修正后复审。
+- **审查对象**：主智能体对项目现状的 13 条理解；`进度接力.md`、`结题报告.md`（60-377 行）、`项目接手说明.md`、`代码与文件索引.md`、`SPRINT_APPENDIX.md`、`软著_软件说明书_初稿.md`、`README.md`（285-324 行）、`review_log.md` 尾部与缺口说明、`results/lora_leakfree*.csv`、`cnn_multiseed_summary.csv`、`ber_tta_*`、`shadow_extract.py`、`git status`。
+- **结论：通过（补 3 条披露后允许向用户汇报）。**
+- **第一版不通过的必改项（已全部覆盖）**：T25 变体的 test 口径/110 候选/test 复用限定；冲刺附录“未同步”说法与落盘不符（结题报告 §八 / README §七 / make_ppt.py 第 16 页均已有摘要，`进度接力.md:175` 过期）；第六十轮“不通过、暂不 commit”与 743 文件暂存状态；软著初稿跨口径混用（初稿 line 55/142 的 0.234/0.424 属 AISD 自带划分，无泄漏对应值为 0.2663/0.4051）及旧模块/输出描述过时；主结果 `±` 定义、seed-0 最低与预注册切换、三口径效应量；Mask R-CNN 分辨率不对称/输入协议/seed-0 clean_run/LoRA seed-1 resumed/无多重比较校正；软件原型默认 seed-0 权重与合成 CRS 限制；H5 方向分量无贡献、BER 劣于 axis_box、8/92 兜底；P0/P1 排序与“当前 CLI 已满足最低交付”；软著拟定名与初稿现名区分；阅读范围不得称“已读完”。
+- **复审后剩余 3 条必补披露**：① 所有方法均为 **best-val 选模型、test 不参与选模型**；② LoRA seed-1 的 `--resume` 只恢复权重/best/epoch，**不恢复优化器矩、GradScaler 与 RNG**，与不中断 40 轮不完全等价；③ H5 限定为 seed-0、92 张/21 场景、单次 test、test 已多次查看、`±` 为逐图 sd、不与 3-seed headline 同口径比较。
+- **数字核验**：主结果、基线、T25、H5、H3、F3 均与落盘 CSV/JSON 一致；未发现新泄漏、指标计算错误或不可复现结论。
+- **是否允许进入下一阶段**：**是**（补入上述 3 条后）。工具建议“Python 工具包为主、QGIS 薄壳为辅”可保留，但须说明当前 CLI 是**脚本级工具、非可安装包**，packaging/批量/大规模验证为 **P1/P2**，QGIS 薄壳**尚未实现**，且论文/软著为 **P0**。
+- **本次审查 token 估算：约 35k（复审合计约 125k）。**
+
+---
+
+### 2026-10-18 方案审查（第六十二轮：单图多方法可视对比方案；supervisor 子代理执行）
+
+- **本轮由来**：人类要求选一张带水体/植被的图，跑项目已存各方法做直观对比（非 benchmark）；主智能体提交方案。
+- **结论：有条件通过。** 方向正确（单图、跨数据集、seed-0、无 TTA/集成/显著性），但执行前须写死两处加载协议并补 5 项限定/证据。
+- **高风险**：① Mask R-CNN 口径漂移：脚本默认 min512/max800，而 res800 主行权重对应 min800/max1333，state_dict 不存 transform；必须显式 `build_model(800,1333)` 并在日志打印。② LoRA 必须先 `apply_lora` 再 `load_state_dict`；直接 load 会失败或静默错误。
+- **中风险**：选图证据须落盘且不得用模型逐图指标选图；方法集合取舍须说明（SAM-AMG、C3I 启发式副行、mask_ours）；跨数据集单图不得与 0.7842/0.7878 横比；单图指标须带完整限定；LoRA 单图复现门禁须与 `cross_rsisd_test200_per_image.csv` 的 GuiZhou_37 行在 1e-6 内一致；GT 只在预测落盘后读取；日志/产物入库方式须明确。
+- **放行范围**：完成必改后执行；单图结果不进主表、不作性能/泛化结论。
+- **本次审查 token 估算：约 55k。**
+
+---
+
+### 2026-10-18 短核验（第六十三轮：visual_compare_methods.py 加载协议/门禁/GT 隔离；supervisor 子代理执行）
+
+- **结论：有条件通过（3 处小修后放行；无需再次全审）。**
+- **已核验通过**：LoRA `load_official_sam → apply_lora → load_state_dict`；Mask R-CNN `build_model(800,1333)` 且日志打印 transform；冻结 SAM 不挂 LoRA；零样本同框提示路径；U-Net/SegNet 512+sigmoid>0.5+最近邻；SAM-AMG 参数与 `run_experiment.load_amg` 一致；复现门禁 REF 三值与 CSV 逐位一致；影像/预注册 SHA256 一致。
+- **必改**：① 掩膜落盘移到读 GT 之前（审计顺序与日志声明一致）；② `CAVEAT` 扩展并同步图/CSV/日志（补 member of 200、no significance、不与 AISD 主表/RSISD 聚合/文献横比、Mask R-CNN min800/max1333/tau、C3I 去启发式、Enhanced 内部模块）；③ 修正 `SELECTION_LOG.md:33` 的“跨域掉点”措辞。
+- **本次审查 token 估算：约 12k。**
+
+---
+
+### 2026-10-18 结果核验（第六十四轮：单图多方法可视对比结果；supervisor 子代理执行）
+
+- **结论：有条件通过。数值核验通过；provenance 未闭合，暂不放行对外报告。**
+- **已核验通过**：10 项指标 log/CSV 逐项一致；LoRA 0.603580/0.085982/0.752791 与 `cross_rsisd_test200_per_image.csv:35` 逐位一致；门禁 `max|diff|=0`；Mask R-CNN transform min800/max1333、tau=0.05；3 处小修落实；图注限定完整；SegNet 单图 IoU 高于 LoRA 仅陈列、不构成结论。
+- **高风险（provenance）**：旧日志/CSV 记录的脚本 SHA256 为 `e6afba14...a90bf`，当前脚本为 `0fe4b430...e69e94`，不是同一版本；图可能由后一版本另生成。违反 AGENTS #10。
+- **必改**：用当前脚本完整重跑，使新 log/CSV/图三件套记录同一脚本 SHA256；旧产物保留并标注 superseded；重跑后短核验放行。
+- **本次审查 token 估算：约 18k。**
+
+---
+
+### 2026-10-18 短核验（第六十五轮：单图可视对比 provenance 闭合与结果放行；supervisor 子代理执行）
+
+- **本轮由来**：第六十四轮要求用当前脚本重跑闭合 provenance；主智能体完成重跑并请求放行。
+- **结论：通过。provenance 已闭合；允许按完整限定向用户报告该图与 10 项单图指标。**
+- **已核验**：新日志头部脚本 SHA256 `0fe4b430...e69e94` = 当前脚本实测值；脚本 mtime 早于新 run；新日志 `353c399b...e6851c8`、新 CSV `cc65c98f...14c4c1`、新图 `edd600fd...34e3dd` 与报告一致。新旧日志 diff 仅时间/脚本 hash/日志路径；新旧 CSV、PNG、10 个掩膜均**逐字节一致** → 脚本改动未改变结果。LoRA 门禁 `max|diff|=0`；Mask R-CNN transform `min_size=(800,) max_size=1333`、tau=0.05、输入 512；掩膜先落盘再读 GT；图/CSV/日志三处限定语一致。旧产物已标 superseded。
+- **放行范围**：可按完整限定报告该图与 10 项单图指标；SegNet 单图 IoU 0.6474 高于 LoRA 0.6036 **只能如实陈列**，不得写排序/优于/泛化/跨域掉点，不得与 AISD 主表/RSISD 聚合/文献横比；不得进主表、不得改 headline。
+- **低风险/建议**：新产物目前为未跟踪 `??`，`*.log` 被 `.gitignore` 忽略；若作仓库证据需 `git add`（日志 `git add -f`）。`logs/visual_compare_console_latest.log` 为控制台副本、编码显示乱码，以正式 UTF-8 日志为准。
+- **本次审查 token 估算：约 10k。**
+
+---
+
+### 2026-10-18 方案短核验（第六十六轮：AISD 版单图对比；supervisor 子代理执行）
+
+- **本轮由来**：人类要求“换 AISD 输出”；主智能体提交 AISD 版方案，复用第六十二~六十五轮设计，只换图与门禁来源。
+- **审查对象**：`visual_compare_aisd.py`、`results/visual_compare/SELECTION_LOG_AISD.md`、`AISD/AISD/Train412/{shadow,mask}/chicago22_sub9.tif`、`results/lora_leakfree_test_per_image.csv`、`visual_compare_methods.py`（复用模块）。
+- **结论：有条件通过（补记录复用模块 SHA256 后即可运行）。**
+- **已核验通过**：`chicago22_sub9.tif` 属 AISD 无泄漏 92 张/21 场景测试集（独立复算 `split_by_base`：test=True、train=False、val=False；test CSV 行存在）；616×616，GT unique={0,255}、前景 11.70%；选图日志写于任何 AISD 模型推理之前；门禁动态读取 test CSV 行（0.6761865054536235 / 0.08137020390910804 / 0.8068153055919475），阈值 1e-6，门禁在指标表之前；限定覆盖域内、n=1、92/21 成员、seed-0、无 TTA/集成/显著性、不排序/不标 best/不作泛化结论、不与 AISD 主表/92 张聚合/文献横比、Mask R-CNN 口径、C3I 去启发式、Enhanced 内部模块、AISD 无可见水体；图/CSV/日志三处同步；原 RSISD 脚本 SHA256 仍为 `0fe4b430...e94`，未被改动。
+- **必改（一行）**：AISD 日志未记录复用的 `visual_compare_methods.py` SHA256；须补模块路径 + SHA256，否则 AISD 结果不自包含。
+- **低风险/建议**：选图日志补“Train412 目录但属测试集”；`CAVEAT` 补“not a random/representative sample”。
+- **放行范围**：补记录后运行；单图结果不得进主表、不得写排序/优于/泛化/跨域掉点，不得与 AISD 主表/92 张聚合/文献横比。
+- **本次审查 token 估算：约 12k。**
+
+---
+
+### 2026-10-18 结果核验（第六十七轮：AISD 版单图对比结果；supervisor 子代理执行）
+
+- **本轮由来**：第六十六轮“补记录复用模块哈希”后运行，主智能体请求结果核验与报告放行。
+- **结论：通过。provenance 闭合；允许按完整限定向用户报告该图与 10 项单图指标。**
+- **已核验**：新日志脚本 SHA256 `82029e13...1e4146` = 当前 `visual_compare_aisd.py`；复用模块 SHA256 `0fe4b430...e69e94` = 当前 `visual_compare_methods.py`；影像 SHA256 `d1835cc5...3e52b7`；SELECTION_LOG_AISD SHA256 `c91439fb...afb41c`；脚本 mtime 23:01:13 早于 run 23:01:24；日志 23:02:17、CSV 23:02:14、图 23:02:17，顺序符合执行顺序；运行后当前脚本/模块哈希未变。LoRA 门禁 `max|diff|=0`（参照 `lora_leakfree_test_per_image.csv` 的 `chicago22_sub9.tif` 行）通过；Mask R-CNN transform `min_size=(800,) max_size=1333`、tau=0.05、输入 512；掩膜先落盘再读 GT；10 项指标 log/CSV 逐项一致；图/CSV/日志三处限定一致；独立复算 `split_by_base` 确认该图 test=True、train=False、val=False；影像 616×616，GT unique={0,255}、前景 11.70%。
+- **低风险/建议**：AISD 产物目前为未跟踪 `??`，`*.log` 被 `.gitignore` 忽略；若作仓库证据需 `git add`（日志 `git add -f`）。报告如需指出“LoRA BER 0.0814 为该单图最低”，必须写成单图描述性观察，不构成方法排序/泛化结论；不得写“LoRA 更优/优于”。U-Net/Mask R-CNN 单图 IoU 0.695 略高于 LoRA 0.676 只能如实陈列。
+- **放行范围**：可按完整限定报告 AISD 单图与 10 项指标；不得进主表、不得改 headline、不得与 AISD 主表/92 张聚合/文献横比；AISD 版是域内案例，不宣称跨数据集泛化；与 RSISD 版分开表述。
+- **本次审查 token 估算：约 14k。**
+
+---
+
+### 2026-10-18 方案审查（第六十八轮：清理后死权重路径修复；supervisor 子代理执行）
+
+- **本轮由来**：8.56GiB 清理删除 `sam_vit_b_shadow{,_v2}.pth` 后，主智能体请求批准四处默认加载路径的最小修复。
+- **审查对象**：`visualize.py:25/51`、`prompt_experiment.py:30/34`、`evaluate_with_std.py:28`、`evaluate_finetuned.py:7`；`checkpoints/sam_vit_b_shadow_frozen_leakfree.pth`；`README.md:222/245/258/298`；`prompt_experiment.load_sam` 的调用方 `final_eval.py`、`boxes_tta_full.py`、`direction_experiment.py`；`train_adapter_v2.py`、`legacy/train_adapter.py`。
+- **结论：有条件通过。四处路径修复可执行，但影响声明/标签/文档/调用方必须一并修正。**
+- **已核实**：两个旧权重确实不存在；`sam_vit_b_shadow_frozen_leakfree.pth` 存在（375,070,667 B）且架构兼容；`prompt_experiment.py` 的函数名是 `load_sam`，调用方至少还有 `final_eval.py:21`、`boxes_tta_full.py:42`、`direction_experiment.py:253`，改 `FT_CKPT` 会改变这三条历史脚本的模型。
+- **高风险**：影响声明不得把“权重无泄漏”与“评估集无泄漏”混同。上述脚本评估的是 **AISD 自带 Test51（含 42/43 同源泄漏）**；`0.5621` 是 frozen leakfree 在 **92 张无泄漏测试集**上的结果，Test51 输出不得标成 0.5621/0.717。
+- **必须修正**：① 修正影响声明（权重/评估集分开）；② 覆盖 `load_sam` 三个调用方并加日志/表头；③ `visualize.py` 面板标签改为“冻结编码器微调SAM（无泄漏权重，对照）”；④ `evaluate_with_std.py` 表头/标签注明 Test51 历史口径与混合权重；⑤ 更新 README 四处死引用；⑥ 留 patch/diff + ruff/compileall/preflight + frozen 权重加载 smoke。
+- **放行范围**：完成 ①-⑥ 后执行修复；修复后回传 diff + smoke 结果短核验。不得把历史脚本输出写成 0.5621/0.717/主表口径。
+- **本次审查 token 估算：约 15k。**
+
+---
+
+### 2026-10-18 短核验（第六十九轮：死权重路径修复落实；supervisor 子代理执行）
+
+- **本轮由来**：第六十八轮 6 条必改后，主智能体完成修复并请求放行。
+- **结论：通过。第六十八轮 6 条必改已落实；允许完成本轮并汇报最终检查结果。**
+- **已核验**：`prompt_experiment.load_sam(ckpt=None)` 显式接收 checkpoint、默认 frozen leakfree、打印加载路径；`final_eval.py`/`boxes_tta_full.py`/`direction_experiment.py` 头注释均写明“frozen leakfree + Test51 泄漏 + 不得标 0.5621/0.717”；`visualize.py` 面板改为“冻结编码器微调SAM(对照)”；`evaluate_with_std.py` 的 `sam_v2`→`sam_frozen`、标签改“冻结编码器(无泄漏权重)”、头注释写明历史 Test51/混合权重/非干净对比；`evaluate_finetuned.py` docstring 改 frozen 且默认仍为零样本官方权重；README `:97/:222/:245/:258/:298` 已更新，剩余 v2 字样仅历史说明/训练输出/legacy；patch `backups/patches/cleanup_dead_weight_paths_20261018.diff` 229 行/8 文件；独立复跑 ruff All checks passed、compileall exit 0、preflight 56 PASS/0 FAIL/3 WARN、frozen 加载 smoke 通过（93.7M params）。
+- **低风险/建议（不阻塞）**：`evaluate_with_std.py:1` 首行“用于报告严谨性”与“历史/非干净对比”略冲突；`final_eval.py`/`boxes_tta_full.py` 的 print 标签可补“frozen leakfree（Test51 泄漏口径）”；`direction_experiment.py`/`prompt_experiment.py` 顶部的 0.717/0.69 可括注“历史口径，当前不复现”；`results/figures/` 旧图如被引用需重跑或标 historical。
+- **放行范围**：可向用户汇报最终检查结果；不得把历史脚本 Test51 输出标成 0.5621/0.717/主表口径；不得把 frozen leakfree 当主方法 LoRA。
+- **本次审查 token 估算：约 10k。**
+
+---
+
+### 2026-10-19 交付审查（第七十轮：最终结题报告 + 答辩 PPT + 文档同步；supervisor 子代理执行）
+
+- **本轮由来**：人类要求更新项目文档、生成论文格式结题报告与 20 页答辩 PPT；强调突出优势但不得捏造/夸大，缺漏仍保留。
+- **审查对象**：`结题报告.md`、`make_ppt.py`、`结题答辩PPT_最终版.pptx`、`results/ppt_preview/`、`results/ppt_audit.md`、`README.md`、`进度接力.md`、`代码与文件索引.md`、`项目接手说明.md`、`资产获取说明.md`、`申报书问题清单.md`、`AGENTS.md`；主结果/消融/跨域/误差/方向/冲刺 CSV 与 verify 日志；`train_lora_leakfree*.py`、`evaluate_lora.py`、`split_by_base()`。
+- **结论：不通过（高风险 2；中风险 12）。** 主表/消融/跨域/误差/冲刺数字与落盘 CSV 逐项一致；未发现新的数据泄漏、测试集参与训练或主表指标计算错误。但复现命令与方向 oracle 对比口径存在高风险错误，且文档有多处过期轮次/交叉引用与 seed 口径混用。
+- **高风险**：
+  1. 附录 C 主结果复现命令错误：`evaluate_lora.py` 为 Test51 泄漏口径（加载 `sam_vit_b_shadow_v4_lora_last.pth`，输出 `lora_test51.csv`）；`train_lora_leakfree*.py` 默认 `--epochs 150`，主结果为 40 轮，命令缺 `--epochs 40`。README 同样错误/误导。
+  2. `结题报告.md` 将“oracle 与框提示差异”写成 ≤0.0007；落盘 `dirprompt_project_oracle_test.csv` 0.803656 vs `dirprompt_axis_box_oracle_test.csv` 0.787821 = +0.0158。≤0.0007 仅适合同族无方向对照（project−nofilter +0.00070、project−none +0.00067；含 centroid 极差 0.0008）。
+- **中风险（摘要）**：`+0.035`（seed-0）与 `+0.0443`（3-seed macro）混用；胜/负主体写反（应为 Mask R-CNN 5胜87负 / LoRA 87胜5负，场景 0胜21负 / 21胜0负）；“显著提升”违反措辞纪律；PPT 主结果页漏 Mask R-CNN seed-0 clean_run/LoRA seed-1 resumed/SAM 类增强 Otsu 三项；过期“第六十轮”与失效交叉引用；README 首段混合 seed 口径；新增 6 张图无生成脚本/日志；报告无参考文献节；PPT 封面缺官方项目名；`+0.4399` 未标 seed-0；§4.6 “所有模型”过宽；PPT “可落地/可复核”偏强。
+- **必须修正**：上述 2 项高风险 + 中风险 1–14 项（按审查正文逐条落实）。
+- **是否允许进入下一阶段**：否；完成必改项并复审通过后放行。
+- **本次审查 token 估算：约 150k。**
+
+---
+
+### 2026-10-19 复审（第七十一轮：第七十轮必改落实；supervisor 子代理执行）
+
+- **本轮由来**：第七十轮判不通过（2 高风险 + 14 中风险），主智能体逐条落实后请求复审与最终交付放行。
+- **结论：有条件通过。** 第七十轮 2 项高风险已修复；主表/消融/跨域/误差/冲刺数字仍与落盘 CSV 一致；未发现新的数据泄漏、测试集参与训练或主表指标错误。但 14 项中风险未全部覆盖，且复审新发现 2 项图表内容不一致与图 provenance/入库不完整，完成剩余必改前不允许最终对外交付。
+- **高风险：无。** 核验：附录 C/README 5.2 已用 `train_lora_leakfree.py --epochs 40` 与 `_seed.py --seed 1/2 --epochs 40`；`evaluate_lora.py` 已标 Test51 泄漏口径；`dirprompt_project_oracle_test.csv` 0.803656 vs `dirprompt_axis_box_oracle_test.csv` 0.787821 = +0.0158，报告/README/PPT 已改为“同族无方向对照 ≤0.0007；+0.0158 来自提示族差异”。
+- **中风险（剩余/新发现）**：`README.md:266` 的 `train_adapter_v4.py` 仍无 `--epochs 40`；“6 个关键方法”图实际只渲染 4 个方法 + 输入/真值；`stage_coarse.png` 跳过 `06_morph_open` 且与 slide bullet 编号不一致；图日志被忽略、未哈希 stage/mask/metrics、两次运行 hash 不同、字体硬编码 Windows；`git status` 多个 `AM` 索引/工作区不一致。
+- **低风险**：+0.4399 未标 seed-0；进度接力 §五 引用不对；参考文献 [10] 非正式条目；QA 审计脚本不在仓库；图脚本未记录自身 SHA。
+- **必须修正**：上述中风险 1–5；另 +0.4399 补 seed-0、进度接力改指附录 A。
+- **是否允许进入下一阶段**：是（完成剩余必改后）；当前对外交付：否。
+- **本次审查 token 估算：约 80k。**
+
+---
+
+### 2026-10-19 短核验（第七十二轮：第七十一轮剩余 5 项；supervisor 子代理执行）
+
+- **本轮由来**：第七十一轮指出 5 项剩余必改，主智能体落实后请求短核验与 push 放行。
+- **结论：有条件通过。** 5 项必改全部通过；发现 1 个额外 push 阻塞项：canonical PPT、`results/ppt_preview/`、`results/ppt_qa_report.md` 未与最终 `_20261019.pptx` 同步。完成同步后即可 push，科学数字无需重审。
+- **已核验通过**：README 5.4 已用 `--epochs 40` 并注明通用模块；`key_compare()` 已渲染 6 方法 + Input/GT（8 面板）；`stage_coarse.png` 为 8 面板 ①–⑧（含形态学与 SAM 并集），slide 5 bullet 8 条一致；`results/figure_provenance.md` 已跟踪并记录脚本/原图/stage/masks/metrics/输出 SHA；`REPORT_FONT` 回退已实现；`git diff --cached` 842 文件、`AM`=0、无 checkpoints/AISD/datasets/pth/reference_docs/PPTX。
+- **额外 push 阻塞项**：canonical 仍为旧版（5 bullet/4 方法图），`_20261019.pptx` 为新版（8 bullet/6 方法图）；`results/ppt_preview/` 为旧图；`results/ppt_qa_report.md` 的“两者内容一致”不实。须覆盖 canonical、重导预览、修正 QA 报告并重新 `git add`。
+- **放行范围**：完成 PPT 同步后允许 push 到 `origin/main`；不得声称已 push，若网络仍失败须如实报告。
+- **后续处理（2026-10-19）**：canonical 已被成功覆盖；从 canonical 重导 20 页 PNG 并重建 contact sheet；QA 报告已改为 canonical + 真实导出；`_20261019.pptx` 已删除。网络 `git ls-remote` / `curl https://github.com` 仍超时，push 待网络恢复。
+- **本次审查 token 估算：约 40k。**
 
 ---
 

@@ -1,0 +1,16 @@
+# BER TTA sprint (pre-registered v2)
+# time=2026-10-18 17:28:07 device=cuda
+# split: train=68 val=16 test=21 base images
+# val criterion: BER < 0.047; test criterion: BER < 0.05 + paired gain>0
+# thresholds=[0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6]
+# posts=['none', 'close3', 'close5', 'fill', 'close3_fill']
+# loading 3 seed checkpoints
+# allocated=1132.5 MB
+# baseline T30_none_no: BER=0.051175 IoU=0.814307
+# known B30 val: BER=0.051175 IoU=0.814307 (ber_sweep_selection.json)
+# gate deviation=2.627e-07
+# chosen=T25_none_tta val_BER=0.045896 val_IoU=0.812914
+# boundary=False success_criterion_met=True
+# selection_sha256=d349f344394974c977c0896d1523d22e3872fdcf7baddf1fd475049e20d47611
+# test NOT evaluated in this stage
+# log -> D:\RemoteSensing-Shadow-SAM-main\RemoteSensing-Shadow-SAM-main\logs\sprint20261018\ber_tta_val_20261018_172807.log
